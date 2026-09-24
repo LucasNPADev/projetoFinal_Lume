@@ -1,0 +1,7 @@
+{
+  "name": "lume-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite"
+  }
+}
