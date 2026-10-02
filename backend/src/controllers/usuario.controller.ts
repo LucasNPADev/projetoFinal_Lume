@@ -59,8 +59,8 @@ export async function atualizarUsuario(req: Request, res: Response) {
       cidade,
       bairro,
       estado,
-      latitude: latitude === undefined ? undefined : Number(latitude),
-      longitude: longitude === undefined ? undefined : Number(longitude),
+      latitude: latitude === undefined || latitude === "" ? undefined : Number(latitude),
+      longitude: longitude === undefined || longitude === "" ? undefined : Number(longitude),
     },
     select: {
       id: true,
