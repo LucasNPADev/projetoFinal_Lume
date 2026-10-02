@@ -157,3 +157,17 @@ A base atual prioriza Banco de Dados & Código Base: modelagem física, dicioná
 ## Limites de modelagem
 
 Os requisitos mencionam favoritos, notificações, vestibulares, simulador ENEM, denúncias/moderação, relatórios e auditoria. Como essas entidades não estão presentes no MER físico fornecido, elas não foram transformadas em tabelas fictícias nesta Sprint 2. A ampliação deve ocorrer por revisão formal do DER/dicionário e nova migration.
+
+## Instalação completa
+
+O repositório possui um workspace raiz para instalar backend, frontend e mobile de uma vez:
+
+    npm install
+    npm run prisma:generate
+    docker compose up -d postgres
+    npm run prisma:migrate
+    npm run prisma:seed
+
+Scripts auxiliares: scripts/setup.ps1 (Windows) e scripts/setup.sh (Linux/macOS).
+
+A instalação local inclui node_modules, Prisma Client e, opcionalmente, imagens/volumes Docker. Esses artefatos não são versionados no Git. Portanto, o tamanho da pasta local após a instalação será muito maior que o tamanho dos arquivos do repositório, mas varia conforme o ambiente.
