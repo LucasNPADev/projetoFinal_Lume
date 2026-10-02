@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "LUME",
+    "slug": "lume-gps-carreira",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "lume",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F7C948"
+      }
+    }
+  }
+}
