@@ -8,23 +8,29 @@ type Opcao = {
   peso: number;
 };
 
-const opcoesPorPergunta: Record<number, Opcao[]> = {
-  1: [
+const opcoesPadrao: Opcao[] = [
+  { texto: "Analisando dados e lógica", area: "Tecnologia", peso: 1 },
+  { texto: "Ajudando e cuidando de pessoas", area: "Saúde", peso: 1 },
+  { texto: "Comunicando e argumentando", area: "Humanas", peso: 1 },
+];
+
+const opcoesPorIndice: Opcao[][] = [
+  [
     { texto: "Analisando dados e lógica", area: "Tecnologia", peso: 1 },
     { texto: "Ajudando e cuidando de pessoas", area: "Saúde", peso: 1 },
     { texto: "Comunicando e argumentando", area: "Humanas", peso: 1 },
   ],
-  2: [
+  [
     { texto: "Programar e construir soluções", area: "Tecnologia", peso: 1 },
     { texto: "Cuidar, orientar e observar", area: "Saúde", peso: 1 },
     { texto: "Escrever, apresentar e negociar", area: "Humanas", peso: 1 },
   ],
-  3: [
+  [
     { texto: "Criar uma solução técnica", area: "Tecnologia", peso: 1 },
     { texto: "Atender necessidades de pessoas", area: "Saúde", peso: 1 },
     { texto: "Pesquisar, interpretar e defender ideias", area: "Humanas", peso: 1 },
   ],
-};
+];
 
 export const quizService = {
   listarPerguntas: async () => {
@@ -32,26 +38,27 @@ export const quizService = {
       orderBy: { id: "asc" },
     });
 
-    return perguntas.map((pergunta) => ({
+    return perguntas.map((pergunta, index) => ({
       id: pergunta.id,
       pergunta: pergunta.enunciado,
       areaAfinidade: pergunta.areaAfinidade,
-      opcoes: opcoesPorPergunta[pergunta.id] ?? [],
+      opcoes: opcoesPorIndice[index] ?? opcoesPadrao,
     }));
   },
 
   calcularResultado: async (respostas: Resposta[], usuarioId?: number) => {
     const perguntas = await prisma.perguntaVocacional.findMany({
       where: { id: { in: respostas.map((resposta) => resposta.perguntaId) } },
+      orderBy: { id: "asc" },
     });
 
     const pontos = new Map<string, number>();
 
     for (const resposta of respostas) {
-      const pergunta = perguntas.find((item) => item.id === resposta.perguntaId);
-      if (!pergunta) continue;
+      const perguntaIndex = perguntas.findIndex((item) => item.id === resposta.perguntaId);
+      if (perguntaIndex < 0) continue;
 
-      const opcao = opcoesPorPergunta[pergunta.id]?.[resposta.opcaoIndex];
+      const opcao = (opcoesPorIndice[perguntaIndex] ?? opcoesPadrao)[resposta.opcaoIndex];
       if (!opcao) continue;
 
       pontos.set(opcao.area, (pontos.get(opcao.area) ?? 0) + opcao.peso);
