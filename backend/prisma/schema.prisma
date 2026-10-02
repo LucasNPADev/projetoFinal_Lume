@@ -7,161 +7,158 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TipoInstituicao { PUBLICA PRIVADA }
-enum Modalidade { PRESENCIAL EAD HIBRIDO }
-
+/// Modelo físico alinhado ao MER LUME e ao dicionário de dados entregue.
+/// Os nomes físicos das tabelas/colunas são preservados com @@map/@map.
 model Usuario {
-  id Int @id @default(autoincrement())
-  nomeCompleto String
-  email String @unique
-  senhaHash String
-  telefone String?
-  dataNascimento DateTime?
-  cidade String?
-  estado String?
-  consentimentoLocalizacao Boolean @default(false)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  historicosQuiz HistoricoTesteVocacional[]
-  avaliacoes Avaliacao[]
-}
+  id                  Int       @id @default(autoincrement()) @map("id_user")
+  nomeCompleto        String    @db.VarChar(255) @map("nome")
+  email               String    @unique @db.VarChar(255)
+  senhaHash           String    @db.VarChar(255) @map("senha")
+  endereco            String?   @db.VarChar(255)
+  rua                 String?   @db.VarChar(255)
+  cidade              String?   @db.VarChar(120)
+  bairro              String?   @db.VarChar(120)
+  estado              String?   @db.Char(2)
+  latitude            Decimal?  @db.Decimal(9, 6)
+  longitude           Decimal?  @db.Decimal(9, 6)
 
-model Admin {
-  id Int @id @default(autoincrement())
-  nome String
-  email String @unique
-  senhaHash String
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  avaliacoes          Avaliacao[]
+  historicosQuiz      HistoricoTesteVocacional[]
+
+  @@map("usuario")
 }
 
 model Instituicao {
-  id Int @id @default(autoincrement())
-  nome String
-  tipo TipoInstituicao
-  cidade String
-  estado String
-  endereco String?
-  latitude Decimal? @db.Decimal(9, 6)
-  longitude Decimal? @db.Decimal(9, 6)
-  descricao String?
-  site String?
-  telefone String?
-  whatsapp String?
-  email String?
-  mensalidadeMin Decimal? @db.Decimal(10, 2)
-  mensalidadeMax Decimal? @db.Decimal(10, 2)
-  infraestrutura Json?
-  formasIngresso String[]
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  cursos CursoInstituicao[]
-  avaliacoes Avaliacao[]
+  id                  Int       @id @default(autoincrement()) @map("id_instituicao")
+  nome                String    @db.VarChar(255) @map("nome_instituicao")
+  cursos              String    @db.Text @map("cursos")
+  notaAvaliacoes      Decimal   @db.Decimal(3, 2) @map("nota_avaliacoes")
+  notaMec             Decimal   @db.Decimal(3, 2) @map("nota_mec")
+  cnpj                String?   @unique @db.VarChar(18)
+  contato             String?   @db.Text
+  telefone            String?   @db.VarChar(20) @map("Telefone")
+  celular             String?   @db.VarChar(20) @map("Celular")
+  email               String?   @db.VarChar(255)
+  endereco            String?   @db.VarChar(255) @map("endereco")
+  rua                 String?   @db.VarChar(255)
+  cidade              String    @db.VarChar(120) @map("Cidade")
+  latitude            Decimal?  @db.Decimal(9, 6)
+  longitude           Decimal?  @db.Decimal(9, 6)
+  bairro              String?   @db.VarChar(120) @map("bairro")
+  estado              String    @db.Char(2) @map("Estado")
+  status              Boolean   @default(true)
+
+  cursosOfertados     CursoInstituicao[]
+  avaliacoes          Avaliacao[]
+
   @@index([cidade, estado])
-  @@index([ativo])
+  @@map("instituicao")
+}
+
+model Admin {
+  id                  Int       @id @default(autoincrement()) @map("id_Admin")
+  nome                String    @db.VarChar(255)
+
+  @@map("admin")
 }
 
 model Curso {
-  id Int @id @default(autoincrement())
-  nome String
-  area String
-  descricao String?
-  duracaoAnos Decimal? @db.Decimal(3, 1)
-  modalidade Modalidade
-  turno String?
-  notaEnemMin Decimal? @db.Decimal(5, 2)
-  salarioMin Decimal? @db.Decimal(10, 2)
-  salarioMedio Decimal? @db.Decimal(10, 2)
-  salarioMax Decimal? @db.Decimal(10, 2)
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  instituicoes CursoInstituicao[]
-  trilhas TrilhaCargoCurso[]
+  id                  Int       @id @default(autoincrement()) @map("id_curso")
+  nome                String    @db.VarChar(255) @map("nome_curso")
+  area                String    @db.VarChar(120) @map("area_curso")
+  cargaHoraria        Int       @map("carga_horario")
+  modalidade          String    @db.VarChar(50)
+  mensalidade         Decimal?  @db.Decimal(10, 2)
+  salario             Decimal?  @db.Decimal(10, 2)
+  descricao           String?   @db.Text
+  grauAcademico       String?   @db.VarChar(120) @map("grau_academico")
+
+  instituicoes        CursoInstituicao[]
+  trilhas             TrilhaCargoCurso[]
+
   @@index([area])
-  @@index([ativo])
+  @@map("curso")
 }
 
 model Cargo {
-  id Int @id @default(autoincrement())
-  nome String
-  area String
-  descricao String
-  salarioPiso Decimal @db.Decimal(10, 2)
-  salarioMedio Decimal @db.Decimal(10, 2)
-  salarioTeto Decimal @db.Decimal(10, 2)
-  altaDemanda Boolean @default(false)
-  hardSkills String[]
-  softSkills String[]
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  trilhas TrilhaCargoCurso[]
-  @@index([area])
-  @@index([altaDemanda])
-}
+  id                  Int       @id @default(autoincrement()) @map("id_Cargo")
+  nome                String    @db.VarChar(255)
+  curso               String?   @db.VarChar(255)
+  areaAtuacao         String    @db.VarChar(120) @map("areaAtuacao")
+  faixaSalarial       String?   @db.VarChar(120) @map("faixaSalarial")
+  salario             Decimal?  @db.Decimal(10, 2)
+  descricao           String?   @db.Text @map("Descricao")
+  hardSkills          String?   @db.Text @map("hard_skills")
+  softSkills          String?   @db.Text @map("soft_skills")
 
-model CursoInstituicao {
-  id Int @id @default(autoincrement())
-  cursoId Int
-  instituicaoId Int
-  modalidade Modalidade
-  turno String?
-  mensalidade Decimal? @db.Decimal(10, 2)
-  notaCorte Decimal? @db.Decimal(5, 2)
-  bolsas Boolean @default(false)
-  ativo Boolean @default(true)
-  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  @@unique([cursoId, instituicaoId, modalidade, turno])
-  @@index([instituicaoId])
-  @@index([cursoId])
+  trilhas             TrilhaCargoCurso[]
+
+  @@index([areaAtuacao])
+  @@map("cargo")
 }
 
 model TrilhaCargoCurso {
-  id Int @id @default(autoincrement())
-  cargoId Int
-  cursoId Int
-  etapa String
-  ordem Int
-  descricao String?
-  cargo Cargo @relation(fields: [cargoId], references: [id], onDelete: Cascade)
-  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  @@unique([cargoId, ordem])
+  id                  Int       @id @default(autoincrement()) @map("id_trilha")
+  cargoId             Int       @map("cargo")
+  cursoId             Int       @map("curso")
+  ordemEtapa          Int       @map("order_etapa")
+
+  cargo               Cargo     @relation(fields: [cargoId], references: [id], onDelete: Cascade)
+  curso               Curso     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+
+  @@unique([cargoId, cursoId, ordemEtapa])
+  @@map("trilhaCargoCurso")
+}
+
+model CursoInstituicao {
+  id                  Int       @id @default(autoincrement()) @map("id_cursoInst")
+  cursoId             Int       @map("curso")
+  instituicaoId       Int       @map("instituicao")
+  status              Boolean   @default(true)
+  mensalidade         Decimal?  @db.Decimal(10, 2)
+  formasIngresso      String?   @db.Text @map("formas_ingresso")
+  notaCorte           Decimal?  @db.Decimal(5, 2) @map("nota_corte")
+
+  curso               Curso     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  instituicao         Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([cursoId, instituicaoId])
+  @@index([instituicaoId])
   @@index([cursoId])
+  @@map("Curso_inst")
 }
 
 model Avaliacao {
-  id Int @id @default(autoincrement())
-  usuarioId Int
-  instituicaoId Int
-  nota Int
-  comentario String?
-  ano Int?
-  criadoEm DateTime @default(now())
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  @@index([instituicaoId])
+  id                  Int       @id @default(autoincrement()) @map("id_avaliacao")
+  usuarioId           Int       @map("id_usuario")
+  instituicaoId       Int       @map("id_instituicao")
+  comentario          String?   @db.Text
+  dataPublicacao      DateTime  @default(now()) @map("data_publicacao")
+
+  usuario             Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao         Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
   @@index([usuarioId])
+  @@index([instituicaoId])
+  @@map("avaliacao")
 }
 
 model PerguntaVocacional {
-  id Int @id @default(autoincrement())
-  pergunta String
-  categoria String
-  opcoes Json
-  ordem Int @unique
-  ativo Boolean @default(true)
+  id                  Int       @id @default(autoincrement()) @map("id_pergunta")
+  enunciado           String    @db.Text
+  areaAfinidade       String    @db.VarChar(120) @map("area_afinidade")
+
+  @@map("perguntaVocacional")
 }
 
 model HistoricoTesteVocacional {
-  id Int @id @default(autoincrement())
-  usuarioId Int
-  resultadoArea String
-  respostas Json
-  respondidoEm DateTime @default(now())
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id                  Int       @id @default(autoincrement()) @map("id_historico")
+  usuarioId           Int       @map("id_usuario")
+  dataRealizada       DateTime  @default(now()) @map("data_realizada")
+  pontuacaoDetalhada  String    @db.Text @map("pontuacao_detalhada")
+
+  usuario             Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
   @@index([usuarioId])
-  @@index([resultadoArea])
+  @@map("historicoTesteVocacional")
 }
