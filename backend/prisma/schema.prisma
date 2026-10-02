@@ -34,7 +34,7 @@ model Instituicao {
   cursos              String    @db.Text @map("cursos")
   notaAvaliacoes      Decimal   @db.Decimal(3, 2) @map("nota_avaliacoes")
   notaMec             Decimal   @db.Decimal(3, 2) @map("nota_mec")
-  cnpj                String?   @unique @db.VarChar(18)
+  cnpj                String?   @db.VarChar(18)
   contato             String?   @db.Text
   telefone            String?   @db.VarChar(20) @map("Telefone")
   celular             String?   @db.VarChar(20) @map("Celular")
