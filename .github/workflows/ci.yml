@@ -1,5 +1,6 @@
 name: CI
 on: [push, pull_request]
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -11,6 +12,7 @@ jobs:
       - run: npm install
       - run: npx prisma generate
       - run: npm run build
+
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: frontend } }
@@ -20,3 +22,13 @@ jobs:
         with: { node-version: 20 }
       - run: npm install
       - run: npm run build
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install
+      - run: npm run typecheck
