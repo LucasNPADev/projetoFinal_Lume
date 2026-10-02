@@ -1,12 +1,2 @@
 import { Link } from "react-router-dom";
-export function HomePage() {
-  return <section className="page">
-    <span className="eyebrow">GPS DE CARREIRA</span>
-    <h1>Descubra caminhos de formação que combinam com você.</h1>
-    <p>Explore carreiras, cursos e instituições e use o quiz vocacional para organizar suas possibilidades.</p>
-    <div className="actions">
-      <Link className="button" to="/quiz">Começar Quiz</Link>
-      <Link className="button secondary" to="/carreiras">Explorar carreiras</Link>
-    </div>
-  </section>;
-}
+export function HomePage(){return <section className="page home"><span className="eyebrow">LUME · GPS DE CARREIRA</span><h1>Seu caminho profissional começa com informação.</h1><p>Explore profissões, entenda caminhos de formação, encontre cursos e conheça instituições. O LUME organiza possibilidades para você tomar suas próprias decisões.</p><div className="actions"><Link className="button" to="/quiz">Fazer o quiz vocacional</Link><Link className="button secondary" to="/carreiras">Explorar carreiras</Link></div><div className="grid feature-grid"><Link className="card" to="/carreiras"><span>01</span><h2>Carreiras</h2><p>Salários, demanda, habilidades e visão geral de profissões.</p></Link><Link className="card" to="/cursos"><span>02</span><h2>Formação</h2><p>Conheça cursos e caminhos possíveis para cada carreira.</p></Link><Link className="card" to="/instituicoes"><span>03</span><h2>Instituições</h2><p>Compare localização, cursos, ingresso, infraestrutura e avaliações.</p></Link><Link className="card" to="/quiz"><span>04</span><h2>Quiz vocacional</h2><p>Priorize áreas de afinidade sem transformar o resultado em uma decisão definitiva.</p></Link></div></section>}

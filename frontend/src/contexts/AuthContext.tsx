@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { api } from "../services/api";
 
 type Usuario = { id: number; nomeCompleto: string; email: string; telefone?: string | null; cidade?: string | null; estado?: string | null };
@@ -6,7 +6,7 @@ type AuthContextValue = { usuario: Usuario | null; login: (email: string, senha:
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(() => {
     const raw = localStorage.getItem("lume_usuario");
     return raw ? JSON.parse(raw) : null;

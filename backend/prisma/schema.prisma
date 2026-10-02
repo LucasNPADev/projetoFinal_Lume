@@ -52,6 +52,8 @@ model Instituicao {
   email String?
   mensalidadeMin Decimal? @db.Decimal(10, 2)
   mensalidadeMax Decimal? @db.Decimal(10, 2)
+  infraestrutura Json?
+  formasIngresso String[]
   ativo Boolean @default(true)
   criadoEm DateTime @default(now())
   atualizadoEm DateTime @updatedAt

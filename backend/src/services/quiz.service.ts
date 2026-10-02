@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 
 type Opcao = { texto: string; area: string; peso?: number };
@@ -23,7 +24,11 @@ export const quizService = {
     const resultadoArea = ranking[0]?.[0] ?? "Exploração geral";
     const recomendados = await prisma.curso.findMany({ where: { ativo: true, area: resultadoArea }, orderBy: { nome: "asc" }, take: 6 });
     let historico = null;
-    if (usuarioId) historico = await prisma.historicoTesteVocacional.create({ data: { usuarioId, resultadoArea, respostas: respostas as object } });
+    if (usuarioId) {
+      historico = await prisma.historicoTesteVocacional.create({
+        data: { usuarioId, resultadoArea, respostas: respostas as unknown as Prisma.InputJsonValue },
+      });
+    }
     return { resultadoArea, ranking: ranking.map(([area, pontos]) => ({ area, pontos })), cursosRecomendados: recomendados, historico };
   },
   buscarUltimoResultado: (usuarioId: number) => prisma.historicoTesteVocacional.findFirst({ where: { usuarioId }, orderBy: { respondidoEm: "desc" } }),

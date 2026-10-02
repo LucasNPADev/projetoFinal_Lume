@@ -8,8 +8,7 @@ export async function listarPerguntas(_req: Request, res: Response) {
 export async function registrarResultado(req: Request, res: Response) {
   const respostas = req.body?.respostas;
   if (!Array.isArray(respostas) || respostas.length === 0) return res.status(400).json({ message: "Envie as respostas do quiz." });
-  const usuarioId = req.body?.usuarioId ? Number(req.body.usuarioId) : undefined;
-  const resultado = await quizService.calcularResultado(respostas, usuarioId);
+  const resultado = await quizService.calcularResultado(respostas, res.locals.usuarioId);
   return res.status(201).json(resultado);
 }
 

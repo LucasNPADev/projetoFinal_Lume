@@ -5,24 +5,23 @@ CREATE TABLE "Usuario" (
   "id" SERIAL NOT NULL, "nomeCompleto" TEXT NOT NULL, "email" TEXT NOT NULL, "senhaHash" TEXT NOT NULL,
   "telefone" TEXT, "dataNascimento" TIMESTAMP(3), "cidade" TEXT, "estado" TEXT,
   "consentimentoLocalizacao" BOOLEAN NOT NULL DEFAULT false, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
+  "atualizadoEm" TIMESTAMP(3) NOT NULL, CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 
 CREATE TABLE "Admin" (
   "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "email" TEXT NOT NULL, "senhaHash" TEXT NOT NULL,
   "ativo" BOOLEAN NOT NULL DEFAULT true, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
+  "atualizadoEm" TIMESTAMP(3) NOT NULL, CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 CREATE TABLE "Instituicao" (
-  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "tipo" "TipoInstituicao" NOT NULL, "cidade" TEXT NOT NULL,
-  "estado" TEXT NOT NULL, "endereco" TEXT, "latitude" DECIMAL(9,6), "longitude" DECIMAL(9,6), "descricao" TEXT,
-  "site" TEXT, "telefone" TEXT, "whatsapp" TEXT, "email" TEXT, "mensalidadeMin" DECIMAL(10,2), "mensalidadeMax" DECIMAL(10,2),
-  "ativo" BOOLEAN NOT NULL DEFAULT true, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "atualizadoEm" TIMESTAMP(3) NOT NULL,
+  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "tipo" "TipoInstituicao" NOT NULL, "cidade" TEXT NOT NULL, "estado" TEXT NOT NULL,
+  "endereco" TEXT, "latitude" DECIMAL(9,6), "longitude" DECIMAL(9,6), "descricao" TEXT, "site" TEXT, "telefone" TEXT, "whatsapp" TEXT,
+  "email" TEXT, "mensalidadeMin" DECIMAL(10,2), "mensalidadeMax" DECIMAL(10,2), "infraestrutura" JSONB,
+  "formasIngresso" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[], "ativo" BOOLEAN NOT NULL DEFAULT true,
+  "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "atualizadoEm" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "Instituicao_pkey" PRIMARY KEY ("id")
 );
 CREATE INDEX "Instituicao_cidade_estado_idx" ON "Instituicao"("cidade","estado");
@@ -58,23 +57,22 @@ CREATE INDEX "CursoInstituicao_instituicaoId_idx" ON "CursoInstituicao"("institu
 CREATE INDEX "CursoInstituicao_cursoId_idx" ON "CursoInstituicao"("cursoId");
 
 CREATE TABLE "TrilhaCargoCurso" (
-  "id" SERIAL NOT NULL, "cargoId" INTEGER NOT NULL, "cursoId" INTEGER NOT NULL, "etapa" TEXT NOT NULL,
-  "ordem" INTEGER NOT NULL, "descricao" TEXT, CONSTRAINT "TrilhaCargoCurso_pkey" PRIMARY KEY ("id")
+  "id" SERIAL NOT NULL, "cargoId" INTEGER NOT NULL, "cursoId" INTEGER NOT NULL, "etapa" TEXT NOT NULL, "ordem" INTEGER NOT NULL,
+  "descricao" TEXT, CONSTRAINT "TrilhaCargoCurso_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX "TrilhaCargoCurso_cargoId_ordem_key" ON "TrilhaCargoCurso"("cargoId","ordem");
 CREATE INDEX "TrilhaCargoCurso_cursoId_idx" ON "TrilhaCargoCurso"("cursoId");
 
 CREATE TABLE "Avaliacao" (
-  "id" SERIAL NOT NULL, "usuarioId" INTEGER NOT NULL, "instituicaoId" INTEGER NOT NULL, "nota" INTEGER NOT NULL,
-  "comentario" TEXT, "ano" INTEGER, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "Avaliacao_pkey" PRIMARY KEY ("id")
+  "id" SERIAL NOT NULL, "usuarioId" INTEGER NOT NULL, "instituicaoId" INTEGER NOT NULL, "nota" INTEGER NOT NULL, "comentario" TEXT, "ano" INTEGER?,
+  "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "Avaliacao_pkey" PRIMARY KEY ("id")
 );
 CREATE INDEX "Avaliacao_instituicaoId_idx" ON "Avaliacao"("instituicaoId");
 CREATE INDEX "Avaliacao_usuarioId_idx" ON "Avaliacao"("usuarioId");
 
 CREATE TABLE "PerguntaVocacional" (
-  "id" SERIAL NOT NULL, "pergunta" TEXT NOT NULL, "categoria" TEXT NOT NULL, "opcoes" JSONB NOT NULL,
-  "ordem" INTEGER NOT NULL, "ativo" BOOLEAN NOT NULL DEFAULT true, CONSTRAINT "PerguntaVocacional_pkey" PRIMARY KEY ("id")
+  "id" SERIAL NOT NULL, "pergunta" TEXT NOT NULL, "categoria" TEXT NOT NULL, "opcoes" JSONB NOT NULL, "ordem" INTEGER NOT NULL, "ativo" BOOLEAN NOT NULL DEFAULT true,
+  CONSTRAINT "PerguntaVocacional_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX "PerguntaVocacional_ordem_key" ON "PerguntaVocacional"("ordem");
 

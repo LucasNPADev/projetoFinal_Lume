@@ -7,8 +7,11 @@ export function AuthPage({ modo }: { modo: "login" | "cadastro" }) {
   const [form, setForm] = useState({ nomeCompleto: "", email: "", senha: "" }); const [erro, setErro] = useState("");
   async function submit(event: FormEvent) {
     event.preventDefault(); setErro("");
-    try { if (modo === "login") await login(form.email, form.senha); else await cadastro(form); navigate(location.state?.from ?? "/perfil"); }
-    catch (e: any) { setErro(e?.response?.data?.message ?? "Não foi possível concluir."); }
+    try {
+      if (modo === "login") await login(form.email, form.senha); else await cadastro(form);
+      const from = typeof location.state === "object" && location.state && "from" in location.state ? (location.state as {from?: string}).from : undefined;
+      navigate(from ?? "/perfil");
+    } catch (e: any) { setErro(e?.response?.data?.message ?? "Não foi possível concluir."); }
   }
   return <section className="page narrow"><span className="eyebrow">LUME</span><h1>{modo === "login" ? "Entrar" : "Criar conta"}</h1>
     <p>Seu perfil reúne preferências, histórico do quiz e dados usados para personalizar a exploração de carreiras.</p>
