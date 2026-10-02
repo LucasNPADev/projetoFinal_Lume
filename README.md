@@ -2,29 +2,40 @@
 
 Projeto de TCC para apoiar estudantes, vestibulandos e pessoas em transição de carreira na exploração de profissões, caminhos de formação, cursos e instituições.
 
-## Stack
+## Stack documentada
 
-- Frontend: React + TypeScript + Vite
+- Frontend Web: React + TypeScript + Vite
+- Mobile: React Native + Expo + TypeScript
 - Backend: Node.js + Express + TypeScript
 - Banco: PostgreSQL
 - ORM: Prisma
 - API: REST/JSON
+- Administração/inspeção de banco: Beekeeper Studio
 - Versionamento: Git/GitHub
+
+## Fonte de verdade do domínio
+
+O modelo físico implementado deve ser lido junto com:
+
+- docs/banco/01-modelagem-fisica.md
+- docs/banco/02-dicionario-fisico.md
+- docs/CONTRATO-DE-DADOS.md
+- docs/arquitetura/01-arquitetura.md
+- docs/software/01-uml-classes.md
+
+O Prisma e a migration não inventam entidades fora do MER fornecido.
 
 ## Domínio
 
-O LUME organiza o fluxo em quatro núcleos principais:
+1. Carreiras: profissão, área, descrição, faixa salarial, salário de referência, hard skills e soft skills.
+2. Formação: cursos e trilhas orientativas relacionadas a cada carreira.
+3. Instituições: localização, cursos ofertados, mensalidades, ingresso, notas e avaliações.
+4. Quiz vocacional: perguntas, priorização de áreas de afinidade e cursos relacionados. O resultado não elimina outras possibilidades.
 
-1. **Carreiras:** profissão, área, descrição, faixa salarial, demanda, hard skills e soft skills.
-2. **Formação:** cursos e trilhas orientativas relacionadas a cada carreira.
-3. **Instituições:** localização, modalidade, cursos, mensalidades, ingresso e avaliações.
-4. **Quiz vocacional:** perguntas objetivas, priorização de áreas de afinidade e cursos relacionados. O resultado não elimina possibilidades.
-
-O foco inicial do projeto é a região do Grande ABC, com São Bernardo do Campo como referência.
+O foco inicial do projeto é o Grande ABC, com São Bernardo do Campo como referência.
 
 ## Estrutura
 
-```
 backend/
   prisma/
     migrations/
@@ -45,57 +56,74 @@ frontend/
     routes/
     services/
     styles/
-```
+
+mobile/
+  src/
+  App.tsx
+  app.json
+  package.json
+
+docs/
+  banco/
+  arquitetura/
+  software/
+  governanca/
+  poc/
 
 ## API
 
 ### Infraestrutura
-- GET `/api/health`
+- GET /api/health
 
 ### Autenticação
-- POST `/api/auth/register`
-- POST `/api/auth/login`
+- POST /api/auth/register
+- POST /api/auth/login
 
 ### Usuário
-- GET `/api/usuarios/:id` — autenticado
-- PUT `/api/usuarios/:id` — autenticado
+- GET /api/usuarios/:id — autenticado
+- PUT /api/usuarios/:id — autenticado
 
 ### Carreiras
-- GET `/api/cargos`
-- GET `/api/cargos/:id`
+- GET /api/cargos
+- GET /api/cargos/:id
 
-Filtros disponíveis: `area`, `busca` e `altaDemanda`.
+Filtros: area e busca.
 
 ### Cursos
-- GET `/api/cursos`
-- GET `/api/cursos/:id`
+- GET /api/cursos
+- GET /api/cursos/:id
 
-Filtros disponíveis: `area` e `modalidade`.
+Filtros: area e modalidade.
 
 ### Instituições
-- GET `/api/instituicoes`
-- GET `/api/instituicoes/:id`
-- GET `/api/instituicoes/:id/avaliacoes`
-- POST `/api/instituicoes/:id/avaliacoes` — autenticado
+- GET /api/instituicoes
+- GET /api/instituicoes/:id
+- GET /api/instituicoes/:id/avaliacoes
+- POST /api/instituicoes/:id/avaliacoes — autenticado
 
-Filtros disponíveis: `cidade` e `tipo`.
+Filtro: cidade e status.
 
 ### Quiz
-- GET `/api/quiz/perguntas`
-- POST `/api/quiz/resultado`
-- GET `/api/quiz/resultado` — autenticado
+- GET /api/quiz/perguntas
+- POST /api/quiz/resultado
+- GET /api/quiz/resultado — autenticado
 
-O POST recebe respostas no formato `{ perguntaId, opcaoIndex }`. O backend calcula o ranking de áreas e retorna cursos relacionados.
+O POST recebe respostas no formato { perguntaId, opcaoIndex }.
 
 ## Banco de dados
 
-O Prisma mantém as entidades centrais do projeto: Usuário, Admin, Instituição, Curso, Cargo, relação Curso-Instituição, trilha Cargo-Curso, Avaliação, Pergunta Vocacional e Histórico do Teste Vocacional.
+As dez entidades físicas da Sprint 2 são:
+
+usuario, instituicao, admin, curso, cargo, trilhaCargoCurso, Curso_inst, avaliacao, perguntaVocacional e historicoTesteVocacional.
+
+A estrutura executável está em backend/prisma/schema.prisma e backend/prisma/migrations/20261002000000_init_lume/migration.sql.
+
+O seed reproduz uma base mínima de POC.
 
 ## Execução
 
 ### Backend
 
-```bash
 cd backend
 npm install
 cp .env.example .env
@@ -103,19 +131,29 @@ npx prisma generate
 npx prisma migrate dev
 npm run prisma:seed
 npm run dev
-```
 
-API: `http://localhost:3333/api`
+API: http://localhost:3333/api
 
-### Frontend
+### Frontend Web
 
-```bash
 cd frontend
 npm install
 cp .env.example .env
 npm run dev
-```
+
+### Mobile
+
+cd mobile
+npm install
+cp .env.example .env
+npm start
+
+Para Android Emulator, EXPO_PUBLIC_API_URL usa 10.0.2.2 para acessar o backend local.
 
 ## Sprint 2
 
-A base atual prioriza Banco de Dados & Código Base: Prisma, PostgreSQL, seed, conexão, autenticação, organização em controllers/services/routes, rotas centralizadas, endpoints REST e consumo inicial pelo frontend.
+A base atual prioriza Banco de Dados & Código Base: modelagem física, dicionário, migration/DDL, seed, conexão, autenticação, organização em controllers/services/routes, primeiras operações REST, frontend web e aplicativo móvel.
+
+## Limites de modelagem
+
+Os requisitos mencionam favoritos, notificações, vestibulares, simulador ENEM, denúncias/moderação, relatórios e auditoria. Como essas entidades não estão presentes no MER físico fornecido, elas não foram transformadas em tabelas fictícias nesta Sprint 2. A ampliação deve ocorrer por revisão formal do DER/dicionário e nova migration.
