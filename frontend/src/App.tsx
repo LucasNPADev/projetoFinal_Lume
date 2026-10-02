@@ -1,26 +1,2 @@
-import { Link, Route, Routes } from "react-router-dom";
-import { CarreirasPage } from "./pages/CarreirasPage";
-import { HomePage } from "./pages/HomePage";
-import { QuizPage } from "./pages/QuizPage";
-
-export default function App() {
-  return (
-    <>
-      <header>
-        <strong>LUME</strong>
-        <nav>
-          <Link to="/">Início</Link>
-          <Link to="/carreiras">Carreiras</Link>
-          <Link to="/quiz">Quiz</Link>
-        </nav>
-      </header>
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/carreiras" element={<CarreirasPage />} />
-          <Route path="/quiz" element={<QuizPage />} />
-        </Routes>
-      </main>
-    </>
-  );
-}
+import { Link } from "react-router-dom"; import { AppRoutes } from "./routes"; import { useAuth } from "./contexts/AuthContext";
+export default function App(){const{usuario}=useAuth();return <><header><Link className="brand" to="/"><strong>LUME</strong><span>GPS de Carreira</span></Link><nav><Link to="/carreiras">Carreiras</Link><Link to="/cursos">Cursos</Link><Link to="/instituicoes">Instituições</Link><Link to="/quiz">Quiz</Link>{usuario?<Link to="/perfil">Perfil</Link>:<Link to="/login">Entrar</Link>}</nav></header><main><AppRoutes/></main></>}

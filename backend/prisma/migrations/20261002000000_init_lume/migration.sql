@@ -1,94 +1,145 @@
-CREATE TYPE "TipoInstituicao" AS ENUM ('PUBLICA', 'PRIVADA');
-CREATE TYPE "Modalidade" AS ENUM ('PRESENCIAL', 'EAD', 'HIBRIDO');
+-- Migration inicial do LUME.
+-- Fonte: MER + dicionario fisico do projeto.
+-- Tipos SQL sao a materializacao tecnica dos tipos conceituais
+-- informados no documento (Numero, Texto, Verdadeiro/Falso e Data).
 
-CREATE TABLE "Usuario" (
-  "id" SERIAL NOT NULL, "nomeCompleto" TEXT NOT NULL, "email" TEXT NOT NULL, "senhaHash" TEXT NOT NULL,
-  "telefone" TEXT, "dataNascimento" TIMESTAMP(3), "cidade" TEXT, "estado" TEXT,
-  "consentimentoLocalizacao" BOOLEAN NOT NULL DEFAULT false, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
+CREATE TABLE "usuario" (
+  "id_user" SERIAL PRIMARY KEY,
+  "nome" VARCHAR(255) NOT NULL,
+  "email" VARCHAR(255) NOT NULL UNIQUE,
+  "senha" VARCHAR(255) NOT NULL,
+  "endereco" VARCHAR(255),
+  "rua" VARCHAR(255),
+  "cidade" VARCHAR(120),
+  "bairro" VARCHAR(120),
+  "estado" CHAR(2),
+  "latitude" DECIMAL(9,6),
+  "longitude" DECIMAL(9,6)
 );
-CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 
-CREATE TABLE "Admin" (
-  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "email" TEXT NOT NULL, "senhaHash" TEXT NOT NULL,
-  "ativo" BOOLEAN NOT NULL DEFAULT true, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
+CREATE TABLE "instituicao" (
+  "id_instituicao" SERIAL PRIMARY KEY,
+  "nome_instituicao" VARCHAR(255) NOT NULL,
+  "cursos" TEXT NOT NULL,
+  "nota_avaliacoes" DECIMAL(3,2) NOT NULL,
+  "nota_mec" DECIMAL(3,2) NOT NULL,
+  "cnpj" VARCHAR(18),
+  "contato" TEXT,
+  "Telefone" VARCHAR(20),
+  "Celular" VARCHAR(20),
+  "email" VARCHAR(255),
+  "endereco" VARCHAR(255),
+  "rua" VARCHAR(255),
+  "Cidade" VARCHAR(120) NOT NULL,
+  "latitude" DECIMAL(9,6),
+  "longitude" DECIMAL(9,6),
+  "bairro" VARCHAR(120),
+  "Estado" CHAR(2) NOT NULL,
+  "status" BOOLEAN NOT NULL DEFAULT TRUE
 );
-CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
-CREATE TABLE "Instituicao" (
-  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "tipo" "TipoInstituicao" NOT NULL, "cidade" TEXT NOT NULL,
-  "estado" TEXT NOT NULL, "endereco" TEXT, "latitude" DECIMAL(9,6), "longitude" DECIMAL(9,6), "descricao" TEXT,
-  "site" TEXT, "telefone" TEXT, "whatsapp" TEXT, "email" TEXT, "mensalidadeMin" DECIMAL(10,2), "mensalidadeMax" DECIMAL(10,2),
-  "ativo" BOOLEAN NOT NULL DEFAULT true, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Instituicao_pkey" PRIMARY KEY ("id")
+CREATE INDEX "instituicao_cidade_estado_idx" ON "instituicao" ("Cidade", "Estado");
+
+CREATE TABLE "admin" (
+  "id_Admin" SERIAL PRIMARY KEY,
+  "nome" VARCHAR(255) NOT NULL
 );
-CREATE INDEX "Instituicao_cidade_estado_idx" ON "Instituicao"("cidade","estado");
-CREATE INDEX "Instituicao_ativo_idx" ON "Instituicao"("ativo");
 
-CREATE TABLE "Curso" (
-  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "area" TEXT NOT NULL, "descricao" TEXT, "duracaoAnos" DECIMAL(3,1),
-  "modalidade" "Modalidade" NOT NULL, "turno" TEXT, "notaEnemMin" DECIMAL(5,2), "salarioMin" DECIMAL(10,2),
-  "salarioMedio" DECIMAL(10,2), "salarioMax" DECIMAL(10,2), "ativo" BOOLEAN NOT NULL DEFAULT true,
-  "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Curso_pkey" PRIMARY KEY ("id")
+CREATE TABLE "curso" (
+  "id_curso" SERIAL PRIMARY KEY,
+  "nome_curso" VARCHAR(255) NOT NULL,
+  "area_curso" VARCHAR(120) NOT NULL,
+  "carga_horario" INTEGER NOT NULL,
+  "modalidade" VARCHAR(50) NOT NULL,
+  "mensalidade" DECIMAL(10,2),
+  "salario" DECIMAL(10,2),
+  "descricao" TEXT,
+  "grau_academico" VARCHAR(120)
 );
-CREATE INDEX "Curso_area_idx" ON "Curso"("area");
-CREATE INDEX "Curso_ativo_idx" ON "Curso"("ativo");
 
-CREATE TABLE "Cargo" (
-  "id" SERIAL NOT NULL, "nome" TEXT NOT NULL, "area" TEXT NOT NULL, "descricao" TEXT NOT NULL,
-  "salarioPiso" DECIMAL(10,2) NOT NULL, "salarioMedio" DECIMAL(10,2) NOT NULL, "salarioTeto" DECIMAL(10,2) NOT NULL,
-  "altaDemanda" BOOLEAN NOT NULL DEFAULT false, "hardSkills" TEXT[] NOT NULL, "softSkills" TEXT[] NOT NULL,
-  "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "atualizadoEm" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "Cargo_pkey" PRIMARY KEY ("id")
+CREATE INDEX "curso_area_curso_idx" ON "curso" ("area_curso");
+
+CREATE TABLE "cargo" (
+  "id_Cargo" SERIAL PRIMARY KEY,
+  "nome" VARCHAR(255) NOT NULL,
+  "curso" VARCHAR(255),
+  "areaAtuacao" VARCHAR(120) NOT NULL,
+  "faixaSalarial" VARCHAR(120),
+  "salario" DECIMAL(10,2),
+  "Descricao" TEXT,
+  "hard_skills" TEXT,
+  "soft_skills" TEXT
 );
-CREATE INDEX "Cargo_area_idx" ON "Cargo"("area");
-CREATE INDEX "Cargo_altaDemanda_idx" ON "Cargo"("altaDemanda");
 
-CREATE TABLE "CursoInstituicao" (
-  "id" SERIAL NOT NULL, "cursoId" INTEGER NOT NULL, "instituicaoId" INTEGER NOT NULL, "modalidade" "Modalidade" NOT NULL,
-  "turno" TEXT, "mensalidade" DECIMAL(10,2), "notaCorte" DECIMAL(5,2), "bolsas" BOOLEAN NOT NULL DEFAULT false, "ativo" BOOLEAN NOT NULL DEFAULT true,
-  CONSTRAINT "CursoInstituicao_pkey" PRIMARY KEY ("id")
+CREATE INDEX "cargo_areaAtuacao_idx" ON "cargo" ("areaAtuacao");
+
+CREATE TABLE "trilhaCargoCurso" (
+  "id_trilha" SERIAL PRIMARY KEY,
+  "cargo" INTEGER NOT NULL,
+  "curso" INTEGER NOT NULL,
+  "order_etapa" INTEGER NOT NULL,
+  CONSTRAINT "trilhaCargoCurso_cargo_fkey"
+    FOREIGN KEY ("cargo") REFERENCES "cargo" ("id_Cargo")
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "trilhaCargoCurso_curso_fkey"
+    FOREIGN KEY ("curso") REFERENCES "curso" ("id_curso")
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "trilhaCargoCurso_pair_order_key"
+    UNIQUE ("cargo", "curso", "order_etapa")
 );
-CREATE UNIQUE INDEX "CursoInstituicao_cursoId_instituicaoId_modalidade_turno_key" ON "CursoInstituicao"("cursoId","instituicaoId","modalidade","turno");
-CREATE INDEX "CursoInstituicao_instituicaoId_idx" ON "CursoInstituicao"("instituicaoId");
-CREATE INDEX "CursoInstituicao_cursoId_idx" ON "CursoInstituicao"("cursoId");
 
-CREATE TABLE "TrilhaCargoCurso" (
-  "id" SERIAL NOT NULL, "cargoId" INTEGER NOT NULL, "cursoId" INTEGER NOT NULL, "etapa" TEXT NOT NULL,
-  "ordem" INTEGER NOT NULL, "descricao" TEXT, CONSTRAINT "TrilhaCargoCurso_pkey" PRIMARY KEY ("id")
+CREATE TABLE "Curso_inst" (
+  "id_cursoInst" SERIAL PRIMARY KEY,
+  "curso" INTEGER NOT NULL,
+  "instituicao" INTEGER NOT NULL,
+  "status" BOOLEAN NOT NULL DEFAULT TRUE,
+  "mensalidade" DECIMAL(10,2),
+  "formas_ingresso" TEXT,
+  "nota_corte" DECIMAL(5,2),
+  CONSTRAINT "Curso_inst_curso_fkey"
+    FOREIGN KEY ("curso") REFERENCES "curso" ("id_curso")
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "Curso_inst_instituicao_fkey"
+    FOREIGN KEY ("instituicao") REFERENCES "instituicao" ("id_instituicao")
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "Curso_inst_pair_key"
+    UNIQUE ("curso", "instituicao")
 );
-CREATE UNIQUE INDEX "TrilhaCargoCurso_cargoId_ordem_key" ON "TrilhaCargoCurso"("cargoId","ordem");
-CREATE INDEX "TrilhaCargoCurso_cursoId_idx" ON "TrilhaCargoCurso"("cursoId");
 
-CREATE TABLE "Avaliacao" (
-  "id" SERIAL NOT NULL, "usuarioId" INTEGER NOT NULL, "instituicaoId" INTEGER NOT NULL, "nota" INTEGER NOT NULL,
-  "comentario" TEXT, "ano" INTEGER, "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "Avaliacao_pkey" PRIMARY KEY ("id")
+CREATE INDEX "Curso_inst_curso_idx" ON "Curso_inst" ("curso");
+CREATE INDEX "Curso_inst_instituicao_idx" ON "Curso_inst" ("instituicao");
+
+CREATE TABLE "avaliacao" (
+  "id_avaliacao" SERIAL PRIMARY KEY,
+  "id_usuario" INTEGER NOT NULL,
+  "id_instituicao" INTEGER NOT NULL,
+  "comentario" TEXT,
+  "data_publicacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "avaliacao_usuario_fkey"
+    FOREIGN KEY ("id_usuario") REFERENCES "usuario" ("id_user")
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "avaliacao_instituicao_fkey"
+    FOREIGN KEY ("id_instituicao") REFERENCES "instituicao" ("id_instituicao")
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX "Avaliacao_instituicaoId_idx" ON "Avaliacao"("instituicaoId");
-CREATE INDEX "Avaliacao_usuarioId_idx" ON "Avaliacao"("usuarioId");
 
-CREATE TABLE "PerguntaVocacional" (
-  "id" SERIAL NOT NULL, "pergunta" TEXT NOT NULL, "categoria" TEXT NOT NULL, "opcoes" JSONB NOT NULL,
-  "ordem" INTEGER NOT NULL, "ativo" BOOLEAN NOT NULL DEFAULT true, CONSTRAINT "PerguntaVocacional_pkey" PRIMARY KEY ("id")
+CREATE INDEX "avaliacao_usuario_idx" ON "avaliacao" ("id_usuario");
+CREATE INDEX "avaliacao_instituicao_idx" ON "avaliacao" ("id_instituicao");
+
+CREATE TABLE "perguntaVocacional" (
+  "id_pergunta" SERIAL PRIMARY KEY,
+  "enunciado" TEXT NOT NULL,
+  "area_afinidade" VARCHAR(120) NOT NULL
 );
-CREATE UNIQUE INDEX "PerguntaVocacional_ordem_key" ON "PerguntaVocacional"("ordem");
 
-CREATE TABLE "HistoricoTesteVocacional" (
-  "id" SERIAL NOT NULL, "usuarioId" INTEGER NOT NULL, "resultadoArea" TEXT NOT NULL, "respostas" JSONB NOT NULL,
-  "respondidoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "HistoricoTesteVocacional_pkey" PRIMARY KEY ("id")
+CREATE TABLE "historicoTesteVocacional" (
+  "id_historico" SERIAL PRIMARY KEY,
+  "id_usuario" INTEGER NOT NULL,
+  "data_realizada" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "pontuacao_detalhada" TEXT NOT NULL,
+  CONSTRAINT "historico_usuario_fkey"
+    FOREIGN KEY ("id_usuario") REFERENCES "usuario" ("id_user")
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX "HistoricoTesteVocacional_usuarioId_idx" ON "HistoricoTesteVocacional"("usuarioId");
-CREATE INDEX "HistoricoTesteVocacional_resultadoArea_idx" ON "HistoricoTesteVocacional"("resultadoArea");
 
-ALTER TABLE "CursoInstituicao" ADD CONSTRAINT "CursoInstituicao_cursoId_fkey" FOREIGN KEY ("cursoId") REFERENCES "Curso"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "CursoInstituicao" ADD CONSTRAINT "CursoInstituicao_instituicaoId_fkey" FOREIGN KEY ("instituicaoId") REFERENCES "Instituicao"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "TrilhaCargoCurso" ADD CONSTRAINT "TrilhaCargoCurso_cargoId_fkey" FOREIGN KEY ("cargoId") REFERENCES "Cargo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "TrilhaCargoCurso" ADD CONSTRAINT "TrilhaCargoCurso_cursoId_fkey" FOREIGN KEY ("cursoId") REFERENCES "Curso"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "Avaliacao" ADD CONSTRAINT "Avaliacao_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "Avaliacao" ADD CONSTRAINT "Avaliacao_instituicaoId_fkey" FOREIGN KEY ("instituicaoId") REFERENCES "Instituicao"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "HistoricoTesteVocacional" ADD CONSTRAINT "HistoricoTesteVocacional_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX "historico_usuario_idx" ON "historicoTesteVocacional" ("id_usuario");

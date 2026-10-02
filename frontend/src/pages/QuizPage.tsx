@@ -1,11 +1,3 @@
-import { useEffect, useState } from "react";
-import { api } from "../services/api";
-type Pergunta = { id:number; pergunta:string; opcoes:string[] };
-export function QuizPage() {
-  const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
-  useEffect(() => { api.get<Pergunta[]>("/quiz/perguntas").then(r => setPerguntas(r.data)).catch(() => setPerguntas([])); }, []);
-  return <section className="page"><span className="eyebrow">QUIZ VOCACIONAL</span><h1>Descubra possibilidades de carreira</h1>
-    <p>As respostas ajudam a priorizar áreas de afinidade; elas não eliminam possibilidades.</p>
-    {perguntas.map(p => <article className="card" key={p.id}><strong>{p.pergunta}</strong><div className="options">{p.opcoes.map(opcao => <button key={opcao} type="button">{opcao}</button>)}</div></article>)}
-  </section>;
-}
+import { useEffect,useState } from "react"; import { useNavigate } from "react-router-dom"; import { api } from "../services/api";
+type Pergunta={id:number;pergunta:string;categoria:string;opcoes:{texto:string;area:string;peso?:number}[]};
+export function QuizPage(){const[perguntas,setPerguntas]=useState<Pergunta[]>([]);const[respostas,setRespostas]=useState<Record<number,number>>({});const[erro,setErro]=useState("");const navigate=useNavigate();useEffect(()=>{api.get<Pergunta[]>("/quiz/perguntas").then(r=>setPerguntas(r.data)).catch(()=>setErro("Não foi possível carregar o quiz."))},[]);async function finalizar(){if(Object.keys(respostas).length!==perguntas.length){setErro("Responda todas as perguntas antes de finalizar.");return}try{const data=await api.post("/quiz/resultado",{respostas:Object.entries(respostas).map(([perguntaId,opcaoIndex])=>({perguntaId:Number(perguntaId),opcaoIndex}))});navigate("/quiz/resultado",{state:{resultado:data.data}})}catch{setErro("Não foi possível calcular o resultado.")}}return <section className="page"><span className="eyebrow">QUIZ VOCACIONAL</span><h1>Descubra possibilidades</h1><p>O quiz prioriza áreas de afinidade e não elimina outras opções profissionais.</p>{perguntas.map((p,index)=><article className="card quiz-card" key={p.id}><small>Pergunta {index+1} de {perguntas.length}</small><h2>{p.pergunta}</h2><div className="options">{p.opcoes.map((o,i)=><button className={respostas[p.id]===i?"selected":""} type="button" key={o.texto} onClick={()=>setRespostas({...respostas,[p.id]:i})}>{o.texto}</button>)}</div></article>)}{erro&&<p className="error">{erro}</p>}<button onClick={finalizar} disabled={!perguntas.length}>Ver resultado</button></section>}

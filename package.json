@@ -1,0 +1,19 @@
+{
+  "name": "lume-gps-carreira",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LUME — GPS de Carreira: monorepo web, API, PostgreSQL/Prisma e aplicativo mobile.",
+  "workspaces": ["backend", "frontend", "mobile"],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:mobile": "npm run start --workspace=mobile",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=mobile",
+    "prisma:generate": "npm run prisma:generate --workspace=backend",
+    "prisma:migrate": "npm run prisma:migrate --workspace=backend",
+    "prisma:seed": "npm run prisma:seed --workspace=backend"
+  },
+  "engines": { "node": ">=20.0.0", "npm": ">=10.0.0" }
+}
