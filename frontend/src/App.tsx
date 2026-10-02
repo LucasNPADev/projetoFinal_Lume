@@ -1,23 +1,2 @@
-import { Link } from "react-router-dom";
-import { AppRoutes } from "./routes";
-
-export default function App() {
-  return (
-    <>
-      <header>
-        <strong>LUME</strong>
-        <nav>
-          <Link to="/">Início</Link>
-          <Link to="/carreiras">Carreiras</Link>
-          <Link to="/cursos">Cursos</Link>
-          <Link to="/instituicoes">Instituições</Link>
-          <Link to="/quiz">Quiz</Link>
-          <Link to="/perfil">Perfil</Link>
-        </nav>
-      </header>
-      <main>
-        <AppRoutes />
-      </main>
-    </>
-  );
-}
+import { Link } from "react-router-dom"; import { AppRoutes } from "./routes"; import { useAuth } from "./contexts/AuthContext";
+export default function App(){const{usuario}=useAuth();return <><header><Link className="brand" to="/"><strong>LUME</strong><span>GPS de Carreira</span></Link><nav><Link to="/carreiras">Carreiras</Link><Link to="/cursos">Cursos</Link><Link to="/instituicoes">Instituições</Link><Link to="/quiz">Quiz</Link>{usuario?<Link to="/perfil">Perfil</Link>:<Link to="/login">Entrar</Link>}</nav></header><main><AppRoutes/></main></>}

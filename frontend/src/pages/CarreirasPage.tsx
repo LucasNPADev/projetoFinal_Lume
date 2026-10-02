@@ -1,10 +1,3 @@
-import { useEffect, useState } from "react";
-import { api } from "../services/api";
-type Cargo = { id:number; nome:string; area:string; descricao:string; altaDemanda:boolean; salarioMedio:string };
-export function CarreirasPage() {
-  const [cargos, setCargos] = useState<Cargo[]>([]);
-  useEffect(() => { api.get<Cargo[]>("/cargos").then(r => setCargos(r.data)).catch(() => setCargos([])); }, []);
-  return <section className="page"><span className="eyebrow">CARREIRAS</span><h1>Explore profissões</h1>
-    <div className="grid">{cargos.map(cargo => <article className="card" key={cargo.id}><span>{cargo.area}</span><h2>{cargo.nome}</h2><p>{cargo.descricao}</p>{cargo.altaDemanda && <strong>↑ Alta demanda</strong>}</article>)}</div>
-  </section>;
-}
+import { useEffect,useState } from "react"; import { Link } from "react-router-dom"; import { api } from "../services/api";
+type Cargo={id:number;nome:string;area:string;descricao:string;altaDemanda:boolean;salarioMedio:string};
+export function CarreirasPage(){const[cargos,setCargos]=useState<Cargo[]>([]);const[busca,setBusca]=useState("");useEffect(()=>{api.get<Cargo[]>("/cargos",{params:busca?{busca}:undefined}).then(r=>setCargos(r.data)).catch(()=>setCargos([]))},[busca]);return <section className="page"><span className="eyebrow">CARREIRAS</span><h1>Explore profissões</h1><input className="search" placeholder="Buscar profissão..." value={busca} onChange={e=>setBusca(e.target.value)}/><div className="grid">{cargos.map(c=><Link className="card" key={c.id} to={`/carreiras/${c.id}`}><span>{c.area}</span><h2>{c.nome}</h2><p>{c.descricao}</p><strong>R$ {Number(c.salarioMedio).toLocaleString("pt-BR")} / média</strong>{c.altaDemanda&&<small className="tag">Alta demanda</small>}</Link>)}</div></section>}
