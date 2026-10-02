@@ -1,7 +1,5 @@
-import { Link, Route, Routes } from "react-router-dom";
-import { CarreirasPage } from "./pages/CarreirasPage";
-import { HomePage } from "./pages/HomePage";
-import { QuizPage } from "./pages/QuizPage";
+import { Link } from "react-router-dom";
+import { AppRoutes } from "./routes";
 
 export default function App() {
   return (
@@ -11,15 +9,14 @@ export default function App() {
         <nav>
           <Link to="/">Início</Link>
           <Link to="/carreiras">Carreiras</Link>
+          <Link to="/cursos">Cursos</Link>
+          <Link to="/instituicoes">Instituições</Link>
           <Link to="/quiz">Quiz</Link>
+          <Link to="/perfil">Perfil</Link>
         </nav>
       </header>
       <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/carreiras" element={<CarreirasPage />} />
-          <Route path="/quiz" element={<QuizPage />} />
-        </Routes>
+        <AppRoutes />
       </main>
     </>
   );
