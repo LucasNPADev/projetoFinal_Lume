@@ -1,68 +1,82 @@
-<div align="center">
+# LUME — GPS de Carreira
 
-  <h1>🕯️ Projeto Lume</h1>
-  <h3><i>GPS de Carreira (Web & Mobile)</i></h3>
+Projeto de TCC do LUME, uma plataforma para apoiar a descoberta de carreiras e a comparação de cursos e instituições.
 
-  <p>
-    Plataforma de orientação profissional e mapeamento de carreiras desenvolvida como Trabalho de Conclusão de Curso (TCC).
-  </p>
+## Stack
 
-  <p>
-    <img src="https://img.shields.io/badge/Node.js-v18%2B-green?style=for-the-badge&logo=node.js" alt="Node.js">
-    <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react" alt="React">
-    <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" alt="TypeScript">
-    <img src="https://img.shields.io/badge/Prisma-ORM-556091?style=for-the-badge&logo=prisma" alt="Prisma">
-    <img src="https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL">
-    <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="Licença">
-  </p>
+- Frontend: React + TypeScript + Vite
+- Backend: Node.js + Express + TypeScript
+- Banco: PostgreSQL
+- ORM: Prisma
+- API: REST/JSON
 
-  ---
-</div>
+## Estrutura
 
-## 📌 Sobre o Projeto
+```
+backend/
+  prisma/
+    migrations/
+    seed.ts
+  src/
+    config/
+    controllers/
+    routes/
+    services/
+    middlewares/
+    utils/
 
-O **Lume** é uma plataforma desenvolvida como Trabalho de Conclusão de Curso (TCC) no **SENAI Almirante Tamandaré** (Curso Técnico em Desenvolvimento de Sistemas — São Bernardo do Campo / SP).
+frontend/
+  src/
+    components/
+    contexts/
+    hooks/
+    pages/
+    routes/
+    services/
+    styles/
+    types/
+```
 
-Funcionando sob o conceito de um **"GPS de Carreira"**, o sistema permite que estudantes do Ensino Médio, vestibulandos e profissionais em transição de área pesquisem a profissão desejada e visualizem uma rota clara, dividida em etapas: desde a escolha do curso e faculdade na região até a aquisição de *hard/soft skills* e certificações exigidas pelos recrutadores.
+## Backend
 
----
+```bash
+cd backend
+npm install
+cp .env.example .env
+npx prisma generate
+npx prisma migrate dev
+npm run prisma:seed
+npm run dev
+```
 
-## ✨ Funcionalidades
+API: http://localhost:3333/api
 
-### ⚙️ Backend (API REST)
-* 🔐 **Autenticação & Controle de Sessão:** Registro e login seguro com permissões diferenciadas (Estudante e Administrador), criptografia de senhas com `Bcrypt` e controle via tokens `JWT`.
-* 🗺️ **Mapeamento Bidirecional (Cargo $\leftrightarrow$ Curso):** Estruturação de dados avançada vinculando múltiplas rotas de formação para o mesmo cargo.
-* 📍 **Filtro Geográfico e Financeiro:** Regras de negócio focadas na região do Grande ABC / São Bernardo do Campo, permitindo consultas filtradas por localização e faixas de mensalidades/salários.
-* 🛠️ **Painel Administrativo:** Endpoints exclusivos para cadastro, edição, desativação de instituições de ensino e cargos, além de moderação de avaliações.
+Health check: http://localhost:3333/api/health
 
-### 🖥️ Frontend Web & Mobile (Plataforma do Estudante)
-* 🗺️ **GPS & Trilhas de Carreira:** Visualização interativa em *timeline* do percurso completo para atingir a meta profissional.
-* 🎯 **Teste Vocacional Interativo:** Questionário dinâmico que calcula e ordena o feed de carreiras prioritárias com base no perfil do usuário.
-* 📊 **Comparador de Cursos e Faculdades:** Comparativo visual de mensalidades, modalidades (Presencial/EAD) e notas de avaliação.
-* 💼 **Ficha Técnica da Profissão:** Detalhamento de atribuições ("o que faz"), faixas salariais (piso, média e teto) e competências (*hard* e *soft skills*).
-* ⭐ **Favoritos & Perfil:** Gerenciamento de perfil, recuperação de senha e salvamento de rotas e instituições de interesse.
+## Endpoints iniciais
 
----
+- GET /api/health
+- GET /api/cargos
+- GET /api/cargos/:id
+- GET /api/cursos?area=Saúde
+- GET /api/instituicoes?cidade=São Bernardo do Campo
+- GET /api/instituicoes/:id
+- GET /api/quiz/perguntas
+- POST /api/quiz/resultado
+- GET /api/usuarios/:id
+- PUT /api/usuarios/:id
 
-## 🛠️ Tecnologias Utilizadas
+## Frontend
 
-| Camada | Tecnologias / Ferramentas |
-| :--- | :--- |
-| **Backend** | Node.js, Express, TypeScript, Prisma ORM, PostgreSQL, JWT, Bcrypt |
-| **Frontend Web** | React, TypeScript, Vite, CSS Modules / Styled Components, React Router DOM, Axios |
-| **Ferramentas & DB** | Docker, Beekeeper Studio, Git, GitHub Actions |
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
 
----
+## Sprint 2
 
-## 📂 Estrutura do Repositório (Monorepo)
+Esta base adapta a estrutura existente para o domínio LUME e prioriza a entrega de Banco de Dados & Código Base: schema lógico no Prisma, migration PostgreSQL, seed, cliente de banco, organização em controllers/services/routes, variáveis de ambiente, health check e primeiros endpoints consumidos pelo frontend.
 
-```text
-projeto-lume/
-├── .github/             # Workflows de CI/CD e templates de issues
-├── docs/                # Documentação do TCC (Visão, Requisitos, DER, Monografia)
-├── backend/             # API RESTful em Node.js + Express + Prisma + PostgreSQL
-│   ├── prisma/          # Schemas e migrações do banco de dados
-│   └── src/             # Controllers, Services, Middlewares e Rotas
-└── frontend/            # Aplicação SPA em React + TypeScript + Vite
-    ├── public/          # Ativos estáticos e marca
-    └── src/             # Componentes, Páginas, Contextos e Hooks
+As telas do protótipo continuam como referência visual para as próximas sprints.

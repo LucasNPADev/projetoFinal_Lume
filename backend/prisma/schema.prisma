@@ -1,9 +1,165 @@
-// Prisma Schema
 generator client {
   provider = "prisma-client-js"
 }
 
-database db {
+datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum TipoInstituicao { PUBLICA PRIVADA }
+enum Modalidade { PRESENCIAL EAD HIBRIDO }
+
+model Usuario {
+  id Int @id @default(autoincrement())
+  nomeCompleto String
+  email String @unique
+  senhaHash String
+  telefone String?
+  dataNascimento DateTime?
+  cidade String?
+  estado String?
+  consentimentoLocalizacao Boolean @default(false)
+  criadoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  historicosQuiz HistoricoTesteVocacional[]
+  avaliacoes Avaliacao[]
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  nome String
+  email String @unique
+  senhaHash String
+  ativo Boolean @default(true)
+  criadoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+model Instituicao {
+  id Int @id @default(autoincrement())
+  nome String
+  tipo TipoInstituicao
+  cidade String
+  estado String
+  endereco String?
+  latitude Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+  descricao String?
+  site String?
+  telefone String?
+  whatsapp String?
+  email String?
+  mensalidadeMin Decimal? @db.Decimal(10, 2)
+  mensalidadeMax Decimal? @db.Decimal(10, 2)
+  ativo Boolean @default(true)
+  criadoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  cursos CursoInstituicao[]
+  avaliacoes Avaliacao[]
+  @@index([cidade, estado])
+  @@index([ativo])
+}
+
+model Curso {
+  id Int @id @default(autoincrement())
+  nome String
+  area String
+  descricao String?
+  duracaoAnos Decimal? @db.Decimal(3, 1)
+  modalidade Modalidade
+  turno String?
+  notaEnemMin Decimal? @db.Decimal(5, 2)
+  salarioMin Decimal? @db.Decimal(10, 2)
+  salarioMedio Decimal? @db.Decimal(10, 2)
+  salarioMax Decimal? @db.Decimal(10, 2)
+  ativo Boolean @default(true)
+  criadoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  instituicoes CursoInstituicao[]
+  trilhas TrilhaCargoCurso[]
+  @@index([area])
+  @@index([ativo])
+}
+
+model Cargo {
+  id Int @id @default(autoincrement())
+  nome String
+  area String
+  descricao String
+  salarioPiso Decimal @db.Decimal(10, 2)
+  salarioMedio Decimal @db.Decimal(10, 2)
+  salarioTeto Decimal @db.Decimal(10, 2)
+  altaDemanda Boolean @default(false)
+  hardSkills String[]
+  softSkills String[]
+  criadoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  trilhas TrilhaCargoCurso[]
+  @@index([area])
+  @@index([altaDemanda])
+}
+
+model CursoInstituicao {
+  id Int @id @default(autoincrement())
+  cursoId Int
+  instituicaoId Int
+  modalidade Modalidade
+  turno String?
+  mensalidade Decimal? @db.Decimal(10, 2)
+  notaCorte Decimal? @db.Decimal(5, 2)
+  bolsas Boolean @default(false)
+  ativo Boolean @default(true)
+  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  @@unique([cursoId, instituicaoId, modalidade, turno])
+  @@index([instituicaoId])
+  @@index([cursoId])
+}
+
+model TrilhaCargoCurso {
+  id Int @id @default(autoincrement())
+  cargoId Int
+  cursoId Int
+  etapa String
+  ordem Int
+  descricao String?
+  cargo Cargo @relation(fields: [cargoId], references: [id], onDelete: Cascade)
+  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  @@unique([cargoId, ordem])
+  @@index([cursoId])
+}
+
+model Avaliacao {
+  id Int @id @default(autoincrement())
+  usuarioId Int
+  instituicaoId Int
+  nota Int
+  comentario String?
+  ano Int?
+  criadoEm DateTime @default(now())
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  @@index([instituicaoId])
+  @@index([usuarioId])
+}
+
+model PerguntaVocacional {
+  id Int @id @default(autoincrement())
+  pergunta String
+  categoria String
+  opcoes Json
+  ordem Int @unique
+  ativo Boolean @default(true)
+}
+
+model HistoricoTesteVocacional {
+  id Int @id @default(autoincrement())
+  usuarioId Int
+  resultadoArea String
+  respostas Json
+  respondidoEm DateTime @default(now())
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([resultadoArea])
 }
