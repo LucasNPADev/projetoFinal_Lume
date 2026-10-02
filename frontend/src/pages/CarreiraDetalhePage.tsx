@@ -1,2 +1,66 @@
-import { useEffect, useState } from "react"; import { Link, useParams } from "react-router-dom"; import { api } from "../services/api";
-export function CarreiraDetalhePage(){const {id}=useParams();const [c,setC]=useState<any>();useEffect(()=>{api.get(`/cargos/${id}`).then(r=>setC(r.data))},[id]);if(!c)return <section className="page"><p>Carregando...</p></section>;return <section className="page"><Link to="/carreiras">← Carreiras</Link><span className="eyebrow">{c.area}</span><h1>{c.nome}</h1><p>{c.descricao}</p><div className="stats"><div className="card"><small>Piso</small><strong>R$ {Number(c.salarioPiso).toLocaleString("pt-BR")}</strong></div><div className="card"><small>Média</small><strong>R$ {Number(c.salarioMedio).toLocaleString("pt-BR")}</strong></div><div className="card"><small>Teto</small><strong>R$ {Number(c.salarioTeto).toLocaleString("pt-BR")}</strong></div></div><div className="two-col"><article className="card"><h2>Habilidades</h2><h3>Hard skills</h3><p>{c.hardSkills?.join(" · ")}</p><h3>Soft skills</h3><p>{c.softSkills?.join(" · ")}</p></article><article className="card"><h2>Formação</h2>{c.trilhas?.map((t:any)=><div className="timeline" key={t.id}><strong>{t.ordem}. {t.etapa}</strong><p>{t.descricao}</p><Link to={`/cursos/${t.curso.id}`}>{t.curso.nome}</Link></div>)}</article></div></section>}
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { api } from "../services/api";
+
+export function CarreiraDetalhePage() {
+  const { id } = useParams();
+  const [cargo, setCargo] = useState<any>();
+
+  useEffect(() => {
+    api.get(`/cargos/${id}`).then((r) => setCargo(r.data));
+  }, [id]);
+
+  if (!cargo) return <section className="page"><p>Carregando...</p></section>;
+
+  const hardSkills = cargo.hardSkills
+    ? String(cargo.hardSkills).split(";").map((item: string) => item.trim()).filter(Boolean)
+    : [];
+  const softSkills = cargo.softSkills
+    ? String(cargo.softSkills).split(";").map((item: string) => item.trim()).filter(Boolean)
+    : [];
+
+  return (
+    <section className="page">
+      <Link to="/carreiras">← Carreiras</Link>
+      <span className="eyebrow">{cargo.areaAtuacao}</span>
+      <h1>{cargo.nome}</h1>
+      <p>{cargo.descricao ?? "Descrição não cadastrada."}</p>
+
+      <div className="stats">
+        <div className="card">
+          <small>Faixa salarial</small>
+          <strong>{cargo.faixaSalarial ?? "Não informada"}</strong>
+        </div>
+        <div className="card">
+          <small>Referência</small>
+          <strong>
+            {cargo.salario != null
+              ? `R$ ${Number(cargo.salario).toLocaleString("pt-BR")}`
+              : "Não informada"}
+          </strong>
+        </div>
+      </div>
+
+      <div className="two-col">
+        <article className="card">
+          <h2>Habilidades</h2>
+          <h3>Hard skills</h3>
+          <p>{hardSkills.length ? hardSkills.join(" · ") : "Não cadastradas."}</p>
+          <h3>Soft skills</h3>
+          <p>{softSkills.length ? softSkills.join(" · ") : "Não cadastradas."}</p>
+        </article>
+
+        <article className="card">
+          <h2>Formação</h2>
+          {cargo.trilhas?.map((trilha: any) => (
+            <div className="timeline" key={trilha.id}>
+              <strong>Etapa {trilha.ordemEtapa}</strong>
+              <Link to={`/cursos/${trilha.curso.id}`}>{trilha.curso.nome}</Link>
+              <p>{trilha.curso.grauAcademico ?? trilha.curso.area}</p>
+            </div>
+          ))}
+        </article>
+      </div>
+    </section>
+  );
+}
