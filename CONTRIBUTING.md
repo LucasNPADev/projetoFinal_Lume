@@ -9,11 +9,11 @@ Use `main` para versoes estaveis e `dev` para integrar as sprints.
    `fix:`, `docs:`, `test:`, `ci:` e `chore:`.
 4. Abra PR para `dev` e preencha o template do repositorio.
 5. Espere verificacoes e revisao antes do merge.
-6. Para estabilizar, use `release/x.y.z`; para emergencia,
-   `hotfix/x.y.z`. Ambos devem voltar a `dev`.
+6. Para estabilizar, use `release/vx.y.z` (ou `release/x.y.z`); para emergencia,
+   `hotfix/<slug>`, por exemplo `hotfix/erro-login-prod`. Ambos devem voltar a `dev`.
 
 No backend, trabalhe em `backend/` e execute
-`npm install`, `npm run prisma:generate`,
+`npm ci`, `npm run prisma:generate`,
 `npm run typecheck`, `npm run build` e `npm test`.
 O CI do backend usa PostgreSQL e migrations reais com seed sintetico.
 Nunca inclua segredos, `.env` de verdade ou dados pessoais.
