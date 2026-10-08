@@ -2,6 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import { montarRotasApi } from "./routes/routes";
 import { ApiError, errorHandler, notFound } from "./middlewares/errors";
 
