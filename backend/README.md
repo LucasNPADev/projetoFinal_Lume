@@ -27,7 +27,7 @@ Para testes de integração completos use um banco descartável com dados sinté
 
 ## API e contratos
 
-Todos os endpoints estão sob `/api`, retornam JSON (exceto respostas 204) e erros como `{"error":{"code":"VALIDATION_ERROR","message":"Dados invalidos.","details":[...]}}`. IDs são inteiros positivos, datas ISO 8601, valores monetários JSON são representados pelo Prisma como strings decimais. Nunca envie `senhaHash` ao cliente. Rotas autenticadas esperam `Authorization: Bearer <token>`. JWT HS256 tem validade de 2 horas, issuer e audience fixos. Senha de cadastro: 12–72 bytes.
+Todos os endpoints estão sob `/api`, retornam JSON (exceto respostas 204) e erros como `{"error":{"code":"VALIDATION_ERROR","message":"Dados invalidos.","details":[...]}}`. IDs são inteiros positivos, datas ISO 8601, valores monetários JSON são representados pelo Prisma como strings decimais. Nunca envie `senhaHash` ao cliente. Rotas autenticadas esperam `Authorization: Bearer <token>`. JWT HS256 de acesso expira em 15 minutos, com issuer/audience fixos; refresh opaco em cookie HttpOnly com rotacao e sessao revogavel expira em 30 dias. Senha de cadastro: 12–72 bytes.
 
 | Método | Endpoint | Acesso | Função |
 |---|---|---|---|
@@ -35,6 +35,11 @@ Todos os endpoints estão sob `/api`, retornam JSON (exceto respostas 204) e err
 | POST | `/auth/cadastro` | público | Novo estudante |
 | POST | `/auth/login` | público | Login estudante |
 | POST | `/auth/admin/login` | público | Login administrador |
+| POST | `/auth/refresh` | cookie HttpOnly | Rotacionar refresh e obter novo JWT |
+| POST | `/auth/logout`, `/auth/logout-todos` | autenticado | Revogar sessão atual/todas |
+| POST | `/auth/senha/alterar` | estudante | Alterar senha e revogar sessões |
+| POST | `/auth/senha/solicitar-recuperacao` | público | Solicitar link por SMTP configurado |
+| POST | `/auth/senha/redefinir` | token de e-mail | Definir nova senha e revogar sessões |
 | GET | `/auth/me` | autenticado | Tipo e perfil da sessão |
 | GET, PATCH, DELETE | `/usuarios/me` | estudante | Perfil e eliminação de conta |
 | GET, PUT | `/usuarios/:id` | próprio estudante | Compatibilidade; proibido IDOR |
@@ -43,7 +48,10 @@ Todos os endpoints estão sob `/api`, retornam JSON (exceto respostas 204) e err
 | GET | `/cargos` | público | Catálogo com `area`, `busca`, `pagina`, `limite`, `personalizado=true` |
 | GET | `/cargos/:id` | público | Detalhes, rotas orientativas e ofertas ativas |
 | GET | `/cursos`, `/cursos/:id` | público | Cursos e vínculos ativos |
-| GET | `/instituicoes`, `/instituicoes/:id` | público | Instituições, cursos e avaliações publicadas |
+| GET | `/instituicoes`, `/instituicoes/:id` | público | Instituições, cursos, avaliações e distância opcional (`latitude`, `longitude`, `raioKm`) |
+| GET | `/comparacoes/ofertas?ids=1,2` | público | Comparação objetiva de 2–6 ofertas com notas e distância opcional |
+| GET | `/comparacoes/cargos/:id` | público | Comparação de rotas, salários e mensalidades |
+| GET | `/comparacoes/enem?nota=700` | público | Referência indicativa por nota de corte cadastrada, sem garantia |
 | GET | `/quiz/perguntas` | público | Questões ativas; opções textuais, sem pesos |
 | POST | `/quiz/resultado` | público/estudante | Apura afinidade e grava histórico somente se logado |
 | GET | `/quiz/historico` | estudante | Últimos 50 resultados |
@@ -110,3 +118,13 @@ A área vocacional **prioriza** cargos, não os elimina. A página de cargo exig
 ## Limites conhecidos
 
 Este trabalho entrega **backend e documentação da API**, não UI, aplicativo mobile, geolocalização de deslocamento real, dados oficiais MEC ou salários oficiais, notificações, simulador ENEM, job scheduler nem implantação em produção. É necessário validar o consumo de novos endpoints pela UI em etapa separada.
+
+## Renovacao de sessao e SMTP
+
+No web, habilite `withCredentials: true` ao chamar `POST /api/auth/refresh`; o token de renovacao fica em cookie **HttpOnly**, `SameSite=Strict` e `Secure` em producao. Nao persista JWT de acesso em localStorage; prefira estado somente em memoria e renove o acesso no momento necessario. Para apps nativos e integrações fora do mesmo site, planeje um fluxo de armazenamento seguro compatível antes de homologar login persistente. `POST /api/auth/logout` revoga imediatamente a sessao no banco. APIs abertas de login, cadastro e refresh ignoram eventual Bearer expirado.
+
+Recuperacao de senha exige `SMTP_HOST`, `SMTP_FROM`, `WEB_RESET_URL` e, quando necessario, `SMTP_USER` e `SMTP_PASSWORD` válidos. Sem SMTP, solicitacao retorna 503; não sao enviados emails por um serviço fictício. Tokens sao aleatorios, de uso unico, armazenados apenas pelo hash SHA-256 e expiram em 30 min. URL de redefinicao deve usar HTTPS em producao. Toda alteracao/redefinicao revoga todas as sessoes. Implementar a tela web de redefinicao e configurar provedor de e-mail real sao tarefas de integracao externas ao backend.
+
+## Geolocalizacao e comparacoes
+
+As coordenadas recebidas pela API sao parâmetros transitórios de requisição, não são gravadas no perfil do estudante. O dispositivo precisa obter autorização explícita antes de captá-las. Para localização manual use `?cidade=Sao%20Bernardo`. As distâncias são geodésicas em linha reta (Haversine), **não** tempos de deslocamento nem rotas rodoviárias. Instituições sem coordenadas só aparecem em buscas sem filtro GPS. Filtros espaciais usam bounding box no PostgreSQL e depois distância exata em memória. Simulador ENEM apenas compara com valores `notaCorte` já cadastrados, que devem ser verificados no edital correspondente; fonte/ciclo das notas ainda precisam ser modelados antes de uso decisório real.

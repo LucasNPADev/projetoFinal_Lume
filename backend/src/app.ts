@@ -7,6 +7,7 @@ import { authRoutes } from "./routes/auth.routes";
 import { adminRoutes } from "./routes/admin.routes";
 import { avaliacaoRoutes } from "./routes/avaliacao.routes";
 import { cargoRoutes } from "./routes/cargo.routes";
+import { comparacoesRoutes } from "./routes/comparacoes.routes";
 import { cursoRoutes } from "./routes/curso.routes";
 import { instituicaoRoutes } from "./routes/instituicao.routes";
 import { quizRoutes } from "./routes/quiz.routes";
@@ -25,10 +26,16 @@ app.use(cors({ origin(origin, callback) {
 app.use(express.json({ limit: "64kb" }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: "draft-8", legacyHeaders: false }));
 app.get("/api/health", (_req, res) => res.json({ status: "ok", projeto: "LUME - GPS de Carreira" }));
+app.get("/api/ready", async (_req, res) => {
+  const { prisma } = await import("./config/prisma");
+  await prisma.$queryRaw`SELECT 1`;
+  res.json({ status: "ready", database: "ok" });
+});
 app.use("/api", optionalAuth);
 app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false }), authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/avaliacoes", avaliacaoRoutes);
+app.use("/api/comparacoes", comparacoesRoutes);
 app.use("/api/cargos", cargoRoutes);
 app.use("/api/cursos", cursoRoutes);
 app.use("/api/instituicoes", instituicaoRoutes);

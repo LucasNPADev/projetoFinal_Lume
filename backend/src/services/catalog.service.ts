@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
+import { caixaGeografica, distanciaKm } from "../utils/geo";
 
 const ofertaAtiva: Prisma.CursoInstituicaoWhereInput = {
   ativo: true, curso: { ativo: true }, instituicao: { ativo: true }
@@ -49,6 +50,24 @@ export const catalogService = {
       orderBy: { nome: "asc" }, skip, take,
       include: { cursos: { where: ofertaAtiva, include: { curso: true } } }
     });
+  },
+  async listarInstituicoesPorProximidade(filtros: { latitude: number; longitude: number; raioKm: number; cidade?: string; busca?: string; skip: number; take: number }) {
+    const caixa = caixaGeografica(filtros.latitude, filtros.longitude, filtros.raioKm);
+    const instituicoes = await prisma.instituicao.findMany({
+      where: {
+        ativo: true, latitude: { not: null, ...caixa.latitude },
+        longitude: { not: null, ...caixa.longitude },
+        ...(filtros.cidade ? { cidade: { contains: filtros.cidade, mode: "insensitive" as const } } : {}),
+        ...(filtros.busca ? { nome: { contains: filtros.busca, mode: "insensitive" as const } } : {})
+      },
+      include: { cursos: { where: ofertaAtiva, include: { curso: true } } }
+    });
+    return instituicoes.map((instituicao) => ({
+      ...instituicao,
+      distanciaKm: Number(distanciaKm(filtros.latitude, filtros.longitude, Number(instituicao.latitude), Number(instituicao.longitude)).toFixed(1))
+    })).filter((instituicao) => instituicao.distanciaKm <= filtros.raioKm)
+      .sort((a, b) => a.distanciaKm - b.distanciaKm || a.nome.localeCompare(b.nome, "pt-BR"))
+      .slice(filtros.skip, filtros.skip + filtros.take);
   },
   buscarInstituicao(id: number) {
     return prisma.instituicao.findFirst({

@@ -48,9 +48,12 @@ model Usuario {
   favoritosCursos          FavoritoCurso[]
   favoritosInstituicoes    FavoritoInstituicao[]
   denuncias                DenunciaAvaliacao[]
+  sessoes                  Sessao[]
+  recuperacoes             RecuperacaoSenha[]
 }
 
 model Admin {
+  sessoes      Sessao[]
   id           Int       @id @default(autoincrement())
   nome         String
   email        String    @unique
@@ -85,6 +88,7 @@ model Instituicao {
   avaliacoes          Avaliacao[]
   favoritos           FavoritoInstituicao[]
   @@index([cidade, estado])
+  @@index([latitude, longitude])
   @@index([ativo])
 }
 
@@ -245,4 +249,32 @@ model FavoritoInstituicao {
   instituicao    Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   @@id([usuarioId, instituicaoId])
   @@index([instituicaoId])
+}
+
+model Sessao {
+  id           String    @id @default(uuid())
+  usuarioId    Int?
+  adminId      Int?
+  refreshHash  String    @unique
+  expiraEm     DateTime
+  revogadaEm   DateTime?
+  ultimoUsoEm  DateTime?
+  criadoEm     DateTime  @default(now())
+  usuario      Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  admin        Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([adminId])
+  @@index([expiraEm])
+}
+
+model RecuperacaoSenha {
+  id        String    @id @default(uuid())
+  usuarioId Int
+  tokenHash String    @unique
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  criadoEm  DateTime  @default(now())
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([expiraEm])
 }

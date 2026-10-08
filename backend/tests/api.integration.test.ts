@@ -17,7 +17,7 @@ test("API real: cadastro, login, isolamento de perfil, quiz e avaliacao moderada
       ...(token ? { authorization: "Bearer " + token } : {})
     }, ...(body ? { body: JSON.stringify(body) } : {}) });
     const data = response.status === 204 ? null : await response.json();
-    return { status: response.status, data };
+    return { status: response.status, data, setCookie: response.headers.get("set-cookie") };
   }
   let user1 = 0, user2 = 0;
   try {
@@ -30,6 +30,14 @@ test("API real: cadastro, login, isolamento de perfil, quiz e avaliacao moderada
     assert.equal(c2.status, 201, JSON.stringify(c2.data));
     user2 = c2.data.usuario.id;
     const token = c1.data.token;
+    assert.ok(c1.setCookie?.includes("HttpOnly"), "Refresh cookie HttpOnly ausente");
+    const refresh = await fetch(base + "/auth/refresh", {
+      method: "POST", headers: { Cookie: c1.setCookie!.split(";")[0] }
+    });
+    assert.equal(refresh.status, 200);
+    const rotated = await refresh.json();
+    assert.ok(rotated.token);
+    assert.equal((await request("GET", "/auth/me", undefined, rotated.token)).status, 200);
     assert.equal((await request("GET", "/usuarios/" + user2, undefined, token)).status, 403);
     assert.equal((await request("GET", "/usuarios/me", undefined, token)).status, 200);
     assert.equal((await request("PUT", "/usuarios/" + user2, { nomeCompleto: "Invasao" }, token)).status, 403);
@@ -48,6 +56,9 @@ test("API real: cadastro, login, isolamento de perfil, quiz e avaliacao moderada
     assert.equal(review.status, 200, JSON.stringify(review.data));
     assert.equal(review.data.status, "PENDENTE");
     assert.equal((await request("GET", "/avaliacoes/instituicao/" + instituicoes.data[0].id)).data.some((x: {id: number}) => x.id === review.data.id), false);
+    assert.equal((await request("POST", "/auth/logout", undefined, rotated.token)).status, 204);
+    assert.equal((await request("GET", "/auth/me", undefined, rotated.token)).status, 401);
+    assert.equal((await request("POST", "/auth/refresh", undefined, c1.data.token)).status, 401);
   } finally {
     if (user1) await prisma.usuario.deleteMany({ where: { id: user1 } });
     if (user2) await prisma.usuario.deleteMany({ where: { id: user2 } });

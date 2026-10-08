@@ -3,6 +3,7 @@ import { prisma } from "../config/prisma";
 import { catalogService } from "../services/catalog.service";
 import { ApiError } from "../middlewares/errors";
 import { pagina, paramId } from "../utils/validation";
+import { distanciaKm, extrairLocalizacao } from "../utils/geo";
 import { z } from "zod";
 
 const filtros = z.object({ area: z.string().trim().max(100).optional(), cidade: z.string().trim().max(120).optional(), busca: z.string().trim().max(120).optional(), personalizado: z.enum(["true", "false"]).optional() }).passthrough();
@@ -34,10 +35,18 @@ export async function buscarCurso(req: Request, res: Response) {
 export async function listarInstituicoes(req: Request, res: Response) {
   const { cidade, busca } = filtros.parse(req.query);
   const pg = pagina(req);
+  const geo = extrairLocalizacao(req.query);
+  if (geo) {
+    res.json(await catalogService.listarInstituicoesPorProximidade({ ...geo, cidade, busca, skip: pg.skip, take: pg.take }));
+    return;
+  }
   res.json(await catalogService.listarInstituicoes(cidade, busca, pg.skip, pg.take));
 }
 export async function buscarInstituicao(req: Request, res: Response) {
   const item = await catalogService.buscarInstituicao(paramId(req));
   if (!item) throw new ApiError(404, "Instituicao nao encontrada.");
-  res.json(item);
+  const geo = extrairLocalizacao(req.query);
+  res.json({ ...item, distanciaKm: geo && item.latitude !== null && item.longitude !== null
+    ? Number(distanciaKm(geo.latitude, geo.longitude, Number(item.latitude), Number(item.longitude)).toFixed(1))
+    : null });
 }
