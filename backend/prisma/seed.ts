@@ -57,18 +57,18 @@ async function main() {
   const medico = await cargo("Médico(a)", "Saúde", "Atua no cuidado e diagnostico em saude.", [7000, 15000, 35000], ["Clinica medica", "Anatomia"], ["Empatia", "Etica"]);
   const advogado = await cargo("Advogado(a)", "Humanas", "Trabalha com orientacao e representacao juridica.", [2500, 6500, 18000], ["Legislacao", "Pesquisa"], ["Comunicacao", "Etica"]);
   const gestor = await cargo("Gestor(a) de Projetos", "Gestão", "Planeja e acompanha equipes e entregas.", [3500, 8000, 20000], ["Planejamento", "Analise de riscos"], ["Lideranca", "Organizacao"]);
-  const trilhas: Array<{ cargoId: number; cursoId: number; rota: string; etapa: string; ordem: number; descricao?: string }> = [
-    { cargoId: dev.id, cursoId: engenharia.id, rota: "bacharelado", ordem: 1, etapa: "Engenharia de Computação" },
-    { cargoId: dev.id, cursoId: ads.id, rota: "tecnologo", ordem: 1, etapa: "Análise e Desenvolvimento de Sistemas" },
-    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 1, etapa: "Graduação em Medicina" },
-    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 2, etapa: "Residência (conforme especialidade)", descricao: "Etapa complementar orientativa" },
-    { cargoId: advogado.id, cursoId: direito.id, rota: "principal", ordem: 1, etapa: "Graduação em Direito" },
-    { cargoId: gestor.id, cursoId: gestao.id, rota: "administracao", ordem: 1, etapa: "Graduação em Administração" }
+  const trilhas: Array<{ cargoId: number; cursoId: number; rota: string; etapa: string; ordem: number; descricao?: string; duracaoMeses?: number }> = [
+    { cargoId: dev.id, cursoId: engenharia.id, rota: "bacharelado", ordem: 1, etapa: "Engenharia de Computação", duracaoMeses: 60 },
+    { cargoId: dev.id, cursoId: ads.id, rota: "tecnologo", ordem: 1, etapa: "Análise e Desenvolvimento de Sistemas", duracaoMeses: 30 },
+    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 1, etapa: "Graduação em Medicina", duracaoMeses: 72 },
+    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 2, etapa: "Residência (conforme especialidade)", descricao: "Etapa complementar orientativa - duracao ilustrativa", duracaoMeses: 36 },
+    { cargoId: advogado.id, cursoId: direito.id, rota: "principal", ordem: 1, etapa: "Graduação em Direito", duracaoMeses: 60 },
+    { cargoId: gestor.id, cursoId: gestao.id, rota: "administracao", ordem: 1, etapa: "Graduação em Administração", duracaoMeses: 48 }
   ];
   for (const row of trilhas) {
     await prisma.trilhaCargoCurso.upsert({
       where: { cargoId_rota_ordem: { cargoId: row.cargoId, rota: row.rota, ordem: row.ordem } },
-      update: { cursoId: row.cursoId, etapa: row.etapa, descricao: row.descricao },
+      update: { cursoId: row.cursoId, etapa: row.etapa, descricao: row.descricao, duracaoMeses: row.duracaoMeses },
       create: row
     });
   }

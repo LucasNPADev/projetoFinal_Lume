@@ -44,11 +44,15 @@ Todos os endpoints estão sob `/api`, retornam JSON (exceto respostas 204) e err
 | GET, PATCH, DELETE | `/usuarios/me` | estudante | Perfil e eliminação de conta |
 | GET, PUT | `/usuarios/:id` | próprio estudante | Compatibilidade; proibido IDOR |
 | GET | `/usuarios/me/favoritos` | estudante | Favoritos salvos |
-| PUT, DELETE | `/usuarios/me/favoritos/:tipo/:id` | estudante | `tipo` = cargos, cursos, instituicoes |
+| PUT, DELETE | `/usuarios/me/favoritos/:tipo/:id` | estudante | `tipo` = cargos, cursos, instituicoes, trilhas (ID da etapa) |
+| GET | `/usuarios/me/notificacoes` | estudante | Caixa de notificacoes; filtro `naoLidas=true` |
+| PATCH | `/usuarios/me/notificacoes/:id/lida` | estudante | Marcar aviso proprio como lido |
+| DELETE | `/usuarios/me/notificacoes/:id` | estudante | Remover aviso proprio |
 | GET | `/cargos` | público | Catálogo com `area`, `busca`, `pagina`, `limite`, `personalizado=true` |
 | GET | `/cargos/:id` | público | Detalhes, rotas orientativas e ofertas ativas |
 | GET | `/cursos`, `/cursos/:id` | público | Cursos e vínculos ativos |
 | GET | `/instituicoes`, `/instituicoes/:id` | público | Instituições, cursos, avaliações e distância opcional (`latitude`, `longitude`, `raioKm`) |
+| GET, POST, PATCH | `/eventos`, `/eventos/:id` | GET publico; alteracoes admin | Calendario de vestibulares, ENEM e bolsas com URL de fonte; `/eventos/admin` lista inclusive inativos |
 | GET | `/comparacoes/ofertas?ids=1,2` | público | Comparação objetiva de 2–6 ofertas com notas e distância opcional |
 | GET | `/comparacoes/cargos/:id` | público | Comparação de rotas, salários e mensalidades |
 | GET | `/comparacoes/enem?nota=700` | público | Referência indicativa por nota de corte cadastrada, sem garantia |
@@ -128,3 +132,13 @@ Recuperacao de senha exige `SMTP_HOST`, `SMTP_FROM`, `WEB_RESET_URL` e, quando n
 ## Geolocalizacao e comparacoes
 
 As coordenadas recebidas pela API sao parâmetros transitórios de requisição, não são gravadas no perfil do estudante. O dispositivo precisa obter autorização explícita antes de captá-las. Para localização manual use `?cidade=Sao%20Bernardo`. As distâncias são geodésicas em linha reta (Haversine), **não** tempos de deslocamento nem rotas rodoviárias. Instituições sem coordenadas só aparecem em buscas sem filtro GPS. Filtros espaciais usam bounding box no PostgreSQL e depois distância exata em memória. Simulador ENEM apenas compara com valores `notaCorte` já cadastrados, que devem ser verificados no edital correspondente; fonte/ciclo das notas ainda precisam ser modelados antes de uso decisório real.
+
+## Calendario, notificacoes, trilhas e referencias oficiais
+
+`GET /api/eventos?tipo=VESTIBULAR&de=2026-10-01&ate=2027-10-01` retorna eventos cadastrados e ativos. Criacao e alteracao exigem administrador, titulo, periodo e `urlFonte` para que estudantes possam conferir o edital. Eventos sintéticos devem marcar `dadosDemonstracao=true`; **nunca apresentam datas ficticias como oficiais**.
+
+Quando o administrador altera preço/bolsa/status/nota de corte de uma oferta, o backend notifica **dentro do aplicativo** os estudantes que favoritaram o curso ou a instituição. Quando publica evento ligado a curso/instituição, envia um aviso in-app a esses favoritos. Não há integração de push/email transacional nessa etapa.
+
+`TrilhaCargoCurso.duracaoMeses` permite registrar duração de cada etapa. O comparador soma o total de uma rota **somente se todas as etapas tiverem duração informada**; senão o total retorna nulo para evitar estimativa artificial. O favorito de trilha usa a FK de uma etapa da rota, de forma íntegra no banco.
+
+Para notas de corte, a API agora aceita `anoNotaCorte` e `fonteNotaCorte`. O simulador ENEM somente exibe referência quando os três dados (`notaCorte`, ano e fonte) estão presentes, com alerta de que nota acima do corte não garante vaga. **Não existe alimentação automática de MEC, SiSU ou Prouni**: o administrador deve inserir referências confiáveis e manter o ciclo atualizado.

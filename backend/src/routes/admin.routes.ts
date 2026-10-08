@@ -5,6 +5,7 @@ import { requireAdmin } from "../middlewares/auth";
 import { ApiError } from "../middlewares/errors";
 import { id, modalidade, moeda, pagina, paramId, texto, tipoInstituicao, uf } from "../utils/validation";
 import { opcoesSchema } from "../services/quiz.service";
+import { avisarMudancaOferta } from "../services/notificacoes.service";
 
 export const adminRoutes = Router();
 adminRoutes.use(requireAdmin);
@@ -39,12 +40,15 @@ const instituicaoFields = z.object({
 const ofertaFields = z.object({
   cursoId: id, instituicaoId: id, modalidade, turno: texto(60).nullable().optional(),
   mensalidade: moeda.nullable().optional(), notaCorte: z.number().min(0).max(1000).nullable().optional(),
+  anoNotaCorte: z.number().int().min(2000).max(2100).nullable().optional(),
+  fonteNotaCorte: z.string().url().max(500).nullable().optional(),
   bolsas: z.boolean().default(false), ativo: z.boolean().default(true)
 }).strict();
 const trilhaFields = z.object({
   cargoId: id, cursoId: id, rota: texto(100).default("principal"),
   etapa: texto(200), ordem: z.number().int().min(1).max(100),
-  descricao: texto(2000).nullable().optional()
+  descricao: texto(2000).nullable().optional(),
+  duracaoMeses: z.number().int().min(1).max(600).nullable().optional()
 }).strict();
 const perguntaFields = z.object({
   pergunta: texto(1000), categoria: texto(100), ordem: z.number().int().min(1).max(10000),
@@ -120,8 +124,20 @@ adminRoutes.post("/ofertas", async (req, res) => {
   res.status(201).json(await prisma.cursoInstituicao.create({ data }));
 });
 adminRoutes.patch("/ofertas/:id", async (req, res) => {
+  const idOferta = paramId(req);
   const input = ofertaFields.partial().strict().parse(req.body);
-  res.json(await prisma.cursoInstituicao.update({ where: { id: paramId(req) }, data: input }));
+  const atual = await prisma.cursoInstituicao.findUnique({ where: { id: idOferta } });
+  if (!atual) throw new ApiError(404, "Oferta nao encontrada.");
+  const changed = ["mensalidade", "notaCorte", "anoNotaCorte", "fonteNotaCorte", "bolsas", "ativo"].some((field) => {
+    const valorNovo = (input as Record<string, unknown>)[field];
+    return valorNovo !== undefined && String(valorNovo) !== String((atual as unknown as Record<string, unknown>)[field]);
+  });
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.cursoInstituicao.update({ where: { id: idOferta }, data: input });
+    if (changed) await avisarMudancaOferta(tx, updated);
+    return updated;
+  });
+  res.json(result);
 });
 
 adminRoutes.post("/trilhas", async (req, res) => {

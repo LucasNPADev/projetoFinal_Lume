@@ -24,6 +24,13 @@ enum StatusAvaliacao {
   REJEITADA
 }
 
+enum TipoEventoIngresso {
+  VESTIBULAR
+  ENEM
+  BOLSA
+  OUTRO
+}
+
 enum StatusDenuncia {
   PENDENTE
   RESOLVIDA
@@ -50,6 +57,8 @@ model Usuario {
   denuncias                DenunciaAvaliacao[]
   sessoes                  Sessao[]
   recuperacoes             RecuperacaoSenha[]
+  favoritosTrilhas         FavoritoTrilha[]
+  notificacoes             Notificacao[]
 }
 
 model Admin {
@@ -87,6 +96,7 @@ model Instituicao {
   cursos              CursoInstituicao[]
   avaliacoes          Avaliacao[]
   favoritos           FavoritoInstituicao[]
+  eventos              EventoIngresso[]
   @@index([cidade, estado])
   @@index([latitude, longitude])
   @@index([ativo])
@@ -110,6 +120,7 @@ model Curso {
   instituicoes  CursoInstituicao[]
   trilhas       TrilhaCargoCurso[]
   favoritos     FavoritoCurso[]
+  eventos        EventoIngresso[]
   @@index([area])
   @@index([ativo])
 }
@@ -145,6 +156,8 @@ model CursoInstituicao {
   turno          String?
   mensalidade    Decimal?     @db.Decimal(10, 2)
   notaCorte      Decimal?     @db.Decimal(5, 2)
+  anoNotaCorte   Int?
+  fonteNotaCorte String?
   bolsas         Boolean      @default(false)
   ativo          Boolean      @default(true)
   curso          Curso        @relation(fields: [cursoId], references: [id], onDelete: Restrict)
@@ -162,6 +175,8 @@ model TrilhaCargoCurso {
   etapa     String
   ordem     Int
   descricao String?
+  duracaoMeses Int?
+  favoritos FavoritoTrilha[]
   cargo     Cargo   @relation(fields: [cargoId], references: [id], onDelete: Restrict)
   curso     Curso   @relation(fields: [cursoId], references: [id], onDelete: Restrict)
   @@unique([cargoId, rota, ordem])
@@ -277,4 +292,47 @@ model RecuperacaoSenha {
   usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   @@index([usuarioId])
   @@index([expiraEm])
+}
+
+model FavoritoTrilha {
+  usuarioId Int
+  trilhaId  Int
+  criadoEm  DateTime        @default(now())
+  usuario   Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  trilha    TrilhaCargoCurso @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  @@id([usuarioId, trilhaId])
+  @@index([trilhaId])
+}
+
+model EventoIngresso {
+  id                  Int                  @id @default(autoincrement())
+  titulo              String
+  tipo                TipoEventoIngresso
+  descricao           String?
+  inicio              DateTime
+  fim                 DateTime?
+  urlFonte            String
+  instituicaoId       Int?
+  cursoId             Int?
+  ativo               Boolean              @default(true)
+  dadosDemonstracao   Boolean              @default(false)
+  criadoEm            DateTime             @default(now())
+  atualizadoEm        DateTime             @updatedAt
+  instituicao         Instituicao?         @relation(fields: [instituicaoId], references: [id], onDelete: SetNull)
+  curso               Curso?               @relation(fields: [cursoId], references: [id], onDelete: SetNull)
+  @@index([inicio, ativo])
+  @@index([instituicaoId])
+  @@index([cursoId])
+}
+
+model Notificacao {
+  id        Int       @id @default(autoincrement())
+  usuarioId Int
+  tipo      String
+  titulo    String
+  mensagem  String
+  criadaEm  DateTime  @default(now())
+  lidaEm    DateTime?
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId, criadaEm])
 }

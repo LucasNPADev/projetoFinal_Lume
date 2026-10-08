@@ -47,8 +47,11 @@ comparacoesRoutes.get("/cargos/:id", async (req, res) => {
   if (!cargo) throw new ApiError(404, "Cargo inexistente ou inativo.");
   const rotas = Object.entries(cargo.rotas).map(([nome, etapas]) => ({
     nome,
+    duracaoTotalMeses: etapas.every((e) => e.duracaoMeses !== null)
+      ? etapas.reduce((total, etapa) => total + Number(etapa.duracaoMeses), 0)
+      : null,
     etapas: etapas.map((e) => ({
-      id: e.id, etapa: e.etapa, ordem: e.ordem, descricao: e.descricao,
+      id: e.id, etapa: e.etapa, ordem: e.ordem, descricao: e.descricao, duracaoMeses: e.duracaoMeses,
       curso: { id: e.curso.id, nome: e.curso.nome, duracaoAnos: e.curso.duracaoAnos },
       ofertas: e.curso.instituicoes.map((o) => ({
         id: o.id, instituicao: o.instituicao.nome, cidade: o.instituicao.cidade, tipo: o.instituicao.tipo,
@@ -68,7 +71,7 @@ comparacoesRoutes.get("/cargos/:id", async (req, res) => {
 comparacoesRoutes.get("/enem", async (req, res) => {
   const { nota } = z.object({ nota: z.coerce.number().finite().min(0).max(1000) }).passthrough().parse(req.query);
   const ofertas = await prisma.cursoInstituicao.findMany({
-    where: { ativo: true, notaCorte: { not: null }, curso: { ativo: true }, instituicao: { ativo: true } },
+    where: { ativo: true, notaCorte: { not: null }, anoNotaCorte: { not: null }, fonteNotaCorte: { not: null }, curso: { ativo: true }, instituicao: { ativo: true } },
     include: { curso: { select: { id: true, nome: true } }, instituicao: { select: { id: true, nome: true, cidade: true, dadosDemonstracao: true } } },
     take: 100
   });
@@ -76,7 +79,7 @@ comparacoesRoutes.get("/enem", async (req, res) => {
     notaInformada: nota,
     ofertas: ofertas.map((o) => ({
       id: o.id, curso: o.curso, instituicao: o.instituicao,
-      notaReferencia: o.notaCorte, dentroDaReferencia: nota >= Number(o.notaCorte)
+      notaReferencia: o.notaCorte, anoReferencia: o.anoNotaCorte, fonte: o.fonteNotaCorte, dentroDaReferencia: nota >= Number(o.notaCorte)
     })),
     aviso: "Simulacao estritamente indicativa; nota de corte nao garante aprovacao. Verifique ano, modalidade, fonte e edital oficiais antes de decidir."
   });
