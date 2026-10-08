@@ -3,7 +3,7 @@
 API REST do TCC LUME (Node.js + Express 5 + TypeScript + PostgreSQL + Prisma 6).
 Este diretório é independente do frontend e do aplicativo móvel. **Não use este servidor com um banco de produção sem revisão de segurança, backup e execução de testes.**
 
-## Preparação (Node.js 22 recomendado nesta entrega)
+## Preparação (Node.js 22.x / npm 10.x / PostgreSQL 16)
 
 1. Instale Node.js e PostgreSQL 16+ (Docker é opcional).
 2. Entre em `backend/`, copie `.env.example` para `.env` e **troque JWT_SECRET por uma chave aleatória com >=32 bytes** (p.ex. `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`).
@@ -17,6 +17,7 @@ npm run prisma:generate
 npm run prisma:deploy
 npm run prisma:seed
 npm run typecheck
+npm run insomnia:validate
 npm test
 npm run dev
 ```
@@ -148,3 +149,9 @@ Para notas de corte, a API agora aceita `anoNotaCorte` e `fonteNotaCorte`. O sim
 Importe `backend/postman.collection.json` no Postman. Configure `baseUrl` e credenciais de estudante. O login captura o JWT de acesso para a colecao; para renovar sessao habilite o envio de cookies no Postman. Nenhum segredo de producao esta incluido.
 
 A coluna `CursoInstituicao.turno` passou a ser obrigatoria, usando o valor explicito `Não informado` na ausencia de turno. A regra impede duplicatas silenciosas na chave composta (curso, instituicao, modalidade e turno). A migration nao remove registros: eventual conflito historico deve ser resolvido manualmente.
+
+## Insomnia e rotas centralizadas
+
+Importe [insomnia.collection.json](insomnia.collection.json) no Insomnia. O passo a passo para executar login, obter tokens, testar permissões de admin, quiz, instituições, favoritos e notificações está em [INSOMNIA.md](INSOMNIA.md). **As rotas de cada módulo continuam em `src/routes/*.routes.ts`, e o registro central está em [src/routes/routes.ts](src/routes/routes.ts).** O comando `npm run insomnia:validate` confere que a coleção cobre todos os endpoints e valida corpos JSON.
+
+As dependências diretas do backend foram fixadas às versões especificadas no `package.json` (Node 22, npm 10, Prisma 6.19, Express 5.1, TypeScript 5.9). Esses são os componentes verificados pelo CI, não uma promessa de versões mais recentes do mercado.

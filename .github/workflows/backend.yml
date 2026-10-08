@@ -49,6 +49,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Validar JSON da colecao Postman
         run: node -e "JSON.parse(require('node:fs').readFileSync('postman.collection.json','utf8'))"
+      - name: Validar colecao Insomnia e cobertura dos endpoints
+        run: npm run insomnia:validate
       - name: Gerar Prisma Client
         run: npm run prisma:generate
       - name: Aplicar migrations reais
