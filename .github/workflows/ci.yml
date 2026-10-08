@@ -1,8 +1,36 @@
-# GitHub Actions Workflow
 name: CI
-on: [push, pull_request]
+
+on:
+  pull_request:
+    branches: [main, dev]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitflow-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  politica-gitflow:
+    name: Politica Git Flow
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Testar regras
+        run: node --test .github/scripts/*.test.mjs
+      - name: Validar origem e destino do PR
+        if: github.event_name == 'pull_request'
+        env:
+          GITFLOW_ORIGEM: ${{ github.event.pull_request.head.ref }}
+          GITFLOW_DESTINO: ${{ github.event.pull_request.base.ref }}
+        run: node .github/scripts/gitflow-policy.mjs

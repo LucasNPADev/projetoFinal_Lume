@@ -1,4 +1,5 @@
 import { Router } from "express";
-import { listarCursos } from "../controllers/catalog.controller";
+import { buscarCurso, listarCursos } from "../controllers/catalog.controller";
 export const cursoRoutes = Router();
 cursoRoutes.get("/", listarCursos);
+cursoRoutes.get("/:id", buscarCurso);

@@ -7,159 +7,332 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TipoInstituicao { PUBLICA PRIVADA }
-enum Modalidade { PRESENCIAL EAD HIBRIDO }
+enum TipoInstituicao {
+  PUBLICA
+  PRIVADA
+}
+
+enum Modalidade {
+  PRESENCIAL
+  EAD
+  HIBRIDO
+}
+
+enum StatusAvaliacao {
+  PENDENTE
+  APROVADA
+  REJEITADA
+}
+
+enum TipoEventoIngresso {
+  VESTIBULAR
+  ENEM
+  BOLSA
+  OUTRO
+}
+
+enum StatusDenuncia {
+  PENDENTE
+  RESOLVIDA
+  DESCARTADA
+}
 
 model Usuario {
-  id Int @id @default(autoincrement())
-  nomeCompleto String
-  email String @unique
-  senhaHash String
-  telefone String?
-  dataNascimento DateTime?
-  cidade String?
-  estado String?
-  consentimentoLocalizacao Boolean @default(false)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  historicosQuiz HistoricoTesteVocacional[]
-  avaliacoes Avaliacao[]
+  id                       Int                         @id @default(autoincrement())
+  nomeCompleto             String
+  email                    String                      @unique
+  senhaHash                String
+  telefone                 String?
+  dataNascimento           DateTime?
+  cidade                   String?
+  estado                   String?
+  consentimentoLocalizacao Boolean                     @default(false)
+  criadoEm                 DateTime                    @default(now())
+  atualizadoEm             DateTime                    @updatedAt
+  historicosQuiz           HistoricoTesteVocacional[]
+  avaliacoes               Avaliacao[]
+  favoritosCargos          FavoritoCargo[]
+  favoritosCursos          FavoritoCurso[]
+  favoritosInstituicoes    FavoritoInstituicao[]
+  denuncias                DenunciaAvaliacao[]
+  sessoes                  Sessao[]
+  recuperacoes             RecuperacaoSenha[]
+  favoritosTrilhas         FavoritoTrilha[]
+  notificacoes             Notificacao[]
 }
 
 model Admin {
-  id Int @id @default(autoincrement())
-  nome String
-  email String @unique
-  senhaHash String
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  sessoes      Sessao[]
+  id           Int       @id @default(autoincrement())
+  nome         String
+  email        String    @unique
+  senhaHash    String
+  ativo        Boolean   @default(true)
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
 }
 
 model Instituicao {
-  id Int @id @default(autoincrement())
-  nome String
-  tipo TipoInstituicao
-  cidade String
-  estado String
-  endereco String?
-  latitude Decimal? @db.Decimal(9, 6)
-  longitude Decimal? @db.Decimal(9, 6)
-  descricao String?
-  site String?
-  telefone String?
-  whatsapp String?
-  email String?
-  mensalidadeMin Decimal? @db.Decimal(10, 2)
-  mensalidadeMax Decimal? @db.Decimal(10, 2)
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  cursos CursoInstituicao[]
-  avaliacoes Avaliacao[]
+  id                  Int                   @id @default(autoincrement())
+  nome                String
+  tipo                TipoInstituicao
+  cidade              String
+  estado              String
+  endereco            String?
+  latitude            Decimal?              @db.Decimal(9, 6)
+  longitude           Decimal?              @db.Decimal(9, 6)
+  descricao           String?
+  site                String?
+  telefone            String?
+  whatsapp            String?
+  email               String?
+  mensalidadeMin      Decimal?              @db.Decimal(10, 2)
+  mensalidadeMax      Decimal?              @db.Decimal(10, 2)
+  fonteDados          String?
+  dadosDemonstracao   Boolean               @default(false)
+  ativo               Boolean               @default(true)
+  criadoEm            DateTime              @default(now())
+  atualizadoEm        DateTime              @updatedAt
+  cursos              CursoInstituicao[]
+  avaliacoes          Avaliacao[]
+  favoritos           FavoritoInstituicao[]
+  eventos              EventoIngresso[]
   @@index([cidade, estado])
+  @@index([latitude, longitude])
   @@index([ativo])
 }
 
 model Curso {
-  id Int @id @default(autoincrement())
-  nome String
-  area String
-  descricao String?
-  duracaoAnos Decimal? @db.Decimal(3, 1)
-  modalidade Modalidade
-  turno String?
-  notaEnemMin Decimal? @db.Decimal(5, 2)
-  salarioMin Decimal? @db.Decimal(10, 2)
-  salarioMedio Decimal? @db.Decimal(10, 2)
-  salarioMax Decimal? @db.Decimal(10, 2)
-  ativo Boolean @default(true)
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  instituicoes CursoInstituicao[]
-  trilhas TrilhaCargoCurso[]
+  id            Int                @id @default(autoincrement())
+  nome          String
+  area          String
+  descricao     String?
+  duracaoAnos   Decimal?           @db.Decimal(3, 1)
+  modalidade    Modalidade
+  turno         String?
+  notaEnemMin   Decimal?           @db.Decimal(5, 2)
+  salarioMin    Decimal?           @db.Decimal(10, 2)
+  salarioMedio  Decimal?           @db.Decimal(10, 2)
+  salarioMax    Decimal?           @db.Decimal(10, 2)
+  ativo         Boolean            @default(true)
+  criadoEm      DateTime           @default(now())
+  atualizadoEm  DateTime           @updatedAt
+  instituicoes  CursoInstituicao[]
+  trilhas       TrilhaCargoCurso[]
+  favoritos     FavoritoCurso[]
+  eventos        EventoIngresso[]
   @@index([area])
   @@index([ativo])
 }
 
 model Cargo {
-  id Int @id @default(autoincrement())
-  nome String
-  area String
-  descricao String
-  salarioPiso Decimal @db.Decimal(10, 2)
-  salarioMedio Decimal @db.Decimal(10, 2)
-  salarioTeto Decimal @db.Decimal(10, 2)
-  altaDemanda Boolean @default(false)
-  hardSkills String[]
-  softSkills String[]
-  criadoEm DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  trilhas TrilhaCargoCurso[]
+  id                 Int                @id @default(autoincrement())
+  nome               String
+  area               String
+  descricao          String
+  salarioPiso        Decimal            @db.Decimal(10, 2)
+  salarioMedio       Decimal            @db.Decimal(10, 2)
+  salarioTeto        Decimal            @db.Decimal(10, 2)
+  fonteSalario       String?
+  referenciaSalario  DateTime?
+  altaDemanda        Boolean            @default(false)
+  hardSkills         String[]
+  softSkills         String[]
+  ativo              Boolean            @default(true)
+  criadoEm           DateTime           @default(now())
+  atualizadoEm       DateTime           @updatedAt
+  trilhas            TrilhaCargoCurso[]
+  favoritos          FavoritoCargo[]
   @@index([area])
   @@index([altaDemanda])
+  @@index([ativo])
 }
 
 model CursoInstituicao {
-  id Int @id @default(autoincrement())
-  cursoId Int
-  instituicaoId Int
-  modalidade Modalidade
-  turno String?
-  mensalidade Decimal? @db.Decimal(10, 2)
-  notaCorte Decimal? @db.Decimal(5, 2)
-  bolsas Boolean @default(false)
-  ativo Boolean @default(true)
-  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  cursoId        Int
+  instituicaoId  Int
+  modalidade     Modalidade
+  turno          String @default("Não informado")
+  mensalidade    Decimal?     @db.Decimal(10, 2)
+  notaCorte      Decimal?     @db.Decimal(5, 2)
+  anoNotaCorte   Int?
+  fonteNotaCorte String?
+  bolsas         Boolean      @default(false)
+  ativo          Boolean      @default(true)
+  curso          Curso        @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  instituicao    Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
   @@unique([cursoId, instituicaoId, modalidade, turno])
   @@index([instituicaoId])
   @@index([cursoId])
 }
 
 model TrilhaCargoCurso {
-  id Int @id @default(autoincrement())
-  cargoId Int
-  cursoId Int
-  etapa String
-  ordem Int
+  id        Int     @id @default(autoincrement())
+  cargoId   Int
+  cursoId   Int
+  rota      String  @default("principal")
+  etapa     String
+  ordem     Int
   descricao String?
-  cargo Cargo @relation(fields: [cargoId], references: [id], onDelete: Cascade)
-  curso Curso @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  @@unique([cargoId, ordem])
+  duracaoMeses Int?
+  favoritos FavoritoTrilha[]
+  cargo     Cargo   @relation(fields: [cargoId], references: [id], onDelete: Restrict)
+  curso     Curso   @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  @@unique([cargoId, rota, ordem])
   @@index([cursoId])
 }
 
 model Avaliacao {
-  id Int @id @default(autoincrement())
-  usuarioId Int
+  id            Int                @id @default(autoincrement())
+  usuarioId     Int
   instituicaoId Int
-  nota Int
-  comentario String?
-  ano Int?
-  criadoEm DateTime @default(now())
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  @@index([instituicaoId])
+  nota          Int
+  comentario    String?
+  ano           Int?
+  status        StatusAvaliacao    @default(PENDENTE)
+  criadoEm      DateTime           @default(now())
+  usuario       Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
+  denuncias     DenunciaAvaliacao[]
+  @@unique([usuarioId, instituicaoId])
+  @@index([instituicaoId, status])
   @@index([usuarioId])
+}
+
+model DenunciaAvaliacao {
+  id          Int             @id @default(autoincrement())
+  usuarioId   Int
+  avaliacaoId Int
+  motivo      String
+  status      StatusDenuncia  @default(PENDENTE)
+  criadoEm    DateTime        @default(now())
+  resolvidoEm DateTime?
+  usuario     Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  avaliacao   Avaliacao       @relation(fields: [avaliacaoId], references: [id], onDelete: Cascade)
+  @@unique([usuarioId, avaliacaoId])
+  @@index([status])
 }
 
 model PerguntaVocacional {
-  id Int @id @default(autoincrement())
-  pergunta String
+  id        Int      @id @default(autoincrement())
+  pergunta  String
   categoria String
-  opcoes Json
-  ordem Int @unique
-  ativo Boolean @default(true)
+  opcoes    Json
+  ordem     Int      @unique
+  ativo     Boolean  @default(true)
 }
 
 model HistoricoTesteVocacional {
-  id Int @id @default(autoincrement())
-  usuarioId Int
-  resultadoArea String
-  respostas Json
-  respondidoEm DateTime @default(now())
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  @@index([usuarioId])
+  id                Int      @id @default(autoincrement())
+  usuarioId         Int
+  resultadoArea     String
+  respostas         Json
+  pontuacoes        Json?
+  versaoInstrumento String   @default("2026-10-v1")
+  respondidoEm      DateTime @default(now())
+  usuario           Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId, respondidoEm])
   @@index([resultadoArea])
+}
+
+model FavoritoCargo {
+  usuarioId Int
+  cargoId   Int
+  criadoEm  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  cargo     Cargo    @relation(fields: [cargoId], references: [id], onDelete: Cascade)
+  @@id([usuarioId, cargoId])
+  @@index([cargoId])
+}
+
+model FavoritoCurso {
+  usuarioId Int
+  cursoId   Int
+  criadoEm  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  curso     Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  @@id([usuarioId, cursoId])
+  @@index([cursoId])
+}
+
+model FavoritoInstituicao {
+  usuarioId      Int
+  instituicaoId  Int
+  criadoEm       DateTime     @default(now())
+  usuario        Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao    Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  @@id([usuarioId, instituicaoId])
+  @@index([instituicaoId])
+}
+
+model Sessao {
+  id           String    @id @default(uuid())
+  usuarioId    Int?
+  adminId      Int?
+  refreshHash  String    @unique
+  expiraEm     DateTime
+  revogadaEm   DateTime?
+  ultimoUsoEm  DateTime?
+  criadoEm     DateTime  @default(now())
+  usuario      Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  admin        Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([adminId])
+  @@index([expiraEm])
+}
+
+model RecuperacaoSenha {
+  id        String    @id @default(uuid())
+  usuarioId Int
+  tokenHash String    @unique
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  criadoEm  DateTime  @default(now())
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([expiraEm])
+}
+
+model FavoritoTrilha {
+  usuarioId Int
+  trilhaId  Int
+  criadoEm  DateTime        @default(now())
+  usuario   Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  trilha    TrilhaCargoCurso @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  @@id([usuarioId, trilhaId])
+  @@index([trilhaId])
+}
+
+model EventoIngresso {
+  id                  Int                  @id @default(autoincrement())
+  titulo              String
+  tipo                TipoEventoIngresso
+  descricao           String?
+  inicio              DateTime
+  fim                 DateTime?
+  urlFonte            String
+  instituicaoId       Int?
+  cursoId             Int?
+  ativo               Boolean              @default(true)
+  dadosDemonstracao   Boolean              @default(false)
+  criadoEm            DateTime             @default(now())
+  atualizadoEm        DateTime             @updatedAt
+  instituicao         Instituicao?         @relation(fields: [instituicaoId], references: [id], onDelete: SetNull)
+  curso               Curso?               @relation(fields: [cursoId], references: [id], onDelete: SetNull)
+  @@index([inicio, ativo])
+  @@index([instituicaoId])
+  @@index([cursoId])
+}
+
+model Notificacao {
+  id        Int       @id @default(autoincrement())
+  usuarioId Int
+  tipo      String
+  titulo    String
+  mensagem  String
+  criadaEm  DateTime  @default(now())
+  lidaEm    DateTime?
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@index([usuarioId, criadaEm])
 }

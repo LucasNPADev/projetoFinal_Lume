@@ -1,23 +1,28 @@
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
-import { cargoRoutes } from "./routes/cargo.routes";
-import { cursoRoutes } from "./routes/curso.routes";
-import { instituicaoRoutes } from "./routes/instituicao.routes";
-import { quizRoutes } from "./routes/quiz.routes";
-import { usuarioRoutes } from "./routes/usuario.routes";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import { montarRotasApi } from "./routes/routes";
+import { ApiError, errorHandler, notFound } from "./middlewares/errors";
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", projeto: "LUME - GPS de Carreira" });
+app.disable("x-powered-by");
+app.use(helmet());
+const origens = (process.env.CORS_ORIGINS ?? "http://localhost:5173").split(",").map((s) => s.trim()).filter(Boolean);
+app.use(cors({ credentials: true, origin(origin, callback) {
+  if (!origin || origens.includes(origin)) return callback(null, true);
+  callback(new ApiError(403, "Origem nao permitida."));
+}}));
+app.use(express.json({ limit: "64kb" }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: "draft-8", legacyHeaders: false }));
+app.get("/api/health", (_req, res) => res.json({ status: "ok", projeto: "LUME - GPS de Carreira" }));
+app.get("/api/ready", async (_req, res) => {
+  const { prisma } = await import("./config/prisma");
+  await prisma.$queryRaw`SELECT 1`;
+  res.json({ status: "ready", database: "ok" });
 });
-
-app.use("/api/cargos", cargoRoutes);
-app.use("/api/cursos", cursoRoutes);
-app.use("/api/instituicoes", instituicaoRoutes);
-app.use("/api/quiz", quizRoutes);
-app.use("/api/usuarios", usuarioRoutes);
-
+montarRotasApi(app);
+app.use(notFound);
+app.use(errorHandler);
 export default app;
