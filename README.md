@@ -6,7 +6,7 @@ comparação de cursos/instituições, desenvolvida como Trabalho de Conclusão 
 ## Branches
 
 - **[main](../../tree/main):** entrega estável, publicada somente após CI e revisão.
-- **[develop](../../tree/develop):** integrações de sprint, novas rotas e correções.
+- **[dev](../../tree/dev):** integrações de sprint, novas rotas e correções.
 - **feature/**, **bugfix/**, **release/** e **hotfix/**: branches temporárias via PR, conforme [Git Flow](docs/GIT_FLOW.md).
 
 ## Componentes e versões de referência
@@ -58,8 +58,8 @@ prontidão do banco: `GET http://localhost:3333/api/ready`.
 Se estiver trabalhando em uma sprint:
 ```powershell
 git fetch origin
-git switch develop
-git pull --ff-only origin develop
+git switch dev
+git pull --ff-only origin dev
 ```
 
 ## Testes das rotas no Insomnia
