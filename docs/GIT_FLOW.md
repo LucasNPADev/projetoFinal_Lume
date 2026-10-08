@@ -9,13 +9,13 @@ O LUME usa **Git Flow** para separar as entregas em desenvolvimento do codigo es
 | `feature/<slug>` | `dev` | `dev` | Nova funcionalidade |
 | `bugfix/<slug>` | `dev` | `dev` | Correcao em desenvolvimento |
 | `docs/<slug>`, `chore/<slug>`, `ci/<slug>`, `test/<slug>`, `refactor/<slug>` | `dev` | `dev` | Documentacao, manutencao ou testes |
-| `release/x.y.z` | `dev` | `main`, depois `dev` | Homologar entrega estavel |
-| `hotfix/x.y.z` | `main` | `main`, depois `dev` | Corrigir producao |
+| `release/vx.y.z` (ou `release/x.y.z`) | `dev` | `main` **e** `dev` | Homologar e preparar versao estavel |
+| `hotfix/<slug>` (ou `hotfix/x.y.z`) | `main` | `main` **e** `dev` | Corrigir bug critico de producao |
 | `main` | permanente | `dev` | Apenas sincronizar release/hotfix |
 
 Use nomes em minusculas e hifens: `feature/login-estudante`,
-`bugfix/quiz-resposta-invalida`, `release/1.0.0` ou `hotfix/1.0.1`.
-Release e hotfix devem usar versao semantica `x.y.z`.
+`bugfix/quiz-resposta-invalida`, `release/v1.0.0` ou `hotfix/erro-login-prod`.
+Releases usam versao semantica opcionalmente com `v` no nome. Hotfix pode ter descricao em `slug` ou versao.
 Nao apague `main` nem `dev`; exclua apenas branches temporarias apos merge e sincronizacao.
 
 O workflow `CI / Politica Git Flow` rejeita PRs cujo nome ou
@@ -69,12 +69,12 @@ O mesmo procedimento vale para `bugfix/*`, `docs/*` e `ci/*`.
 ```powershell
 git switch dev
 git pull --ff-only origin dev
-git switch -c release/1.0.0
+git switch -c release/v1.0.0
 # somente revisao e correcao de homologacao
-git push -u origin release/1.0.0
+git push -u origin release/v1.0.0
 ```
 
-Abra PR `release/1.0.0 -> main`. So faca merge com os testes
+Abra PR `release/v1.0.0 -> main`. So faca merge com os testes
 e aceite funcional concluidos. Depois de aprovar e atualizar `main`:
 
 ```powershell
@@ -85,9 +85,9 @@ git push origin v1.0.0
 ```
 
 Em seguida, reincorpore correcoes de homologacao na `dev`
-com PR `release/1.0.0 -> dev` (se a branch ainda existir) ou
+com PR `release/v1.0.0 -> dev` (se a branch ainda existir) ou
 PR `main -> dev`. Confira que a `dev` contem
-as correcoes **antes** de apagar `release/1.0.0`.
+as correcoes **antes** de apagar `release/v1.0.0`.
 Nao crie duas tags com o mesmo numero.
 
 ## Hotfix
@@ -95,14 +95,14 @@ Nao crie duas tags com o mesmo numero.
 ```powershell
 git switch main
 git pull --ff-only origin main
-git switch -c hotfix/1.0.1
+git switch -c hotfix/erro-login-prod
 # corrigir e validar regressao
 git add .
 git commit -m "fix: corrigir regressao"
-git push -u origin hotfix/1.0.1
+git push -u origin hotfix/erro-login-prod
 ```
 
-Abra PR `hotfix/1.0.1 -> main`, faca merge apos revisao,
+Abra PR `hotfix/erro-login-prod -> main`, faca merge apos revisao,
 crie a tag `v1.0.1` no commit da `main` e leve o hotfix
 tambem a `dev` por PR `hotfix/* -> dev` ou `main -> dev`.
 Isso impede que a regressao retorne no proximo release.
@@ -154,3 +154,33 @@ A branch legada `develop` foi substituida por `dev` preservando o
 historico. A limpeza das branches antigas foi executada e o workflow
 temporario removido. O Git Flow do LUME usa `main` e `dev`
 como as duas branches permanentes.
+
+## Conceito de branches temporarias
+
+O pedido de manter somente `main` e `dev` se refere as duas **branches permanentes**.
+No Git Flow completo, branches de suporte existem somente durante a tarefa:
+
+- `feature/*`: nasce de `dev`, nova funcionalidade, PR volta para `dev`.
+- `release/*`: nasce de `dev`, estabilizacao, apenas ajustes finos e documentacao; PR para `main` e sincronizacao para `dev` apos o merge. Tag `vX.Y.Z` no commit de `main`.
+- `hotfix/*`: nasce de `main` para erro urgente, PR para `main` e sincronizacao para `dev`.
+- `bugfix/*` (opcional): nasce de `dev` e retorna para `dev` para bugs normais.
+
+Exemplo simplificado:
+
+```text
+feature/nova-tela -----\
+                       v
+main ------------------------<release/v1.0.0>----<hotfix/erro-login-prod>--
+                       ^                     |
+dev ------<feature>-----+----<release>-------+----<hotfix>---------------
+```
+
+Depois de finalizados os PRs e sincronizados os fixes, as branches temporarias
+podem ser apagadas: o historico fica em `main` e `dev` e nas tags de release.
+A regra automatica de PR verifica **nome e destino**; nao verifica sozinha se
+uma feature foi originalmente criada a partir de `dev`. Isso deve ser
+conferido na revisao (ou com verificacao de ancestralidade especifica).
+
+**IMPORTANTE:** as configuracoes em `.github/rulesets/*.json` so entram em vigor
+apos serem aplicadas com permissao administrativa; arquivos versionados
+nao equivalem a rulesets ativos no GitHub. Veja [RULESETS.md](RULESETS.md).
