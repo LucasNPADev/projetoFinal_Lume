@@ -98,7 +98,9 @@ HTTPS, backups, segredos seguros e revisão de proteção de dados.
 
 ## Protecao das branches
 
-As regras de protecao estao documentadas em [docs/RULESETS.md](docs/RULESETS.md),
-com JSON de `main` e `dev` versionados e script para aplica-los usando GitHub CLI.
-**Ativar no GitHub e um passo administrativo separado**; arquivo no
-repositorio nao impede um push direto enquanto o ruleset nao estiver ativo.
+As rulesets de `main` e `dev` foram confirmadas ativas no GitHub em 08/10/2026,
+com exigencia de PR, checks `Politica Git Flow` e `Backend CI`, sem exclusao
+ou force push. Detalhes e verificacao atualizada: [docs/RULESETS.md](docs/RULESETS.md).
+O GitFlow usa `feature/* -> dev`, `release/* -> main`, `hotfix/* -> main`
+e sempre sincroniza `main -> dev` apos publicar. Branches de trabalho
+sao temporarias e podem ser removidas apos merge.

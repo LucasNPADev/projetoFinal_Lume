@@ -107,11 +107,11 @@ crie a tag `v1.0.1` no commit da `main` e leve o hotfix
 tambem a `dev` por PR `hotfix/* -> dev` ou `main -> dev`.
 Isso impede que a regressao retorne no proximo release.
 
-## Protecoes exigidas — aplicar rulesets no GitHub
+## Protecoes ativas — rulesets no GitHub
 
-Abra [Settings > Rules > Rulesets](https://github.com/LucasNPADev/projetoFinal_Lume/settings/rules)
-com sua conta administradora. Crie um ruleset ativo para `main`
-e outro para `dev`:
+Os rulesets foram confirmados ativos em 08/10/2026. Para consultar ou alterar, abra
+[Settings > Rules > Rulesets](https://github.com/LucasNPADev/projetoFinal_Lume/settings/rules)
+com a sua conta administradora. Os dois rulesets existentes exigem:
 
 1. Exigir pull request e impedir pushes diretos.
 2. Exigir revisao/aprovacao de outra pessoa, se houver colegas
@@ -124,9 +124,12 @@ e outro para `dev`:
 O job **Backend CI** executa em todos os PRs para `main` e `dev`, inclusive
 alteracoes em documentacao, para que status checks obrigatorios nao fiquem pendentes.
 
-**Sem Rulesets ativos, um push direto continua possivel** mesmo
-com o workflow de validacao dos PRs. Git Flow e uma convencao;
-as protecoes sao configuradas no servidor do GitHub, nao nos arquivos.
+**A protecao efetiva depende do estado das regras no servidor GitHub.**
+A verificacao de policy rejeita `dev -> main` e permite `main -> dev`.
+Uma vez aprovado o PR `release/* -> main` ou `hotfix/* -> main`,
+abra um PR `main -> dev` para trazer a integracao da versao estavel.
+O merge gera um commit na `dev`; **SHAs diferentes entre main e dev
+sao normais** mesmo quando nenhum arquivo difere.
 
 ## Criterios de aceite por PR
 
@@ -146,9 +149,9 @@ funcionam sem extensao. Se voce tiver `git flow` instalado, configure
 
 Os payloads estao em [../.github/rulesets](../.github/rulesets) e o
 procedimento de ativacao em [RULESETS.md](RULESETS.md). Rode
-`scripts/apply-rulesets.ps1` usando GitHub CLI autenticado com
-Administration: write. **Rulesets versionados nao equivalem a
-rulesets aplicados**; confira-os na aba Settings depois da ativacao.
+`scripts/apply-rulesets.ps1` usando GitHub CLI autenticado para **consultar** as regras
+sem alteracoes. **Nao rode com `-Apply` sem revisar as configuracoes vigentes:**
+a aplicacao pode sobrescrever ajustes manuais. Consulte [RULESETS.md](RULESETS.md).
 
 A branch legada `develop` foi substituida por `dev` preservando o
 historico. A limpeza das branches antigas foi executada e o workflow
@@ -184,3 +187,14 @@ conferido na revisao (ou com verificacao de ancestralidade especifica).
 **IMPORTANTE:** as configuracoes em `.github/rulesets/*.json` so entram em vigor
 apos serem aplicadas com permissao administrativa; arquivos versionados
 nao equivalem a rulesets ativos no GitHub. Veja [RULESETS.md](RULESETS.md).
+
+## Limpeza automatica de branches temporarias
+
+O workflow [GitFlow - limpeza apos merge](../.github/workflows/gitflow-cleanup.yml)
+remove branches temporarias do proprio repositorio apos PR mesclado em
+`main` ou `dev`, conservando sempre as duas permanentes. Ele confere
+nome, commit esperado, origem do PR e merge concluido antes da exclusao.
+A limpeza nao deve ser feita antes de sincronizar correcoes de releases
+ou hotfixes com `dev`; por isso recomenda-se o PR `main -> dev`
+apos a publicacao. Se a limpeza ocorrer antes, o commit mesclado em
+`main` ainda pode ser trazido por `main -> dev`.
