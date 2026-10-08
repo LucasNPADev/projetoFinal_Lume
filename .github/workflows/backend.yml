@@ -1,20 +1,18 @@
 name: Backend - build e integracao
 
 on:
-  push:
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
   pull_request:
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   backend:
+    name: Backend CI
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -107,7 +107,7 @@ crie a tag `v1.0.1` no commit da `main` e leve o hotfix
 tambem a `develop` por PR `hotfix/* -> develop` ou `main -> develop`.
 Isso impede que a regressao retorne no proximo release.
 
-## Protecoes recomendadas — configuracao manual no GitHub
+## Protecoes exigidas — aplicar rulesets no GitHub
 
 Abra [Settings > Rules > Rulesets](https://github.com/LucasNPADev/projetoFinal_Lume/settings/rules)
 com sua conta administradora. Crie um ruleset ativo para `main`
@@ -143,3 +143,16 @@ as protecoes sao configuradas no servidor do GitHub, nao nos arquivos.
 O utilitario local `git-flow` e opcional. Os comandos Git acima
 funcionam sem extensao. Se voce tiver `git flow` instalado, configure
 `main` como production e `develop` como development.
+
+## Regras versionadas para main/dev
+
+Os payloads estao em [../.github/rulesets](../.github/rulesets) e o
+procedimento de ativacao em [RULESETS.md](RULESETS.md). Rode
+`scripts/apply-rulesets.ps1` usando GitHub CLI autenticado com
+Administration: write. **Rulesets versionados nao equivalem a
+rulesets aplicados**; confira-os na aba Settings depois da ativacao.
+
+A migracao de `develop` para `dev` preserva o historico no Git;
+automacao de limpeza de refs legadas esta em
+`.github/workflows/limpeza-branches.yml`. O Git Flow do LUME usa
+`main` e `dev` como as duas branches permanentes.

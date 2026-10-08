@@ -95,3 +95,10 @@ gera Prisma Client, aplica migrations em PostgreSQL descartável,
 executa seed sintético, valida rotas do Insomnia e roda testes.
 Para implantação real ainda são necessários dados oficiais,
 HTTPS, backups, segredos seguros e revisão de proteção de dados.
+
+## Protecao das branches
+
+As regras de protecao estao documentadas em [docs/RULESETS.md](docs/RULESETS.md),
+com JSON de `main` e `dev` versionados e script para aplica-los usando GitHub CLI.
+**Ativar no GitHub e um passo administrativo separado**; arquivo no
+repositorio nao impede um push direto enquanto o ruleset nao estiver ativo.

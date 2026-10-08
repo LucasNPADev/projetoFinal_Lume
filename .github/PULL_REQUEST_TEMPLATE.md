@@ -7,8 +7,8 @@
 
 ## Git Flow
 
-- [ ] Destino correto: trabalho normal -> `develop`; somente `release/*` ou `hotfix/*` -> `main`
-- [ ] Release/hotfix tambem sera integrado de volta a `develop`
+- [ ] Destino correto: trabalho normal -> `dev`; somente `release/*` ou `hotfix/*` -> `main`
+- [ ] Release/hotfix tambem sera integrado de volta a `dev`
 - [ ] Nao altera uma migration antiga aplicada nem reescreve historico
 
 ## Testes e qualidade
