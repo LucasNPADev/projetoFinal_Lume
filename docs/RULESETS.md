@@ -1,8 +1,14 @@
-# Aplicar rulesets ativos do LUME
+# Rulesets obrigatorios do LUME
 
-Os arquivos **.github/rulesets/main.json** e **.github/rulesets/dev.json** sao
-configuracoes da API REST do GitHub. Versionar os arquivos **nao ativa** as
-regras automaticamente: execute o script com uma conta GitHub autorizada.
+Os rulesets **LUME | main | protecao obrigatoria** e **LUME | dev | protecao obrigatoria**
+foram confirmados **Active no GitHub em 08/10/2026**. Protegem as branches
+permanentes `main` e `dev`, sem bypass, com PR obrigatorio, sem force push
+ou exclusao e com os checks `Politica Git Flow` e `Backend CI` obrigatorios.
+
+Os JSONs versionados em `.github/rulesets/` documentam a configuracao
+consultada na API GitHub na data acima. Sao um **snapshot**: alteracoes
+manuais futuras devem ser verificadas antes de sobrescrever os rulesets.
+Versao em arquivo por si so nao cria protecao; a autoridade e o GitHub.
 
 ## Protecoes de main e dev
 
@@ -33,17 +39,24 @@ gh auth login
 .\scripts\apply-rulesets.ps1
 ```
 
-O script cria ou atualiza exatamente os dois rulesets pelo nome,
-usa a autenticacao local do GitHub CLI (nao inclui tokens no repositorio)
-e verifica a ativacao apos salvar.
+**Sem parametros, o script apenas consulta e verifica os rulesets ativos;
+nao faz alteracoes.** Para recriar ou reaplicar os JSONs versionados,
+execute explicitamente:
+
+```powershell
+.\\scripts\\apply-rulesets.ps1 -Apply
+```
+
+**Atencao:** `-Apply` substitui a configuracao atual pela versao dos arquivos.
+Se mudou aprovacoes, revisores, checks ou outras opcoes pela interface do
+GitHub, primeiro atualize os arquivos ou mantenha apenas o modo consulta.
+O script nao armazena tokens.
 
 Alternativa: abra
 [Settings > Rules > Rulesets](https://github.com/LucasNPADev/projetoFinal_Lume/settings/rules)
 e crie manualmente os dois rulesets usando os JSON como referencia.
 
-Sem autenticação de administrador e resultado confirmado da API, o
-repositório **nao deve ser descrito como protegido**. Verifique os
-rulesets ativos em:
+Para verificar a configuracao que **realmente** esta ativa no momento, consulte:
 
 ```powershell
 gh api repos/LucasNPADev/projetoFinal_Lume/rulesets --jq '.[] | [.name, .enforcement] | @tsv'
@@ -53,5 +66,13 @@ A limpeza de branches legadas foi executada com sucesso no GitHub Actions.
 O workflow temporario foi removido apos a execucao.
 As duas branches permanentes sao **main** e **dev**. Nunca remova essas branches.
 Branches temporarias de trabalhos futuros devem ser excluidas depois de
-mescladas, revisadas e sincronizadas. A ativacao dos rulesets permanece
-dependente das permissoes administrativas conforme as instrucoes acima.
+mescladas, revisadas e sincronizadas. As configuracoes permanecem administradas pelo GitHub. Para alterar regras ativas, use uma conta com permissao administrativa.
+
+## Politica operacional
+
+- **main:** destino apenas de PR de `release/*` ou `hotfix/*`, nunca `dev -> main` diretamente.
+- **dev:** integra `feature/*` / `bugfix/*` e recebe `main -> dev` para sincronizacao apos releases e hotfixes.
+- **Temporarias:** excluidas apos merge e sincronizacao, mantendo somente duas branches permanentes.
+- **Status checks:** dois checks obrigatorios executados em PRs para `main` e `dev`; edicoes so documentais tambem os disparam.
+- **Atualizacao da base:** ambos os rulesets exigem checks atualizados com sua branch-base.
+- **Revisao humana:** configurada com 0 aprovacoes obrigatorias na data consultada; para obrigar outra pessoa revisar, configure 1 e nao habilite bypass.
