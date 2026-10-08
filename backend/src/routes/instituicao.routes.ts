@@ -3,3 +3,4 @@ import { buscarInstituicao, listarInstituicoes } from "../controllers/catalog.co
 export const instituicaoRoutes = Router();
 instituicaoRoutes.get("/", listarInstituicoes);
 instituicaoRoutes.get("/:id", buscarInstituicao);
+// Avaliacoes: /api/avaliacoes/instituicao/:id

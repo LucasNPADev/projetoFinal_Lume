@@ -1,64 +1,100 @@
-import { Modalidade, PrismaClient, TipoInstituicao } from "@prisma/client";
+import "dotenv/config";
+import bcrypt from "bcryptjs";
+import { Modalidade, Prisma, PrismaClient, TipoInstituicao } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const cursos = await Promise.all([
-    prisma.curso.upsert({ where: { id: 1 }, update: {}, create: { id: 1, nome: "Engenharia de Computação", area: "Exatas", duracaoAnos: 5, modalidade: Modalidade.PRESENCIAL, turno: "Integral", ativo: true } }),
-    prisma.curso.upsert({ where: { id: 2 }, update: {}, create: { id: 2, nome: "Medicina", area: "Saúde", duracaoAnos: 6, modalidade: Modalidade.PRESENCIAL, turno: "Integral", ativo: true } }),
-    prisma.curso.upsert({ where: { id: 3 }, update: {}, create: { id: 3, nome: "Direito", area: "Humanas", duracaoAnos: 5, modalidade: Modalidade.PRESENCIAL, turno: "Noite", ativo: true } }),
-  ]);
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Seed com dados sinteticos e bootstrap administrativo e proibido em producao.");
+  }
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (adminEmail || adminPassword) {
+    if (!adminEmail || !adminPassword || adminPassword.length < 12 || Buffer.byteLength(adminPassword, "utf8") > 72) {
+      throw new Error("Configure SEED_ADMIN_EMAIL e SEED_ADMIN_PASSWORD forte (12-72 bytes), ambos juntos.");
+    }
+    const found = await prisma.admin.findUnique({ where: { email: adminEmail } });
+    if (!found) {
+      await prisma.admin.create({ data: { nome: "Administrador LUME", email: adminEmail, senhaHash: await bcrypt.hash(adminPassword, 12) } });
+      console.log("Administrador local criado; remova as variaveis SEED_ADMIN_* apos bootstrap.");
+    } else {
+      console.log("Administrador existente preservado (senha nao sobrescrita).");
+    }
+  }
+  if (process.env.SEED_DEMO !== "true") {
+    console.log("SEED_DEMO=false: nenhum dado sintetico de catalogo foi inserido.");
+    return;
+  }
 
-  const instituicao = await prisma.instituicao.upsert({
-    where: { id: 1 },
-    update: {},
-    create: { id: 1, nome: "Instituição Demo LUME", tipo: TipoInstituicao.PRIVADA, cidade: "São Bernardo do Campo", estado: "SP", ativo: true },
-  });
+  async function curso(nome: string, area: string, duracaoAnos: number, modalidade: Modalidade) {
+    const found = await prisma.curso.findFirst({ where: { nome } });
+    return found ?? prisma.curso.create({ data: { nome, area, duracaoAnos, modalidade, ativo: true } });
+  }
+  const engenharia = await curso("Engenharia de Computação", "Exatas", 5, Modalidade.PRESENCIAL);
+  const medicina = await curso("Medicina", "Saúde", 6, Modalidade.PRESENCIAL);
+  const direito = await curso("Direito", "Humanas", 5, Modalidade.PRESENCIAL);
+  const gestao = await curso("Administração", "Gestão", 4, Modalidade.PRESENCIAL);
+  const ads = await curso("Análise e Desenvolvimento de Sistemas", "Exatas", 2.5, Modalidade.HIBRIDO);
 
-  await prisma.cursoInstituicao.createMany({
-    data: cursos.map((curso) => ({
-      cursoId: curso.id,
-      instituicaoId: instituicao.id,
-      modalidade: curso.modalidade,
-      turno: curso.turno,
-      ativo: true,
-    })),
-    skipDuplicates: true,
-  });
+  const existente = await prisma.instituicao.findFirst({ where: { nome: "Instituição Demo LUME" } });
+  const instituicao = existente
+    ? await prisma.instituicao.update({ where: { id: existente.id }, data: { dadosDemonstracao: true, fonteDados: "FICTICIO - apenas testes locais" } })
+    : await prisma.instituicao.create({
+        data: { nome: "Instituição Demo LUME", tipo: TipoInstituicao.PRIVADA, cidade: "São Bernardo do Campo", estado: "SP", ativo: true, dadosDemonstracao: true, fonteDados: "FICTICIO - apenas testes locais" }
+      });
+  for (const [c, valor] of [[engenharia, 750], [medicina, 2500], [direito, 900], [gestao, 650], [ads, 550]] as const) {
+    const found = await prisma.cursoInstituicao.findFirst({ where: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno } });
+    if (!found) await prisma.cursoInstituicao.create({ data: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno, mensalidade: valor, bolsas: true, ativo: true } });
+  }
 
-  const cargos = await Promise.all([
-    prisma.cargo.upsert({
-      where: { id: 1 }, update: {},
-      create: { id: 1, nome: "Desenvolvedor(a) de Software", area: "Tecnologia", descricao: "Cria, testa e mantém aplicativos, sistemas e plataformas digitais.", salarioPiso: 4500, salarioMedio: 9200, salarioTeto: 22000, altaDemanda: true, hardSkills: ["Programação", "Banco de dados", "Git e versionamento"], softSkills: ["Resolução de problemas", "Trabalho em equipe"] },
-    }),
-    prisma.cargo.upsert({
-      where: { id: 2 }, update: {},
-      create: { id: 2, nome: "Médico(a)", area: "Saúde", descricao: "Atua na prevenção, diagnóstico e tratamento de condições de saúde.", salarioPiso: 7000, salarioMedio: 15000, salarioTeto: 35000, altaDemanda: true, hardSkills: ["Diagnóstico clínico", "Farmacologia", "Anatomia e fisiologia"], softSkills: ["Empatia", "Comunicação", "Ética profissional"] },
-    }),
-  ]);
+  async function cargo(nome: string, area: string, descricao: string, salarios: [number, number, number], hardSkills: string[], softSkills: string[]) {
+    const found = await prisma.cargo.findFirst({ where: { nome } });
+    const data = { area, descricao, salarioPiso: salarios[0], salarioMedio: salarios[1], salarioTeto: salarios[2], hardSkills, softSkills, ativo: true, fonteSalario: "FICTICIO - demonstracao sem base de mercado", altaDemanda: false };
+    return found ? prisma.cargo.update({ where: { id: found.id }, data }) : prisma.cargo.create({ data: { nome, ...data } });
+  }
+  const dev = await cargo("Desenvolvedor(a) de Software", "Tecnologia", "Desenvolve e mantem solucoes digitais.", [4500, 9200, 22000], ["Programacao", "Banco de dados"], ["Colaboracao", "Analise"]);
+  const medico = await cargo("Médico(a)", "Saúde", "Atua no cuidado e diagnostico em saude.", [7000, 15000, 35000], ["Clinica medica", "Anatomia"], ["Empatia", "Etica"]);
+  const advogado = await cargo("Advogado(a)", "Humanas", "Trabalha com orientacao e representacao juridica.", [2500, 6500, 18000], ["Legislacao", "Pesquisa"], ["Comunicacao", "Etica"]);
+  const gestor = await cargo("Gestor(a) de Projetos", "Gestão", "Planeja e acompanha equipes e entregas.", [3500, 8000, 20000], ["Planejamento", "Analise de riscos"], ["Lideranca", "Organizacao"]);
+  const trilhas: Array<{ cargoId: number; cursoId: number; rota: string; etapa: string; ordem: number; descricao?: string }> = [
+    { cargoId: dev.id, cursoId: engenharia.id, rota: "bacharelado", ordem: 1, etapa: "Engenharia de Computação" },
+    { cargoId: dev.id, cursoId: ads.id, rota: "tecnologo", ordem: 1, etapa: "Análise e Desenvolvimento de Sistemas" },
+    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 1, etapa: "Graduação em Medicina" },
+    { cargoId: medico.id, cursoId: medicina.id, rota: "principal", ordem: 2, etapa: "Residência (conforme especialidade)", descricao: "Etapa complementar orientativa" },
+    { cargoId: advogado.id, cursoId: direito.id, rota: "principal", ordem: 1, etapa: "Graduação em Direito" },
+    { cargoId: gestor.id, cursoId: gestao.id, rota: "administracao", ordem: 1, etapa: "Graduação em Administração" }
+  ];
+  for (const row of trilhas) {
+    await prisma.trilhaCargoCurso.upsert({
+      where: { cargoId_rota_ordem: { cargoId: row.cargoId, rota: row.rota, ordem: row.ordem } },
+      update: { cursoId: row.cursoId, etapa: row.etapa, descricao: row.descricao },
+      create: row
+    });
+  }
 
-  await prisma.trilhaCargoCurso.createMany({
-    data: [
-      { cargoId: cargos[1].id, cursoId: cursos[1].id, etapa: "Medicina (6 anos)", ordem: 1, descricao: "Formação de graduação" },
-      { cargoId: cargos[1].id, cursoId: cursos[1].id, etapa: "Residência médica", ordem: 2, descricao: "Etapa orientativa após a graduação" },
-      { cargoId: cargos[1].id, cursoId: cursos[1].id, etapa: "Especialização", ordem: 3 },
-      { cargoId: cargos[0].id, cursoId: cursos[0].id, etapa: "Graduação em tecnologia", ordem: 1 },
-    ],
-    skipDuplicates: true,
-  });
-
-  await prisma.perguntaVocacional.createMany({
-    data: [
-      { pergunta: "Como você prefere resolver problemas?", categoria: "interesses", ordem: 1, opcoes: ["Analisando dados e lógica", "Ajudando pessoas", "Comunicando e argumentando", "Planejando projetos"] },
-      { pergunta: "Qual atividade mais combina com você?", categoria: "habilidades", ordem: 2, opcoes: ["Programar e construir soluções", "Cuidar e orientar", "Escrever e apresentar ideias", "Organizar e liderar"] },
-    ],
-    skipDuplicates: true,
-  });
-
-  console.log("Seed do LUME concluído.");
+  const categorias = ["interesses", "habilidades", "preferencias", "ambiente"] as const;
+  const enunciados = [
+    "Qual desafio voce escolheria resolver?", "Em qual tarefa prefere colaborar?",
+    "O que mais desperta a sua curiosidade?", "Que atividade faria no seu tempo livre?",
+    "Que tipo de contribuicao quer dar a sociedade?", "Qual assunto gostaria de estudar?",
+    "Como prefere abordar um problema novo?", "Em que ambiente se sente mais motivado?",
+    "O que gostaria de aperfeicoar?", "Com qual equipe gostaria de trabalhar?",
+    "Qual entrega considera mais gratificante?", "O que prefere planejar para o futuro?"
+  ];
+  const textos = [
+    ["Construir ferramentas digitais", "Cuidar e orientar pessoas", "Interpretar ideias e direitos", "Organizar equipes e processos"],
+    ["Analisar sistemas", "Apoiar bem-estar", "Redigir e argumentar", "Planejar recursos"],
+    ["Entender computadores", "Estudar saude humana", "Compreender sociedade", "Gerenciar projetos"],
+    ["Criar um aplicativo", "Aprender primeiros socorros", "Participar de debates", "Coordenar um evento"]
+  ];
+  const areas = ["Tecnologia", "Saúde", "Humanas", "Gestão"];
+  for (let i = 0; i < enunciados.length; i++) {
+    const opcoes = textos[i % textos.length].map((texto, idx) => ({ texto, pesos: { [areas[idx]]: 3 } }));
+    const item = { pergunta: enunciados[i], categoria: categorias[i % categorias.length], ordem: i + 1, opcoes: opcoes as Prisma.InputJsonValue, ativo: true };
+    await prisma.perguntaVocacional.upsert({ where: { ordem: i + 1 }, update: item, create: item });
+  }
+  console.log("Dados DEMO sinteticos inseridos; valores financeiros nao sao cotacoes reais.");
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-}).finally(() => prisma.$disconnect());
+main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => prisma.$disconnect());
