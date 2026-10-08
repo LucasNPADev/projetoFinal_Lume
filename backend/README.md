@@ -12,7 +12,7 @@ Este diretório é independente do frontend e do aplicativo móvel. **Não use e
 
 ```bash
 cd backend
-npm install
+npm ci
 npm run prisma:generate
 npm run prisma:deploy
 npm run prisma:seed
@@ -154,4 +154,4 @@ A coluna `CursoInstituicao.turno` passou a ser obrigatoria, usando o valor expli
 
 Importe [insomnia.collection.json](insomnia.collection.json) no Insomnia. O passo a passo para executar login, obter tokens, testar permissões de admin, quiz, instituições, favoritos e notificações está em [INSOMNIA.md](INSOMNIA.md). **As rotas de cada módulo continuam em `src/routes/*.routes.ts`, e o registro central está em [src/routes/routes.ts](src/routes/routes.ts).** O comando `npm run insomnia:validate` confere que a coleção cobre todos os endpoints e valida corpos JSON.
 
-As dependências diretas do backend foram fixadas às versões especificadas no `package.json` (Node 22, npm 10, Prisma 6.19, Express 5.1, TypeScript 5.9). Esses são os componentes verificados pelo CI, não uma promessa de versões mais recentes do mercado.
+As dependências diretas do backend foram fixadas às versões especificadas no `package.json` (Node 22, npm 10, Prisma 6.19, Express 5.1, TypeScript 5.9). São versões compatíveis verificadas pelo CI, não necessariamente as mais recentes. O `package-lock.json` congela também dependências transitivas; use `npm ci`.

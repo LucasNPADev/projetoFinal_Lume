@@ -45,21 +45,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
       - name: Instalar dependencias do backend
-        run: npm install --no-audit --no-fund
-      # Etapa temporaria para gerar um lockfile reproduzivel a partir do npm real
-      - name: Exportar dependencias resolvidas (geracao inicial do lock)
-        run: |
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const raw = fs.readFileSync('package-lock.json', 'utf8');
-          const lock = JSON.stringify(JSON.parse(raw));
-          console.log('LUMELOCKBEGIN');
-          for (let i = 0; i < lock.length; i += 5000) {
-            console.log('LUMELOCKPART:' + String(i / 5000).padStart(5, '0') + ':' + lock.slice(i, i + 5000));
-          }
-          console.log('LUMELOCKEND');
-          NODE
+        run: npm ci --no-audit --no-fund
       - name: Validar JSON da colecao Postman
         run: node -e "JSON.parse(require('node:fs').readFileSync('postman.collection.json','utf8'))"
       - name: Validar colecao Insomnia e cobertura dos endpoints

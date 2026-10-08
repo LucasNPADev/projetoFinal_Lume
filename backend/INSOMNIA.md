@@ -21,7 +21,7 @@ Arquivos:
 | Zod | 3.25.76 |
 | Insomnia | versão que aceite coleção Export v4 |
 
-As dependências diretas ficam com versões exatas no `backend/package.json`. O comando `npm install` precisa de rede e poderá resolver versões transitivas: **até existir um `package-lock.json` versionado, a árvore de dependências não fica integralmente congelada**. O CI valida instalação/compilação. Não alterar Prisma isoladamente sem atualizar @prisma/client, migrations e testes.
+As dependências diretas estão com versões exatas no `backend/package.json`; as transitivas estão congeladas em `backend/package-lock.json` (npm lockfile v3). Use **`npm ci`** para instalações reproduzíveis. O CI valida instalação, migrations e testes com esse lockfile. Não alterar Prisma isoladamente sem atualizar @prisma/client, migrations e testes.
 
 ## Iniciar API de testes local
 
@@ -36,7 +36,7 @@ node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
 Cole a chave acima no `JWT_SECRET` do arquivo `.env` e configure o PostgreSQL em `DATABASE_URL`. Defina `SEED_DEMO=true` **somente em banco de testes**, nunca em produção.
 
 ```powershell
-npm install
+npm ci
 npm run prisma:generate
 npm run prisma:deploy
 npm run prisma:seed
