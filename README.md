@@ -13,7 +13,7 @@ comparação de cursos/instituições, desenvolvida como Trabalho de Conclusão 
 
 | Componente | Tecnologia | Versão |
 | --- | --- | --- |
-| Backend REST | Node.js + Express + TypeScript | Node 22.x, Express 5.1.0, TS 5.9.2 |
+| Backend REST | Node.js + Express + TypeScript | LUME 1.1.1 — Node 22.x, Express 5.1.0, TS 5.9.2 |
 | ORM | Prisma CLI + Prisma Client | 6.19.0 |
 | Banco | PostgreSQL | 16.x (versão da CI) |
 | Gerenciador | npm | 10.x |
@@ -87,6 +87,7 @@ Nenhuma API pública fica online somente por enviar código ao GitHub.
 - [Backend — endpoints e instalação](backend/README.md)
 - [Insomnia — guia de teste](backend/INSOMNIA.md)
 - [Git Flow e sprints](docs/GIT_FLOW.md)
+- [Histórico de versões](CHANGELOG.md)
 - [Contribuição](CONTRIBUTING.md)
 - [Modelo de Pull Request](.github/PULL_REQUEST_TEMPLATE.md)
 
