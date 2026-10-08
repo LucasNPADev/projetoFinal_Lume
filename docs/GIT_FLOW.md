@@ -198,3 +198,15 @@ A limpeza nao deve ser feita antes de sincronizar correcoes de releases
 ou hotfixes com `dev`; por isso recomenda-se o PR `main -> dev`
 apos a publicacao. Se a limpeza ocorrer antes, o commit mesclado em
 `main` ainda pode ser trazido por `main -> dev`.
+
+## Tags de release
+
+Para releases com nome `release/vX.Y.Z`, o workflow
+[GitFlow - etiquetar versoes](../.github/workflows/gitflow-tag-release.yml)
+publica uma **tag Git anotada** `vX.Y.Z` no commit efetivamente
+mesclado na `main`, desde que `backend/package.json` tenha a mesma
+versao. Se uma tag ja existir apontando para outro commit, a tarefa
+falha em vez de sobrescreve-la. Para hotfixes com nome descritivo, a tag segue a versao semantica
+presente no `backend/package.json` apos o merge; por isso o hotfix
+deve atualizar essa versao antes da publicacao. A automacao impede
+sobrescrever tags existentes.
