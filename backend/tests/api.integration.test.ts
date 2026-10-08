@@ -31,6 +31,13 @@ test("API real: cadastro, login, isolamento de perfil, quiz e avaliacao moderada
     assert.equal(c2.status, 201, JSON.stringify(c2.data));
     user2 = c2.data.usuario.id;
     const token = c1.data.token;
+    // Cliente como Insomnia pode manter um Bearer vencido como autenticacao padrao.
+    // Login e refresh devem continuar funcionando sem usar esse JWT.
+    const reloginComBearerVencido = await request("POST", "/auth/login", {
+      email: email1, senha: "senha-super-forte-001"
+    }, "jwt-invalido-anterior");
+    assert.equal(reloginComBearerVencido.status, 200, JSON.stringify(reloginComBearerVencido.data));
+    assert.equal((await request("GET", "/auth/me", undefined, "jwt-invalido-anterior")).status, 401);
     assert.ok(c1.setCookie?.includes("HttpOnly"), "Refresh cookie HttpOnly ausente");
     const refresh = await fetch(base + "/auth/refresh", {
       method: "POST", headers: { Cookie: c1.setCookie!.split(";")[0] }
