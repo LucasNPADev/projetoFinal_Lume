@@ -44,8 +44,8 @@ async function main() {
         data: { nome: "Instituição Demo LUME", tipo: TipoInstituicao.PRIVADA, cidade: "São Bernardo do Campo", estado: "SP", ativo: true, dadosDemonstracao: true, fonteDados: "FICTICIO - apenas testes locais" }
       });
   for (const [c, valor] of [[engenharia, 750], [medicina, 2500], [direito, 900], [gestao, 650], [ads, 550]] as const) {
-    const found = await prisma.cursoInstituicao.findFirst({ where: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno } });
-    if (!found) await prisma.cursoInstituicao.create({ data: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno, mensalidade: valor, bolsas: true, ativo: true } });
+    const found = await prisma.cursoInstituicao.findFirst({ where: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno ?? "Não informado" } });
+    if (!found) await prisma.cursoInstituicao.create({ data: { cursoId: c.id, instituicaoId: instituicao.id, modalidade: c.modalidade, turno: c.turno ?? "Não informado", mensalidade: valor, bolsas: true, ativo: true } });
   }
 
   async function cargo(nome: string, area: string, descricao: string, salarios: [number, number, number], hardSkills: string[], softSkills: string[]) {

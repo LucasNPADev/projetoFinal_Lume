@@ -38,7 +38,7 @@ const instituicaoFields = z.object({
   ativo: z.boolean().default(true)
 }).strict();
 const ofertaFields = z.object({
-  cursoId: id, instituicaoId: id, modalidade, turno: texto(60).nullable().optional(),
+  cursoId: id, instituicaoId: id, modalidade, turno: texto(60).default("Não informado"),
   mensalidade: moeda.nullable().optional(), notaCorte: z.number().min(0).max(1000).nullable().optional(),
   anoNotaCorte: z.number().int().min(2000).max(2100).nullable().optional(),
   fonteNotaCorte: z.string().url().max(500).nullable().optional(),

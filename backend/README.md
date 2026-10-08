@@ -142,3 +142,9 @@ Quando o administrador altera preço/bolsa/status/nota de corte de uma oferta, o
 `TrilhaCargoCurso.duracaoMeses` permite registrar duração de cada etapa. O comparador soma o total de uma rota **somente se todas as etapas tiverem duração informada**; senão o total retorna nulo para evitar estimativa artificial. O favorito de trilha usa a FK de uma etapa da rota, de forma íntegra no banco.
 
 Para notas de corte, a API agora aceita `anoNotaCorte` e `fonteNotaCorte`. O simulador ENEM somente exibe referência quando os três dados (`notaCorte`, ano e fonte) estão presentes, com alerta de que nota acima do corte não garante vaga. **Não existe alimentação automática de MEC, SiSU ou Prouni**: o administrador deve inserir referências confiáveis e manter o ciclo atualizado.
+
+## Colecao Postman e integridade de ofertas
+
+Importe `backend/postman.collection.json` no Postman. Configure `baseUrl` e credenciais de estudante. O login captura o JWT de acesso para a colecao; para renovar sessao habilite o envio de cookies no Postman. Nenhum segredo de producao esta incluido.
+
+A coluna `CursoInstituicao.turno` passou a ser obrigatoria, usando o valor explicito `Não informado` na ausencia de turno. A regra impede duplicatas silenciosas na chave composta (curso, instituicao, modalidade e turno). A migration nao remove registros: eventual conflito historico deve ser resolvido manualmente.

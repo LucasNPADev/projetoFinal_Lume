@@ -153,7 +153,7 @@ model CursoInstituicao {
   cursoId        Int
   instituicaoId  Int
   modalidade     Modalidade
-  turno          String?
+  turno          String @default("Não informado")
   mensalidade    Decimal?     @db.Decimal(10, 2)
   notaCorte      Decimal?     @db.Decimal(5, 2)
   anoNotaCorte   Int?

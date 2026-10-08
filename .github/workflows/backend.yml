@@ -47,6 +47,8 @@ jobs:
           node-version: '22'
       - name: Instalar dependencias do backend
         run: npm install --no-audit --no-fund
+      - name: Validar JSON da colecao Postman
+        run: node -e "JSON.parse(require('node:fs').readFileSync('postman.collection.json','utf8'))"
       - name: Gerar Prisma Client
         run: npm run prisma:generate
       - name: Aplicar migrations reais
