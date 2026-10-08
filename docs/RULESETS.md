@@ -49,19 +49,9 @@ rulesets ativos em:
 gh api repos/LucasNPADev/projetoFinal_Lume/rulesets --jq '.[] | [.name, .enforcement] | @tsv'
 ```
 
-O workflow de limpeza de branches antigas só é acionado na publicação
-inicial do arquivo `.github/workflows/limpeza-branches.yml` na `main`,
-antes da aplicação das protecoes. Se ele falhar por permissao
-deletar ref, faça manualmente:
-
-```powershell
-git push origin --delete develop
-git push origin --delete feature/insomnia-rotas-backend
-git push origin --delete release/1.1.0
-```
-
-**Nunca apague** `main` ou `dev`. Somente efetue exclusoes apos
-verificar que ambas apontam para a versao aprovada e que os
-PRs anteriores estao mesclados. Branches temporarias para trabalhos
-futuros podem aparecer durante desenvolvimento e devem ser removidas
-apos a conclusao de cada PR.
+A limpeza de branches legadas foi executada com sucesso no GitHub Actions.
+O workflow temporario foi removido apos a execucao.
+As duas branches permanentes sao **main** e **dev**. Nunca remova essas branches.
+Branches temporarias de trabalhos futuros devem ser excluidas depois de
+mescladas, revisadas e sincronizadas. A ativacao dos rulesets permanece
+dependente das permissoes administrativas conforme as instrucoes acima.

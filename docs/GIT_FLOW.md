@@ -150,7 +150,7 @@ procedimento de ativacao em [RULESETS.md](RULESETS.md). Rode
 Administration: write. **Rulesets versionados nao equivalem a
 rulesets aplicados**; confira-os na aba Settings depois da ativacao.
 
-A migracao de `dev` para `dev` preserva o historico no Git;
-automacao de limpeza de refs legadas esta em
-`.github/workflows/limpeza-branches.yml`. O Git Flow do LUME usa
-`main` e `dev` como as duas branches permanentes.
+A branch legada `develop` foi substituida por `dev` preservando o
+historico. A limpeza das branches antigas foi executada e o workflow
+temporario removido. O Git Flow do LUME usa `main` e `dev`
+como as duas branches permanentes.
