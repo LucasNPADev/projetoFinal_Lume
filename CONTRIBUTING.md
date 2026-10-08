@@ -18,5 +18,8 @@ No backend, trabalhe em `backend/` e execute
 O CI do backend usa PostgreSQL e migrations reais com seed sintetico.
 Nunca inclua segredos, `.env` de verdade ou dados pessoais.
 
-O workflow de Git Flow valida os PRs, mas so as regras do
-GitHub (Settings > Rules > Rulesets) podem bloquear pushes diretos.
+Os rulesets ativos em GitHub protegem `main` e `dev`: so aceite PRs com
+`Politica Git Flow` e `Backend CI` aprovados. Nunca abra `dev -> main`
+diretamente: use `release/*`, ou `hotfix/*` para emergencia, e sincronize
+`main -> dev` apos o merge. As branches temporarias sao apagadas
+apos os PRs serem mesclados.
