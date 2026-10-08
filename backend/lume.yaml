@@ -1,0 +1,621 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: LUME
+meta:
+  id: wrk_ab41518f182b484fa1c0183051e57f25
+  created: 1791460653123
+  modified: 1791460653123
+  description: ""
+collection:
+  - name: Curso
+    meta:
+      id: fld_3185ee1c3f984519a92fa38ddceaf275
+      created: 1791460798359
+      modified: 1791463682486
+      sortKey: -1791460798359
+      description: ""
+    children:
+      - url: http://localhost:3333/cursos
+        name: Cadastrar_curso
+        meta:
+          id: req_8efa3a45ea4f459c9b76338646527c29
+          created: 1791461227607
+          modified: 1791467200296
+          isPrivate: false
+          description: ""
+          sortKey: -1791462977504
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            
+            {
+              "nome_curso": "Engenharia de controle e automação",
+              "grau_academico": "Bacharelado",
+              "modalidade": "PRESENCIAL",
+              "carga_horaria": 3600,
+              "area_curso": "Tecnologia da Informacao"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwZXJmaWwiOiJBRE1JTiIsImlhdCI6MTc5MTQ2MzE1MywiZXhwIjoxNzkxNTQ5NTUzLCJzdWIiOiI0In0.P1jRJyrHMIaDZ5_JT_MZ8VL1dJ4pAIbHpwdPHKmC85c
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3333/cursos/1
+        name: Listar_cursos
+        meta:
+          id: req_ecd24fdc2b964b7797ad62ba9e186c34
+          created: 1791461230333
+          modified: 1791467925745
+          isPrivate: false
+          description: ""
+          sortKey: -1791467162236
+        method: GET
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwZXJmaWwiOiJBRE1JTiIsImlhdCI6MTc5MTQ2MzE1MywiZXhwIjoxNzkxNTQ5NTUzLCJzdWIiOiI0In0.P1jRJyrHMIaDZ5_JT_MZ8VL1dJ4pAIbHpwdPHKmC85c
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Editar_curso
+        meta:
+          id: req_1ff77b93005344019d9a376b16f682fb
+          created: 1791462970945
+          modified: 1791466100473
+          isPrivate: false
+          description: ""
+          sortKey: -1791462977404
+        method: PUT
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Inativar_curso
+        meta:
+          id: req_88459eaabbee4777bfc108796d89d857
+          created: 1791462977354
+          modified: 1791463753282
+          isPrivate: false
+          description: ""
+          sortKey: -1791462977354
+        method: PATCH
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Favoritar_curso
+        meta:
+          id: req_9e42612abbf6422bb29c74bb0e0127b0
+          created: 1791466169453
+          modified: 1791466183381
+          isPrivate: false
+          description: ""
+          sortKey: -1791462977379
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Cargo
+    meta:
+      id: fld_86fe977e3e9144da9e59f80f611025c9
+      created: 1791460875425
+      modified: 1791463687305
+      sortKey: -1791460875425
+      description: ""
+    children:
+      - url: ""
+        name: Listar_cargos
+        meta:
+          id: req_6eb53f025fdd4c979e3dd9646524ef00
+          created: 1791462894900
+          modified: 1791466022831
+          isPrivate: false
+          description: ""
+          sortKey: -1791462931742
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Cadastrar_cargo
+        meta:
+          id: req_35fc41d75941402b8f6f1652a3daecb0
+          created: 1791462904389
+          modified: 1791466035620
+          isPrivate: false
+          description: ""
+          sortKey: -1791462931692
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Editar_cargo
+        meta:
+          id: req_0eb41927da6b439a9581620e72b3320a
+          created: 1791462921651
+          modified: 1791463281288
+          isPrivate: false
+          description: ""
+          sortKey: -1791462921651
+        method: PUT
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Inativar_cargo
+        meta:
+          id: req_cab25a7a23904dd7b95a8087869c66c1
+          created: 1791462931642
+          modified: 1791466041666
+          isPrivate: false
+          description: ""
+          sortKey: -1791462921551
+        method: PATCH
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Favoritar_cargo
+        meta:
+          id: req_7ee914fd11244330bc6da6f36c924666
+          created: 1791466045368
+          modified: 1791466065256
+          isPrivate: false
+          description: ""
+          sortKey: -1791462921601
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Teste Vocacional
+    meta:
+      id: fld_d9bdcddd133a400a97d214e05199231b
+      created: 1791460979202
+      modified: 1791463770094
+      sortKey: -1791460979202
+      description: ""
+    children:
+      - url: ""
+        name: Exibir_teste
+        meta:
+          id: req_d8b94b11bc2543639bcf60b943a42df1
+          created: 1791462821257
+          modified: 1791466194349
+          isPrivate: false
+          description: ""
+          sortKey: -1791462834211
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Realizar_teste
+        meta:
+          id: req_12461b95e53742d9b8027a543ddc63af
+          created: 1791462828556
+          modified: 1791466212756
+          isPrivate: false
+          description: ""
+          sortKey: -1791462821057
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Criar_pergunta
+        meta:
+          id: req_42068c59af424cfb9f8a9a12c0d62a42
+          created: 1791462834111
+          modified: 1791463355850
+          isPrivate: false
+          description: ""
+          sortKey: -1791462834111
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Excluir_pergunta
+        meta:
+          id: req_5b916c98de044658bb528b93123c945b
+          created: 1791463782129
+          modified: 1791466192905
+          isPrivate: false
+          description: ""
+          sortKey: -1791462821157
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Instituição
+    meta:
+      id: fld_514851f18e254070a1eb910eafecd22e
+      created: 1791461209452
+      modified: 1791463671860
+      sortKey: -1791461209452
+      description: ""
+    children:
+      - url: http://localhost:3333/instituicoes/1/cursos
+        name: Curso_instituicao
+        meta:
+          id: req_cbde7db27a5d41edb7034026fa0d29d7
+          created: 1791461167711
+          modified: 1791467365063
+          isPrivate: false
+          description: ""
+          sortKey: -1791463307738
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "id_curso": "1",
+              "id_instituicao": "1",
+              "mensalidade": 1200.00,
+              "formas_ingresso": "ENEM, Vestibular e Transferência",
+              "nota_corte": 650.50,
+              "status": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwZXJmaWwiOiJBRE1JTiIsImlhdCI6MTc5MTQ2MzE1MywiZXhwIjoxNzkxNTQ5NTUzLCJzdWIiOiI0In0.P1jRJyrHMIaDZ5_JT_MZ8VL1dJ4pAIbHpwdPHKmC85c
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3333/instituicoes
+        name: Cadastrar_instituicao
+        meta:
+          id: req_5f745acf27904d4cb18f1b0dc49964ac
+          created: 1791461225762
+          modified: 1791467325973
+          isPrivate: false
+          description: ""
+          sortKey: -1791463811223
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            
+            {
+              "nome_instituicao": "Faculdade Exemplo",
+              "cnpj": "11222333000181",
+              "nota_mec": 4.5,
+              "status": true,
+              "telefone": "1133334444",
+              "celular": "11999998888",
+              "email": "contato@example.com",
+              "rua": "Avenida Paulista",
+              "cidade": "Sao Paulo",
+              "estado": "SP",
+              "bairro": "Bela Vista",
+              "latitude": -23.5614,
+              "longitude": -46.6565
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwZXJmaWwiOiJBRE1JTiIsImlhdCI6MTc5MTQ2MzE1MywiZXhwIjoxNzkxNTQ5NTUzLCJzdWIiOiI0In0.P1jRJyrHMIaDZ5_JT_MZ8VL1dJ4pAIbHpwdPHKmC85c
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Listar_instituição
+        meta:
+          id: req_f0bca03ee254408180e692d97358cd89
+          created: 1791462794842
+          modified: 1791465982031
+          isPrivate: false
+          description: ""
+          sortKey: -1791463811248
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Editar_instituição
+        meta:
+          id: req_792c55ffc8ea47a29adfcc997a393de1
+          created: 1791462804253
+          modified: 1791463346891
+          isPrivate: false
+          description: ""
+          sortKey: -1791462804253
+        method: PUT
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Avaliar_instituicao
+        meta:
+          id: req_6d52ff7804b54713a5d0a19f1b5f30ee
+          created: 1791463811148
+          modified: 1791465991229
+          isPrivate: false
+          description: ""
+          sortKey: -1791462804153
+        method: POST
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Usuário
+    meta:
+      id: fld_6ea0a723a5734fcfa780a0c36d6d6939
+      created: 1791461752807
+      modified: 1791465757495
+      sortKey: -1791461752807
+      description: ""
+    children:
+      - url: ""
+        name: Listar_usuário
+        meta:
+          id: req_f0b6344c55e843a3b876586db6917ebb
+          created: 1791462439397
+          modified: 1791465971254
+          isPrivate: false
+          description: ""
+          sortKey: -1791462571734
+        method: GET
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Buscar_usuário_por_id
+        meta:
+          id: req_4487aff465b141a2bba098a0f1506e4c
+          created: 1791462556029
+          modified: 1791465974124
+          isPrivate: false
+          description: ""
+          sortKey: -1791462571684
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Editar_perfil
+        meta:
+          id: req_65fd3a20d3e94d22b9d75dbe72e45f14
+          created: 1791462565020
+          modified: 1791465977008
+          isPrivate: false
+          description: ""
+          sortKey: -1791462571659
+        method: PUT
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: ""
+        name: Inativar_usuário
+        meta:
+          id: req_6a2c1ebe65ea4e90918b99ea45f59bd2
+          created: 1791462571634
+          modified: 1791465765768
+          isPrivate: false
+          description: ""
+          sortKey: -1791462571634
+        method: PATCH
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Autenticação_Usuário
+    meta:
+      id: fld_45f6a84f55ca4014a771da6c37e385c0
+      created: 1791461892664
+      modified: 1791463660047
+      sortKey: -1791461892664
+      description: ""
+    children:
+      - url: http://localhost:3333/usuarios
+        name: Cadastrar_usuário
+        meta:
+          id: req_50c0948ff27d43819e3dd3a82e197d7c
+          created: 1791461148183
+          modified: 1791467392438
+          isPrivate: false
+          description: ""
+          sortKey: -1791462058445
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            
+            {
+              "nome": "Joao Silva",
+              "email": "joao.teste@example.com",
+              "senha": "12345678",
+              "rua": "Rua das Flores",
+              "cidade": "Sao Paulo",
+              "estado": "SP",
+              "bairro": "Centro",
+              "latitude": -23.5505,
+              "longitude": -46.6333
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3333/session
+        name: Autenticar_usuário
+        meta:
+          id: req_9080adc9e87d4a50aa1e27de445896b0
+          created: 1791461231559
+          modified: 1791467136471
+          isPrivate: false
+          description: ""
+          sortKey: -1791462058545
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            
+            {
+              "email": "admin@lume.com",
+              "senha": "Adminlume"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_ebb4425df748ef49fdbdf9399b47462f36a9aaec
+    created: 1791460653140
+    modified: 1791460653140
+environments:
+  name: Base Environment
+  meta:
+    id: env_ebb4425df748ef49fdbdf9399b47462f36a9aaec
+    created: 1791460653136
+    modified: 1791460653136
+    isPrivate: false
