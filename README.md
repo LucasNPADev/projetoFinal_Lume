@@ -80,3 +80,7 @@ npm run dev
 Esta base adapta a estrutura existente para o domínio LUME e prioriza a entrega de Banco de Dados & Código Base: schema lógico no Prisma, migration PostgreSQL, seed, cliente de banco, organização em controllers/services/routes, variáveis de ambiente, health check e primeiros endpoints consumidos pelo frontend.
 
 As telas do protótipo continuam como referência visual para as próximas sprints.
+
+## Organizacao de desenvolvimento: Git Flow
+
+O repositorio utiliza `main` para versoes estaveis e `develop` para integrar as sprints; funcionalidades entram via `feature/* -> develop`. Consulte o [guia Git Flow](docs/GIT_FLOW.md), [CONTRIBUTING](CONTRIBUTING.md) e o [template de PR](.github/PULL_REQUEST_TEMPLATE.md). A CI verifica origem/destino dos PRs; para impedir pushes diretos configure Rulesets no GitHub conforme o guia.
