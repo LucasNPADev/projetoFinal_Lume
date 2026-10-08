@@ -29,12 +29,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
           GH_EVENT_NAME: ${{ github.event_name }}
-          GH_EVENT_PATH: ${{ github.event_path }}
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs';
           const repo = process.env.GH_REPOSITORY;
-          const ev = JSON.parse(readFileSync(process.env.GH_EVENT_PATH, 'utf8'));
+          const ev = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
           const api = async (path, opts = {}) => {
             const res = await fetch('https://api.github.com/repos/' + repo + path, {
               method: opts.method || 'GET',
@@ -55,18 +54,28 @@ jobs:
             const p = ev.pull_request;
             if (p?.merged_at && p.base.ref === 'main' && p.head.repo?.full_name === repo) candidates.push(p);
           } else {
-            const prs = await api('/commits/' + ev.after + '/pulls?per_page=100');
-            candidates.push(...prs.filter(p => p.merged_at && p.base.ref === 'main' && p.head.repo?.full_name === repo && p.merge_commit_sha === ev.after));
+            // Em pushes que atualizem este workflow, recupera tambem as
+            // releases/hotfixes mescladas anteriormente que ficaram sem tag.
+            const prs = await api('/pulls?state=closed&per_page=100');
+            candidates.push(...prs.filter(p => p.merged_at && p.base.ref === 'main' && p.head.repo?.full_name === repo));
           }
           for (const p of candidates) {
-            const match = /^release\/v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.exec(p.head.ref);
-            if (!match) { console.log('Nao e PR de release versionada: ' + p.head.ref); continue; }
-            const version = match[1];
+            const release = /^release\/v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.exec(p.head.ref);
+            const hotfix = /^hotfix\/[a-z0-9][a-z0-9._-]*$/.test(p.head.ref);
+            if (!release && !hotfix) continue;
             const sha = p.merge_commit_sha;
             if (!sha) throw Error('PR sem SHA do commit de merge.');
             const payload = await api('/contents/backend/package.json?ref=' + sha);
             const packageVersion = JSON.parse(Buffer.from(payload.content, 'base64').toString('utf8')).version;
-            if (packageVersion !== version) throw Error('Versao do package.json ' + packageVersion + ' nao coincide com ' + version);
+            if (!/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(packageVersion)) {
+              throw Error('Versao semantica invalida: ' + packageVersion);
+            }
+            if (release && packageVersion !== release[1]) {
+              throw Error('Versao do package.json ' + packageVersion + ' nao coincide com ' + release[1]);
+            }
+            // Hotfix com nome descritivo usa a versao semantica do pacote;
+            // se ja houver tag da mesma versao em outro SHA, nao sobrescreve.
+            const version = release ? release[1] : packageVersion;
             const ref = 'v' + version;
             const existing = await api('/git/ref/tags/' + ref, {allow404:true});
             if (existing) {

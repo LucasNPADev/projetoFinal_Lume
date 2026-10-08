@@ -1,5 +1,15 @@
 # Histórico de versões — LUME
 
+## v1.1.2 — 08/10/2026
+
+**Hotfix de automação GitHub Actions:** corrige a leitura do evento de
+execução pelo caminho oficial `GITHUB_EVENT_PATH`, garantindo que o
+workflow de tags e o de limpeza de branches sejam executados. Em caso
+de falha anterior, a tarefa de tag reconcilia versões já mescladas sem
+sobrescrever tags existentes. Hotfix publicado pelo fluxo
+`hotfix/* -> main -> dev`. Nenhuma alteração de endpoints, Prisma ou
+lógica de negócio.
+
 ## v1.1.1 — 08/10/2026
 
 **Correções de processo e reprodutibilidade de GitFlow** (sem alteração

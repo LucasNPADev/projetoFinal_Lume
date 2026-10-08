@@ -206,5 +206,7 @@ Para releases com nome `release/vX.Y.Z`, o workflow
 publica uma **tag Git anotada** `vX.Y.Z` no commit efetivamente
 mesclado na `main`, desde que `backend/package.json` tenha a mesma
 versao. Se uma tag ja existir apontando para outro commit, a tarefa
-falha em vez de sobrescreve-la. Para hotfixes com nome descritivo,
-crie a tag de patch version manualmente apos homologacao.
+falha em vez de sobrescreve-la. Para hotfixes com nome descritivo, a tag segue a versao semantica
+presente no `backend/package.json` apos o merge; por isso o hotfix
+deve atualizar essa versao antes da publicacao. A automacao impede
+sobrescrever tags existentes.
