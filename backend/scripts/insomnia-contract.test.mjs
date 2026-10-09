@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 // A colecao versionada vive em /insomnia, na raiz do repositorio.
 const raw = readFileSync(new URL('../../insomnia/colecao-lume.json', import.meta.url), 'utf8');
@@ -60,5 +61,19 @@ test('Nao ha JWT literal nem valores secretos em campos de ambiente', () => {
     if (/token|secret|senha/i.test(key)) {
       assert.equal(value, '', `A variavel sensivel ${key} deve estar vazia`);
     }
+  }
+});
+
+test('Exportacoes YAML/JSON do repositorio nao podem conter JWT literal', () => {
+  // Impede regressao semelhante ao arquivo YAML proposto no PR #11.
+  const root = new URL('../../', import.meta.url);
+  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root })
+    .toString('utf8').split('\\0').filter(Boolean);
+  const exports = tracked.filter((path) =>
+    /\\.(?:json|yaml|yml)$/i.test(path) && !path.endsWith('package-lock.json'));
+  const jwtPattern = /eyJ[A-Za-z0-9_-]{10,}\\.eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]+/;
+  for (const file of exports) {
+    const contents = readFileSync(new URL('../../' + file, import.meta.url), 'utf8');
+    assert.doesNotMatch(contents, jwtPattern, `JWT literal versionado em ${file}`);
   }
 });
