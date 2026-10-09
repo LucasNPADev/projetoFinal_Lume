@@ -7,14 +7,14 @@
     {
       "_id": "wrk_lume_backend_substituto",
       "parentId": null,
-      "name": "LUME | API dev | 8 rotas",
+      "name": "LUME | TCC | 7 APIs de negócio",
       "scope": "collection",
       "_type": "workspace"
     },
     {
       "_id": "env_lume_backend_substituto",
       "parentId": "wrk_lume_backend_substituto",
-      "name": "Base Environment",
+      "name": "Base Environment — preencher somente localmente",
       "data": {
         "base_url": "http://localhost:3333",
         "token": "",
@@ -34,19 +34,27 @@
       "_type": "environment"
     },
     {
-      "_id": "req_lume_backend_01",
+      "_id": "fld_lume_autenticacao",
       "parentId": "wrk_lume_backend_substituto",
-      "name": "Saúde",
-      "method": "GET",
-      "url": "{{ _.base_url }}/health",
-      "_type": "request",
-      "headers": [],
-      "authentication": {}
+      "name": "01 - Autenticação e usuários",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_cursos",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "02 - Cursos",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_instituicoes",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "03 - Instituições",
+      "_type": "request_group"
     },
     {
       "_id": "req_lume_backend_02",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Cadastrar estudante",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Cadastrar_usuário",
       "method": "POST",
       "url": "{{ _.base_url }}/usuarios",
       "_type": "request",
@@ -64,8 +72,8 @@
     },
     {
       "_id": "req_lume_backend_03",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Login",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Autenticar_usuário",
       "method": "POST",
       "url": "{{ _.base_url }}/session",
       "_type": "request",
@@ -83,8 +91,8 @@
     },
     {
       "_id": "req_lume_backend_04",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Listar cursos",
+      "parentId": "fld_lume_cursos",
+      "name": "Listar_cursos",
       "method": "GET",
       "url": "{{ _.base_url }}/cursos",
       "_type": "request",
@@ -96,8 +104,8 @@
     },
     {
       "_id": "req_lume_backend_05",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Detalhar curso",
+      "parentId": "fld_lume_cursos",
+      "name": "Buscar_curso_por_id",
       "method": "GET",
       "url": "{{ _.base_url }}/cursos/{{ _.curso_id }}",
       "_type": "request",
@@ -109,8 +117,8 @@
     },
     {
       "_id": "req_lume_backend_06",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Criar curso (ADMIN)",
+      "parentId": "fld_lume_cursos",
+      "name": "Cadastrar_curso",
       "method": "POST",
       "url": "{{ _.base_url }}/cursos",
       "_type": "request",
@@ -131,8 +139,8 @@
     },
     {
       "_id": "req_lume_backend_07",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Criar instituição (ADMIN)",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Cadastrar_instituicao",
       "method": "POST",
       "url": "{{ _.base_url }}/instituicoes",
       "_type": "request",
@@ -153,8 +161,8 @@
     },
     {
       "_id": "req_lume_backend_08",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Vincular curso (ADMIN)",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Curso_instituicao",
       "method": "POST",
       "url": "{{ _.base_url }}/instituicoes/{{ _.instituicao_id }}/cursos",
       "_type": "request",

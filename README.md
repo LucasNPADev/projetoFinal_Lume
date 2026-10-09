@@ -40,7 +40,7 @@ O domínio do projeto contempla **estudantes, cargos, cursos, instituições, of
 | **Persistência** | PostgreSQL, Prisma, migração inicial e relações entre entidades |
 | **Proteção das rotas** | Middleware de autenticação e autorização de administrador |
 | **Qualidade** | Compilação TypeScript, testes de contrato e verificações na CI |
-| **Testes manuais** | Coleção Insomnia com as oito operações HTTP implementadas |
+| **Testes manuais** | Coleção Insomnia com exatamente sete APIs de negócio; a rota técnica `/health` fica fora da coleção |
 
 O cadastro comum cria estudantes. A criação da conta administrativa é realizada por um **seed configurado pelo próprio desenvolvedor**, não por um endpoint público.
 
@@ -102,8 +102,9 @@ projetoFinal_Lume/
 │   ├── scripts/
 │   ├── INSOMNIA.md
 │   └── README.md
-├── insomnia/                 # Coleção e guia oficial das 8 APIs
+├── insomnia/                 # Coleção, guia e testes das 7 APIs
 │   ├── colecao-lume.json
+│   ├── tests/                 # Testes da coleção e de HTTP
 │   └── README.md
 ├── frontend/
 │   ├── public/
@@ -217,11 +218,11 @@ O Vite mostrará no terminal o endereço local para abrir no navegador.
 
 ## 🔌 Contrato atual da API
 
-**URL-base:** `http://localhost:3333` — **sem `/api`**.
+**URL-base:** `http://localhost:3333` — **sem `/api`**. Há **7 APIs de negócio**; `/health` é apenas uma rota técnica de verificação, não incluída na coleção Insomnia.
 
 | Método | Endpoint | Acesso | Finalidade |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/health` | Público | Verificar a resposta do servidor |
+| `GET` | `/health` | Público | Verificação técnica (fora das 7 APIs do Insomnia) |
 | `POST` | `/usuarios` | Público | Cadastrar estudante |
 | `POST` | `/session` | Público | Autenticar usuário e obter JWT |
 | `GET` | `/cursos` | Autenticado | Listar cursos, com filtros e paginação |
@@ -234,7 +235,7 @@ As rotas autenticadas utilizam o cabeçalho `Authorization: Bearer <token>`. A a
 
 ## 🧪 Testes com Insomnia
 
-A coleção oficial da `dev` está em **[`insomnia/colecao-lume.json`](insomnia/colecao-lume.json)** e corresponde às **oito operações HTTP** mostradas acima.
+A coleção oficial da `dev` está em **[`insomnia/colecao-lume.json`](insomnia/colecao-lume.json)** e corresponde às **sete operações de negócio** mostradas acima (sem `/health`).
 
 1. Abra o Insomnia e importe o arquivo JSON.
 2. Configure `base_url` como `http://localhost:3333`.
@@ -281,7 +282,7 @@ Para colaborar: leia **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[GitFlow](docs/GI
 | Recurso | Conteúdo |
 | :--- | :--- |
 | [Backend](backend/README.md) | Dependências, instalação, rotas e limitações |
-| [Insomnia](insomnia/README.md) | Importação da coleção, variáveis locais, endpoints e segurança |
+| [Insomnia](insomnia/README.md) | Coleção de 7 APIs, testes em `insomnia/tests/`, variáveis locais e segurança |
 | [Schema Prisma](backend/prisma/schema.prisma) | Estrutura dos 11 modelos de dados |
 | [GitFlow](docs/GIT_FLOW.md) | Estratégia de branches, PRs, releases e hotfixes |
 | [Rulesets](docs/RULESETS.md) | Regras de proteção de `main` e `dev` |
