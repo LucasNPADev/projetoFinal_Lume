@@ -7,7 +7,7 @@
     {
       "_id": "wrk_lume_backend_substituto",
       "parentId": null,
-      "name": "LUME - API recebida - dev",
+      "name": "LUME | API dev | 8 rotas",
       "scope": "collection",
       "_type": "workspace"
     },
@@ -19,8 +19,17 @@
         "base_url": "http://localhost:3333",
         "token": "",
         "admin_token": "",
-        "curso_id": "1",
-        "instituicao_id": "1"
+        "curso_id": "",
+        "instituicao_id": "",
+        "nome_estudante": "",
+        "email_estudante": "",
+        "senha_estudante": "",
+        "nome_instituicao": "",
+        "cnpj_instituicao": "",
+        "nome_curso": "",
+        "grau_academico": "",
+        "area_curso": "",
+        "carga_horaria": ""
       },
       "_type": "environment"
     },
@@ -50,7 +59,7 @@
       "authentication": {},
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome\":\"Pessoa Exemplo\",\"email\":\"pessoa@example.org\",\"senha\":\"SenhaDeTeste123\"}"
+        "text": "{\"nome\":\"{{ _.nome_estudante }}\",\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
       }
     },
     {
@@ -69,7 +78,7 @@
       "authentication": {},
       "body": {
         "mimeType": "application/json",
-        "text": "{\"email\":\"pessoa@example.org\",\"senha\":\"SenhaDeTeste123\"}"
+        "text": "{\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
       }
     },
     {
@@ -117,7 +126,7 @@
       },
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome_curso\":\"Engenharia de Software\",\"grau_academico\":\"Bacharelado\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":3200,\"area_curso\":\"Tecnologia\"}"
+        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":{{ _.carga_horaria }},\"area_curso\":\"{{ _.area_curso }}\"}"
       }
     },
     {
@@ -139,7 +148,7 @@
       },
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome_instituicao\":\"Faculdade Exemplo\",\"cnpj\":\"11222333000181\"}"
+        "text": "{\"nome_instituicao\":\"{{ _.nome_instituicao }}\",\"cnpj\":\"{{ _.cnpj_instituicao }}\"}"
       }
     },
     {
