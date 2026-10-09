@@ -18,11 +18,11 @@ sem publicar `.env` nem `node_modules` da maquina de origem.
 > inicializacao e somente para um banco vazio. Nunca aplique em um banco antigo
 > sem planejar uma migracao de dados e backup; não existem scripts de conversao.
 
-## Rotas (sem /api)
+## Sete APIs de negócio e rota técnica (sem /api)
 
 | Metodo | Rota | Perfil |
 | --- | --- | --- |
-| GET | /health | publico |
+| GET | /health | público (verificação técnica, **fora das 7 APIs do Insomnia**) |
 | POST | /usuarios | publico |
 | POST | /session | publico |
 | GET | /cursos | autenticado |
@@ -31,7 +31,7 @@ sem publicar `.env` nem `node_modules` da maquina de origem.
 | POST | /instituicoes | admin |
 | POST | /instituicoes/:id/cursos | admin |
 
-As 8 rotas implementadas estao na pasta [**insomnia/**](../insomnia/) na raiz do repositorio. Importe [colecao-lume.json](../insomnia/colecao-lume.json) e siga o [guia Insomnia](../insomnia/README.md). Os tokens devem permanecer apenas no ambiente local de cada integrante.
+As **7 APIs de negócio** estão na pasta [**insomnia/**](../insomnia/) na raiz do repositorio; **GET /health** é somente uma rota técnica e não entra na coleção. Importe [colecao-lume.json](../insomnia/colecao-lume.json) e siga o [guia Insomnia](../insomnia/README.md). Os tokens devem permanecer apenas no ambiente local de cada integrante. Os testes de contrato e de HTTP também ficam em [insomnia/tests](../insomnia/tests/).
 **Funcionalidades ausentes em relacao a main:** quizzes, trilhas, favoritos,
 notificacoes, avaliacoes, eventos e diversas rotas administrativas anteriores.
 O frontend/Insomnia legado precisa adaptar os endpoints. Para producao,
