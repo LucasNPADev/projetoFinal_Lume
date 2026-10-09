@@ -68,12 +68,12 @@ test('Exportacoes YAML/JSON do repositorio nao podem conter JWT literal', () => 
   // Impede regressao semelhante ao arquivo YAML proposto no PR #11.
   const root = new URL('../../', import.meta.url);
   const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root })
-    .toString('utf8').split('\\0').filter(Boolean);
+    .toString('utf8').split('\0').filter(Boolean);
   const exports = tracked.filter((path) =>
-    /\\.(?:json|yaml|yml)$/i.test(path) && !path.endsWith('package-lock.json'));
-  const jwtPattern = /eyJ[A-Za-z0-9_-]{10,}\\.eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]+/;
+    /\.(?:json|yaml|yml)$/i.test(path) && !path.endsWith('package-lock.json'));
+  const jwtPattern = /eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+/;
   for (const file of exports) {
     const contents = readFileSync(new URL('../../' + file, import.meta.url), 'utf8');
-    assert.doesNotMatch(contents, jwtPattern, `JWT literal versionado em ${file}`);
+    assert.doesNotMatch(contents, jwtPattern, 'JWT literal versionado em ' + file);
   }
 });
