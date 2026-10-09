@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 <div align="center">
 
 # ✨ LUME
@@ -101,8 +100,10 @@ projetoFinal_Lume/
 │   │   └── server.ts
 │   ├── tests/
 │   ├── scripts/
-│   ├── insomnia.collection.json
 │   ├── INSOMNIA.md
+│   └── README.md
+├── insomnia/                 # Coleção e guia oficial das 8 APIs
+│   ├── colecao-lume.json
 │   └── README.md
 ├── frontend/
 │   ├── public/
@@ -233,7 +234,7 @@ As rotas autenticadas utilizam o cabeçalho `Authorization: Bearer <token>`. A a
 
 ## 🧪 Testes com Insomnia
 
-A coleção oficial da `dev` está em **[`backend/insomnia.collection.json`](backend/insomnia.collection.json)** e corresponde às **oito operações HTTP** mostradas acima.
+A coleção oficial da `dev` está em **[`insomnia/colecao-lume.json`](insomnia/colecao-lume.json)** e corresponde às **oito operações HTTP** mostradas acima.
 
 1. Abra o Insomnia e importe o arquivo JSON.
 2. Configure `base_url` como `http://localhost:3333`.
@@ -244,7 +245,9 @@ A coleção oficial da `dev` está em **[`backend/insomnia.collection.json`](bac
 
 Os nomes, e-mails e dados nos exemplos da coleção são **exclusivamente ilustrativos para teste**, **não constituem cadastro verdadeiro do LUME**. Não inclua JWTs, senhas, tokens ou dados pessoais reais nos arquivos versionados.
 
-Guia completo: **[Como testar no Insomnia](backend/INSOMNIA.md)**.
+Guia completo: **[Como testar no Insomnia](insomnia/README.md)**.
+
+> **Segurança:** um PR antigo fechado (PR #11) registrou JWTs literais em seu diff. A coleção atual **não contém tokens de acesso**, mas o histórico pode permanecer acessível. É necessário que os responsáveis pelos ambientes que emitiram esses JWTs **rotacionem o `JWT_SECRET` fora do repositório**. Consulte as [instruções de segurança do Insomnia](insomnia/README.md#segurança--obrigatório).
 
 ## 🌿 Fluxo de trabalho (GitFlow)
 
@@ -278,7 +281,7 @@ Para colaborar: leia **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[GitFlow](docs/GI
 | Recurso | Conteúdo |
 | :--- | :--- |
 | [Backend](backend/README.md) | Dependências, instalação, rotas e limitações |
-| [Insomnia](backend/INSOMNIA.md) | Importação da coleção e autenticação local |
+| [Insomnia](insomnia/README.md) | Importação da coleção, variáveis locais, endpoints e segurança |
 | [Schema Prisma](backend/prisma/schema.prisma) | Estrutura dos 11 modelos de dados |
 | [GitFlow](docs/GIT_FLOW.md) | Estratégia de branches, PRs, releases e hotfixes |
 | [Rulesets](docs/RULESETS.md) | Regras de proteção de `main` e `dev` |
@@ -305,71 +308,3 @@ Para colaborar: leia **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[GitFlow](docs/GI
 [Voltar ao início ↑](#-lume)
 
 </div>
-=======
-# LUME — Backend (GPS de Carreira)
-
-API REST em **Node.js + Express + TypeScript**, com **Prisma ORM + PostgreSQL** e autenticação **JWT**.
-Modelo de dados baseado no DER do projeto.
-
-## Rodando
-
-```bash
-npm install
-cp .env.example .env        # edite DATABASE_URL, JWT_SECRET e os dados do admin
-npx prisma migrate dev --name init
-npm run seed                # cria o primeiro ADMIN (ADMIN_EMAIL / ADMIN_SENHA do .env)
-npm run dev                 # http://localhost:3333
-```
-
-## Rotas
-
-| Método | Rota | Acesso | Descrição |
-|---|---|---|---|
-| POST | `/usuarios` | público | Cadastro (sempre cria perfil `ESTUDANTE`) |
-| POST | `/session` | público | Login — retorna `{ id, nome, email, perfil, token }` |
-| GET | `/cursos` | autenticado | Lista cursos (`?busca=&area=&modalidade=&page=&limit=`) |
-| GET | `/cursos/:id` | autenticado | Detalhe do curso + instituições ativas que o ofertam (registra em `ConsultaCurso`) |
-| POST | `/cursos` | ADMIN | Cria curso |
-| POST | `/instituicoes` | ADMIN | Cria instituição |
-| POST | `/instituicoes/:id/cursos` | ADMIN | Cadastra um curso em uma instituição (`Curso_Instituicao`) |
-
-Rotas protegidas usam o header `Authorization: Bearer <token>` (igual ao app mobile de exemplo).
-
-## Exemplos (curl)
-
-```bash
-# Cadastro
-curl -X POST localhost:3333/usuarios -H 'Content-Type: application/json' \
-  -d '{"nome":"Lucas Serra","email":"lucas@email.com","senha":"senha12345","cidade":"São Bernardo do Campo","estado":"SP"}'
-
-# Login
-curl -X POST localhost:3333/session -H 'Content-Type: application/json' \
-  -d '{"email":"admin@lume.com","senha":"troque-esta-senha"}'
-
-# (use o token retornado abaixo)
-TOKEN="cole-o-token-aqui"
-
-# Criar curso
-curl -X POST localhost:3333/cursos -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"nome_curso":"Análise e Desenvolvimento de Sistemas","grau_academico":"Tecnólogo","modalidade":"PRESENCIAL","carga_horaria":2000,"area_curso":"Tecnologia da Informação"}'
-
-# Criar instituição (CNPJ é validado — este é um CNPJ de teste válido)
-curl -X POST localhost:3333/instituicoes -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"nome_instituicao":"Faculdade Exemplo","cnpj":"11.222.333/0001-81","nota_mec":4.5,"cidade":"São Bernardo do Campo","estado":"SP","bairro":"Centro"}'
-
-# Cadastrar o curso 1 na instituição 1
-curl -X POST localhost:3333/instituicoes/1/cursos -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"id_curso":1,"mensalidade":850.00,"formas_ingresso":"Vestibular, ENEM","nota_corte":620.5}'
-
-# Consultar curso (traz as instituições)
-curl localhost:3333/cursos/1 -H "Authorization: Bearer $TOKEN"
-```
-
-## Observações
-
-- IDs (`BIGINT`) são devolvidos como **string** no JSON.
-- Campos `Decimal` (mensalidade, nota_corte etc.) também voltam como string, para não perder precisão.
-- `modalidade` aceita `PRESENCIAL`, `EAD` ou `HIBRIDO`.
-- Senhas são guardadas com bcrypt (RNF03); sessão via JWT com expiração (RNF06 — refresh token ainda não implementado).
-- Erros seguem o formato `{ "error": "mensagem" }` (validação traz também `detalhes`).
->>>>>>> Stashed changes
