@@ -1,1 +1,0 @@
-# Diagramas do Projeto (DER, UML, Casos de Uso)

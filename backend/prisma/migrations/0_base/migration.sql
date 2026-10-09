@@ -1,6 +1,3 @@
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateTable
 CREATE TABLE "Usuario" (
     "id_usuario" BIGSERIAL NOT NULL,

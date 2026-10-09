@@ -1,35 +1,80 @@
-import { z } from 'zod';
-import { validarCnpj } from '../utils/cnpj';
-
-export const criarInstituicaoSchema = z.object({
-  nome_instituicao: z.string().trim().min(2).max(200),
-  cnpj: z
-    .string()
-    .transform((v) => v.replace(/\D/g, ''))
-    .pipe(z.string().length(14, 'CNPJ deve ter 14 dígitos'))
-    .refine(validarCnpj, 'CNPJ inválido'),
-  nota_mec: z.number().min(0).max(5).optional(),
-  status: z.boolean().default(true),
-  telefone: z.string().trim().max(20).optional(),
-  celular: z.string().trim().max(20).optional(),
-  email: z.string().trim().toLowerCase().email().max(255).optional(),
-  rua: z.string().trim().max(200).optional(),
-  cidade: z.string().trim().max(100).optional(),
-  estado: z.string().trim().length(2, 'Use a sigla do estado (ex: SP)').toUpperCase().optional(),
-  bairro: z.string().trim().max(100).optional(),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
+import { z } from "zod";
+import { validarCnpj } from "../utils/cnpj";
+import {
+  texto,
+  emailSchema,
+  urlSchema,
+  enderecoShape,
+  validarCoordenadas,
+  valorSchema,
+  notaSchema,
+  idSchema,
+  exigirAlteracao,
+  estadoSchema,
+} from "./comum";
+const base = z
+  .object({
+    nome_instituicao: texto(200),
+    cnpj: z
+      .string()
+      .regex(/^[\d.\/-]+$/)
+      .transform((v) => v.replace(/\D/g, ""))
+      .refine(validarCnpj, "CNPJ inválido"),
+    nota_mec: z
+      .number()
+      .min(1)
+      .max(5)
+      .refine((v) => Number.isInteger(v * 10), "Use no máximo 1 casa decimal")
+      .nullable()
+      .optional(),
+    status: z.boolean().optional(),
+    regular_mec: z.boolean().optional(),
+    natureza: z.enum(["PUBLICA", "PRIVADA"]).optional(),
+    telefone: texto(20).nullable().optional(),
+    celular: texto(20).nullable().optional(),
+    email: emailSchema.nullable().optional(),
+    site: urlSchema.nullable().optional(),
+    ...enderecoShape,
+  })
+  .strict();
+export const criarInstituicaoSchema = base.superRefine(validarCoordenadas);
+export const editarInstituicaoSchema = base
+  .partial()
+  .superRefine(exigirAlteracao)
+  .superRefine(validarCoordenadas);
+const oferta = z
+  .object({
+    id_curso: idSchema,
+    mensalidade: valorSchema,
+    mensalidade_max: valorSchema.nullable().optional(),
+    formas_ingresso: texto(2000),
+    nota_corte: notaSchema.nullable().optional(),
+    ano_nota_corte: z.number().int().min(2000).max(2100).nullable().optional(),
+    programa_nota_corte: z
+      .enum(["SISU", "PROUNI", "ENEM", "VESTIBULAR"])
+      .nullable()
+      .optional(),
+    id_fonte_nota: idSchema.nullable().optional(),
+    bolsas: texto(4000).nullable().optional(),
+    prouni: z.boolean().optional(),
+    fies: z.boolean().optional(),
+    polo_nome: texto(200).nullable().optional(),
+    polo_rua: texto(200).nullable().optional(),
+    polo_cidade: texto(100).nullable().optional(),
+    polo_estado: estadoSchema.nullable().optional(),
+    polo_bairro: texto(100).nullable().optional(),
+    polo_latitude: z.number().min(-90).max(90).nullable().optional(),
+    polo_longitude: z.number().min(-180).max(180).nullable().optional(),
+    status: z.boolean().optional(),
+  })
+  .strict();
+export const vincularCursoSchema = oferta;
+export const vincularCursoJsonSchema = oferta.extend({
+  id_instituicao: idSchema,
 });
-
-export const vincularCursoSchema = z.object({
-  id_curso: z
-    .union([z.string().regex(/^\d+$/, 'id_curso inválido'), z.number().int().positive()])
-    .transform((v) => BigInt(v)),
-  mensalidade: z.number().min(0).optional(),
-  formas_ingresso: z.string().trim().max(2000).optional(),
-  nota_corte: z.number().min(0).optional(),
-  status: z.boolean().default(true),
-});
-
+export const editarOfertaSchema = oferta
+  .omit({ id_curso: true })
+  .partial()
+  .superRefine(exigirAlteracao);
 export type CriarInstituicaoInput = z.infer<typeof criarInstituicaoSchema>;
-export type VincularCursoInput = z.infer<typeof vincularCursoSchema>;
+export type VincularCursoInput = z.infer<typeof oferta>;

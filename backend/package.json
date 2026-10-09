@@ -1,40 +1,53 @@
 {
   "name": "lume-backend",
-  "version": "1.2.0-dev.0",
+  "version": "2.0.0",
   "private": true,
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "seed": "tsx prisma/seed.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts",
-    "prisma:deploy": "prisma migrate deploy",
-    "insomnia:validate": "node --test scripts/insomnia-contract.test.mjs"
+    "db:deploy": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "db:adotar": "node --import tsx scripts/adotar-banco.ts",
+    "seed": "node --import tsx prisma/seed.ts",
+    "seed:demo": "node --import tsx prisma/seed-demo.ts",
+    "admin:create": "node --import tsx scripts/criar-admin.ts",
+    "create-admin": "node --import tsx scripts/criar-admin.ts",
+    "configurar": "node --import tsx scripts/configurar.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:api": "node --import tsx --test tests/api.integration.ts",
+    "postinstall": "prisma generate"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node --import tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0",
-    "bcryptjs": "^2.4.3",
+    "@prisma/client": "6.19.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^5.0.0",
+    "express": "5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "zod": "^3.25.0"
+    "zod": "3.25.76",
+    "nodemailer": "^7.0.6"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.0.0",
-    "prisma": "^6.0.0",
+    "@types/nodemailer": "^7.0.2",
+    "prisma": "6.19.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.11"
   }
 }

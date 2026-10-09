@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id_usuario BigInt   @id @default(autoincrement())
+  nome       String   @db.VarChar(150)
+  email      String   @unique @db.VarChar(255)
+  senha_hash String   @db.VarChar(255)
+  perfil     String   @default("ESTUDANTE") @db.VarChar(20)
+  rua        String?  @db.VarChar(200)
+  cidade     String?  @db.VarChar(100)
+  estado     String?  @db.Char(2)
+  bairro     String?  @db.VarChar(100)
+  latitude   Decimal? @db.Decimal(10, 7)
+  longitude  Decimal? @db.Decimal(10, 7)
+
+  cargos_cadastrados       Cargo[]
+  cursos_cadastrados       Curso[]
+  instituicoes_cadastradas Instituicao[]
+  perguntas_cadastradas    PerguntaVocacional[]
+  consultas_curso          ConsultaCurso[]
+  consultas_cargo          ConsultaCargo[]
+  avaliacoes               Avaliacao[]
+  historico_testes         HistoricoTesteVocacional[]
+}
+
+model Cargo {
+  id_cargo               BigInt   @id @default(autoincrement())
+  nome                   String   @db.VarChar(150)
+  area_atuacao           String   @db.VarChar(150)
+  salario                Decimal? @db.Decimal(10, 0)
+  descricao              String?  @db.Text
+  hard_skills            String?  @db.Text
+  soft_skills            String?  @db.Text
+  id_usuario_cadastrador BigInt
+
+  cadastrador Usuario           @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
+  trilhas     TrilhaCargoCurso[]
+  consultas   ConsultaCargo[]
+}
+
+model Curso {
+  id_curso               BigInt @id @default(autoincrement())
+  nome_curso             String @db.VarChar(200)
+  grau_academico         String @db.VarChar(80)
+  modalidade             String @db.VarChar(50)
+  carga_horaria          Int
+  area_curso             String @db.VarChar(150)
+  id_usuario_cadastrador BigInt
+
+  cadastrador Usuario            @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
+  ofertas     Curso_Instituicao[]
+  trilhas     TrilhaCargoCurso[]
+  consultas   ConsultaCurso[]
+}
+
+model Instituicao {
+  id_instituicao         BigInt   @id @default(autoincrement())
+  nome_instituicao       String   @db.VarChar(200)
+  cnpj                   String   @unique @db.VarChar(14)
+  nota_mec               Decimal? @db.Decimal(2, 1)
+  status                 Boolean  @default(true)
+  telefone               String?  @db.VarChar(20)
+  celular                String?  @db.VarChar(20)
+  email                  String?  @db.VarChar(255)
+  rua                    String?  @db.VarChar(200)
+  cidade                 String?  @db.VarChar(100)
+  estado                 String?  @db.Char(2)
+  bairro                 String?  @db.VarChar(100)
+  latitude               Decimal? @db.Decimal(10, 7)
+  longitude              Decimal? @db.Decimal(10, 7)
+  id_usuario_cadastrador BigInt
+
+  cadastrador Usuario             @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
+  ofertas     Curso_Instituicao[]
+  avaliacoes  Avaliacao[]
+}
+
+model Curso_Instituicao {
+  id_curso_instituicao BigInt   @id @default(autoincrement())
+  id_curso             BigInt
+  id_instituicao       BigInt
+  mensalidade          Decimal? @db.Decimal(10, 2)
+  formas_ingresso      String?  @db.Text
+  nota_corte           Decimal? @db.Decimal(6, 2)
+  status               Boolean  @default(true)
+
+  curso       Curso       @relation(fields: [id_curso], references: [id_curso])
+  instituicao Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+
+  @@unique([id_curso, id_instituicao])
+}
+
+model TrilhaCargoCurso {
+  id_trilha   BigInt  @id @default(autoincrement())
+  id_cargo    BigInt
+  id_curso    BigInt
+  ordem_etapa Int
+  descricao   String? @db.Text
+
+  cargo Cargo @relation(fields: [id_cargo], references: [id_cargo])
+  curso Curso @relation(fields: [id_curso], references: [id_curso])
+}
+
+model ConsultaCurso {
+  id_consulta   BigInt   @id @default(autoincrement())
+  id_usuario    BigInt
+  id_curso      BigInt
+  data_consulta DateTime @default(now()) @db.Timestamptz()
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  curso   Curso   @relation(fields: [id_curso], references: [id_curso])
+}
+
+model ConsultaCargo {
+  id_consulta   BigInt   @id @default(autoincrement())
+  id_usuario    BigInt
+  id_cargo      BigInt
+  data_consulta DateTime @default(now()) @db.Timestamptz()
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  cargo   Cargo   @relation(fields: [id_cargo], references: [id_cargo])
+}
+
+model Avaliacao {
+  id_avaliacao    BigInt   @id @default(autoincrement())
+  id_usuario      BigInt
+  id_instituicao  BigInt
+  comentario      String?  @db.Text
+  data_publicacao DateTime @default(now()) @db.Timestamptz()
+
+  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario])
+  instituicao Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+}
+
+model PerguntaVocacional {
+  id_pergunta            BigInt @id @default(autoincrement())
+  enunciado              String @db.Text
+  area_afinidade         String @db.VarChar(150)
+  id_usuario_cadastrador BigInt
+
+  cadastrador Usuario @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
+}
+
+model HistoricoTesteVocacional {
+  id_historico        BigInt   @id @default(autoincrement())
+  id_usuario          BigInt
+  data_realizada      DateTime @default(now()) @db.Timestamptz()
+  pontuacao_detalhada Json     @db.JsonB
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+}
