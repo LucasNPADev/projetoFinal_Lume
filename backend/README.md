@@ -31,7 +31,7 @@ sem publicar `.env` nem `node_modules` da maquina de origem.
 | POST | /instituicoes | admin |
 | POST | /instituicoes/:id/cursos | admin |
 
-Importe a colecao descrita em [INSOMNIA.md](INSOMNIA.md).
+As 8 rotas implementadas estao na pasta [**insomnia/**](../insomnia/) na raiz do repositorio. Importe [colecao-lume.json](../insomnia/colecao-lume.json) e siga o [guia Insomnia](../insomnia/README.md). Os tokens devem permanecer apenas no ambiente local de cada integrante.
 **Funcionalidades ausentes em relacao a main:** quizzes, trilhas, favoritos,
 notificacoes, avaliacoes, eventos e diversas rotas administrativas anteriores.
 O frontend/Insomnia legado precisa adaptar os endpoints. Para producao,
