@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <div align="center">
 
 # ✨ LUME
@@ -304,3 +305,71 @@ Para colaborar: leia **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[GitFlow](docs/GI
 [Voltar ao início ↑](#-lume)
 
 </div>
+=======
+# LUME — Backend (GPS de Carreira)
+
+API REST em **Node.js + Express + TypeScript**, com **Prisma ORM + PostgreSQL** e autenticação **JWT**.
+Modelo de dados baseado no DER do projeto.
+
+## Rodando
+
+```bash
+npm install
+cp .env.example .env        # edite DATABASE_URL, JWT_SECRET e os dados do admin
+npx prisma migrate dev --name init
+npm run seed                # cria o primeiro ADMIN (ADMIN_EMAIL / ADMIN_SENHA do .env)
+npm run dev                 # http://localhost:3333
+```
+
+## Rotas
+
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| POST | `/usuarios` | público | Cadastro (sempre cria perfil `ESTUDANTE`) |
+| POST | `/session` | público | Login — retorna `{ id, nome, email, perfil, token }` |
+| GET | `/cursos` | autenticado | Lista cursos (`?busca=&area=&modalidade=&page=&limit=`) |
+| GET | `/cursos/:id` | autenticado | Detalhe do curso + instituições ativas que o ofertam (registra em `ConsultaCurso`) |
+| POST | `/cursos` | ADMIN | Cria curso |
+| POST | `/instituicoes` | ADMIN | Cria instituição |
+| POST | `/instituicoes/:id/cursos` | ADMIN | Cadastra um curso em uma instituição (`Curso_Instituicao`) |
+
+Rotas protegidas usam o header `Authorization: Bearer <token>` (igual ao app mobile de exemplo).
+
+## Exemplos (curl)
+
+```bash
+# Cadastro
+curl -X POST localhost:3333/usuarios -H 'Content-Type: application/json' \
+  -d '{"nome":"Lucas Serra","email":"lucas@email.com","senha":"senha12345","cidade":"São Bernardo do Campo","estado":"SP"}'
+
+# Login
+curl -X POST localhost:3333/session -H 'Content-Type: application/json' \
+  -d '{"email":"admin@lume.com","senha":"troque-esta-senha"}'
+
+# (use o token retornado abaixo)
+TOKEN="cole-o-token-aqui"
+
+# Criar curso
+curl -X POST localhost:3333/cursos -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"nome_curso":"Análise e Desenvolvimento de Sistemas","grau_academico":"Tecnólogo","modalidade":"PRESENCIAL","carga_horaria":2000,"area_curso":"Tecnologia da Informação"}'
+
+# Criar instituição (CNPJ é validado — este é um CNPJ de teste válido)
+curl -X POST localhost:3333/instituicoes -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"nome_instituicao":"Faculdade Exemplo","cnpj":"11.222.333/0001-81","nota_mec":4.5,"cidade":"São Bernardo do Campo","estado":"SP","bairro":"Centro"}'
+
+# Cadastrar o curso 1 na instituição 1
+curl -X POST localhost:3333/instituicoes/1/cursos -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"id_curso":1,"mensalidade":850.00,"formas_ingresso":"Vestibular, ENEM","nota_corte":620.5}'
+
+# Consultar curso (traz as instituições)
+curl localhost:3333/cursos/1 -H "Authorization: Bearer $TOKEN"
+```
+
+## Observações
+
+- IDs (`BIGINT`) são devolvidos como **string** no JSON.
+- Campos `Decimal` (mensalidade, nota_corte etc.) também voltam como string, para não perder precisão.
+- `modalidade` aceita `PRESENCIAL`, `EAD` ou `HIBRIDO`.
+- Senhas são guardadas com bcrypt (RNF03); sessão via JWT com expiração (RNF06 — refresh token ainda não implementado).
+- Erros seguem o formato `{ "error": "mensagem" }` (validação traz também `detalhes`).
+>>>>>>> Stashed changes

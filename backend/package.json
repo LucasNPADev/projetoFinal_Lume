@@ -1,6 +1,10 @@
 {
   "name": "lume-backend",
+<<<<<<< Updated upstream
   "version": "1.2.0-dev.0",
+=======
+  "version": "1.0.0",
+>>>>>>> Stashed changes
   "private": true,
   "main": "dist/server.js",
   "scripts": {
@@ -9,11 +13,15 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+<<<<<<< Updated upstream
     "seed": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "prisma:deploy": "prisma migrate deploy",
     "insomnia:validate": "node --test scripts/insomnia-contract.test.mjs"
+=======
+    "seed": "tsx prisma/seed.ts"
+>>>>>>> Stashed changes
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
