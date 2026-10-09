@@ -1,0 +1,176 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-08T17:30:00.000Z",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_lume_backend_substituto",
+      "parentId": null,
+      "name": "LUME | API dev | 8 rotas",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_lume_backend_substituto",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3333",
+        "token": "",
+        "admin_token": "",
+        "curso_id": "1",
+        "instituicao_id": "1",
+        "nome_estudante": "",
+        "email_estudante": "",
+        "senha_estudante": "",
+        "nome_instituicao": "",
+        "cnpj_instituicao": "",
+        "nome_curso": "",
+        "grau_academico": "",
+        "area_curso": ""
+      },
+      "_type": "environment"
+    },
+    {
+      "_id": "req_lume_backend_01",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Saúde",
+      "method": "GET",
+      "url": "{{ _.base_url }}/health",
+      "_type": "request",
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_lume_backend_02",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Cadastrar estudante",
+      "method": "POST",
+      "url": "{{ _.base_url }}/usuarios",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome\":\"{{ _.nome_estudante }}\",\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_03",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/session",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_04",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Listar cursos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cursos",
+      "_type": "request",
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_05",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Detalhar curso",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cursos/{{ _.curso_id }}",
+      "_type": "request",
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_06",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Criar curso (ADMIN)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/cursos",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":1,\"area_curso\":\"{{ _.area_curso }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_07",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Criar instituição (ADMIN)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/instituicoes",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome_instituicao\":\"{{ _.nome_instituicao }}\",\"cnpj\":\"{{ _.cnpj_instituicao }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_08",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Vincular curso (ADMIN)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/instituicoes/{{ _.instituicao_id }}/cursos",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"id_curso\":\"{{ _.curso_id }}\"}"
+      }
+    }
+  ]
+}
