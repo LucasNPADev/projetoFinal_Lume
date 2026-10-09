@@ -1,45 +1,74 @@
-# Insomnia — APIs oficiais do LUME (dev)
+# Insomnia · APIs e testes do LUME
 
-Aqui o grupo encontra a **única coleção Insomnia versionada da API atual**. São **8 operações implementadas** no backend recebido, com URL-base `http://localhost:3333` (sem `/api`).
+**Central de testes da branch `dev` — exatamente 7 APIs de negócio.**
 
-## Como testar — passo a passo
+A API atual também expõe `GET /health` para verificação técnica do servidor. **`/health` não faz parte das sete operações de negócio nem da coleção Insomnia**. Não foram criadas nem removidas rotas do backend.
 
-1. Siga o [guia de instalação do backend](../backend/README.md). Use um banco PostgreSQL **novo e vazio**, nunca o banco do backend anterior.
-2. No Insomnia: **Import > File > [colecao-lume.json](colecao-lume.json)**.
-3. Confira no ambiente importado `base_url=http://localhost:3333`.
-4. Teste `GET /health`: deve responder **200** e `{"status":"ok"}`.
-5. Preencha no **seu próprio Insomnia**, sem subir ao GitHub, `nome_estudante`, `email_estudante` e `senha_estudante`. Execute `POST /usuarios`, seguido de `POST /session`; guarde o JWT retornado em `token` **somente localmente**.
-6. Para ações administrativas, configure `ADMIN_EMAIL` e `ADMIN_SENHA` **apenas no `backend/.env` local**, rode `npm run seed`, faça login pelo `POST /session` e coloque o JWT em `admin_token` no Insomnia local.
-7. Para os cadastros, preencha as variáveis locais `nome_curso`, `grau_academico`, `area_curso`, `nome_instituicao` e `cnpj_instituicao` com informações **válidas do ambiente de teste da equipe**. No corpo de criação de curso, substitua a carga horária ilustrativa pela carga horária do curso que está testando.
-8. Use `curso_id` e `instituicao_id` correspondentes aos registros que **seu banco retornou**, não IDs inventados.
+## Organização da pasta
 
-## Todas as rotas que já existem
+```text
+insomnia/
+├── colecao-lume.json           # Importar no Insomnia: 7 requests, em 3 grupos
+├── tests/
+│   ├── colecao.test.mjs        # Confere 7 rotas, acesso, variáveis e segurança
+│   └── api.test.ts             # Testes HTTP das 7 rotas e verificação de /health
+├── .gitignore                  # Proteção de arquivos locais
+└── README.md                   # Este manual
+```
 
-| Método | Caminho | Quem pode acessar | Função |
-| --- | --- | --- | --- |
-| GET | `/health` | Público | Estado da API |
-| POST | `/usuarios` | Público | Cadastro de estudante |
-| POST | `/session` | Público | Login, retorna JWT |
-| GET | `/cursos` | Autenticado | Lista, filtra e pagina cursos |
-| GET | `/cursos/:id` | Autenticado | Detalhes e ofertas ativas |
-| POST | `/cursos` | ADMIN | Cadastrar curso |
-| POST | `/instituicoes` | ADMIN | Cadastrar instituição |
-| POST | `/instituicoes/:id/cursos` | ADMIN | Vincular curso a instituição |
+> **Referência do grupo:** a exportação `insomnia-export.TCC---LUME.1791556221273.zip` foi analisada. Ela contém várias requisições-modelo **sem URL**, e **seis requisições com URL configurada**. A organização acima mantém as operações compatíveis com o backend, acrescentando a listagem `GET /cursos` que existe em `backend/src/routes.ts`. As requisições-modelo incompletas não foram versionadas.
 
-**Respostas esperadas:** `200` para consultas e login, `201` para criação, `400` para dados inválidos, `401` para ausência de autenticação, `403` para perfil não autorizado, `404` para entidade não encontrada, `409` para duplicidade e `500` para erro inesperado. Os casos devem ser confirmados por testes, não presumidos como integralmente cobertos.
+## As 7 APIs — nenhuma a mais, nenhuma a menos
 
-Os contratos de entrada são definidos pelos [schemas](../backend/src/schemas/) e as rotas por [`routes.ts`](../backend/src/routes.ts). A coleção corresponde à API atual e não tenta representar recursos ainda pendentes, como rotas de quiz ou trilhas.
+| # | Grupo | Método | Caminho | Autorização | Finalidade |
+| :-: | --- | :---: | --- | --- | --- |
+| 1 | Autenticação | POST | `/usuarios` | Pública | Cadastrar estudante |
+| 2 | Autenticação | POST | `/session` | Pública | Fazer login e receber JWT |
+| 3 | Cursos | GET | `/cursos` | Estudante ou ADMIN | Listar e filtrar cursos |
+| 4 | Cursos | GET | `/cursos/:id` | Estudante ou ADMIN | Consultar os detalhes de um curso |
+| 5 | Cursos | POST | `/cursos` | ADMIN | Cadastrar curso |
+| 6 | Instituições | POST | `/instituicoes` | ADMIN | Cadastrar instituição |
+| 7 | Instituições | POST | `/instituicoes/:id/cursos` | ADMIN | Vincular curso a uma instituição |
 
-## Segurança — obrigatório
+**Não existem, no backend atual da `dev`, endpoints para editar/inativar cursos ou cargos, favoritos, quiz ou avaliações.** Essas requisições aparecem como modelos vazios na exportação recebida, mas não entram na coleção de APIs prontas.
 
-**Nunca faça commit ou compartilhe** JWT real, senhas, `JWT_SECRET`, `DATABASE_URL` privada, arquivos `.env` ou uma exportação do Insomnia após preencher seus tokens.
+## Como importar e testar (passo a passo)
 
-O arquivo `colecao-lume.json` contém referências como `{{ _.token }}` e `{{ _.admin_token }}`; os valores do ambiente ficam **vazios** no GitHub. As credenciais devem permanecer **apenas no Insomnia de cada integrante**.
+1. Configure o backend seguindo [`backend/README.md`](../backend/README.md), com Node.js 22 e um PostgreSQL **novo/vazio de desenvolvimento**.
+2. Inicie com `npm run dev` dentro de `backend/`.
+3. Abra o Insomnia e importe [`colecao-lume.json`](colecao-lume.json) por **Import from File**.
+4. Confira o ambiente `base_url=http://localhost:3333` (sem `/api`). **Todas as variáveis pessoais e de autenticação devem ser preenchidas somente no Insomnia local**, não na coleção do GitHub.
+5. Preencha `nome_estudante`, `email_estudante` e `senha_estudante` com dados válidos **do seu ambiente de teste**. Execute **Cadastrar_usuário** e, em seguida, **Autenticar_usuário**. Copie o `token` retornado para a variável local `token`.
+6. Execute **Listar_cursos**. Para **Buscar_curso_por_id**, utilize `curso_id` de um curso realmente existente no banco.
+7. Para criar cursos e instituições, configure `ADMIN_EMAIL` e `ADMIN_SENHA` no `backend/.env` **local**, rode `npm run seed`, faça login em **Autenticar_usuário** com essa conta e preencha `admin_token` **somente no Insomnia**.
+8. Preencha `nome_curso`, `grau_academico`, `area_curso`, `carga_horaria`, `nome_instituicao` e `cnpj_instituicao` com os dados válidos que a equipe decidir usar no banco local. Cadastre o curso e a instituição; use os IDs retornados nas variáveis `curso_id` e `instituicao_id`.
+9. Execute **Curso_instituicao** para vincular os registros. Ao contrário da exportação recebida, o ID da instituição pertence à **URL**, não precisa constar no corpo JSON.
 
-**Sobre o incidente do PR #11:** aquela proposta não foi mesclada, mas incluiu um token literal no diff. O histórico de um PR fechado pode continuar visível. **Mover a coleção não apaga o segredo exposto anteriormente.** Quem administra o ambiente que emitiu o JWT deve **rotacionar `JWT_SECRET` e reiniciar o serviço** para invalidar tokens antigos; se outras credenciais foram expostas, também devem ser substituídas. Para pedir a remoção do conteúdo sensível do histórico, siga o procedimento do **suporte do GitHub**. Essas ações externas não podem ser realizadas apenas pelo PR.
+`POST /cursos` aceita modalidade `PRESENCIAL`, `EAD` ou `HIBRIDO`. O campo `carga_horaria` deve ser um inteiro positivo. `POST /instituicoes` exige CNPJ válido. Consulte os [schemas Zod](../backend/src/schemas/) para os demais campos e critérios reais.
 
-## Manutenção da coleção
+**Segurança:** os tokens `{{ _.token }}` e `{{ _.admin_token }}` são **referências**, não credenciais. Não exporte nem faça commit da coleção após preencher variáveis, senhas ou dados pessoais. Mantenha o arquivo versionado sem credenciais.
 
-`npm run insomnia:validate` (dentro de `backend/`) confere que a coleção contém exatamente os oito métodos/caminhos atuais, com tokens parametrizados e sem JWT literal. Atualize coleção, documentação e teste **somente quando a implementação real da API mudar**.
+## Testes automatizados centralizados
 
-A coleção está em formato **Insomnia Export v4**; não depende de Postman nem altera o banco de dados por si só.
+O backend continua disponibilizando os comandos abaixo para facilitar a CI, mas **o código dos testes está somente nesta pasta**:
+
+```powershell
+cd backend
+npm ci
+npm run prisma:generate
+npm run insomnia:validate
+npm test
+```
+
+- `npm run insomnia:validate` executa [`insomnia/tests/colecao.test.mjs`](tests/colecao.test.mjs): garante **sete** operações únicas, grupos corretos, caminhos reais, Bearers parametrizados e ausência de JWT literal nos arquivos JSON/YAML versionados.
+- `npm test` executa [`insomnia/tests/api.test.ts`](tests/api.test.ts): **sete testes HTTP negativos** (rejeição de entrada inválida ou falta de autenticação), mais um teste técnico de `/health`. Esses testes **não** demonstram todos os fluxos de sucesso com gravação no PostgreSQL; esses cenários devem ser documentados por evidências reais dos testes manuais.
+
+Os resultados esperados variam conforme a operação: `200` para login/consulta, `201` para cadastros/vínculo, `400` para dados inválidos, `401` para token ausente ou inválido, `403` para usuário sem perfil ADMIN, `404` para registro não encontrado e `409` para duplicidade. Registre a resposta real de cada teste no Insomnia, sem copiar tokens para screenshots.
+
+### Evidência para a Sprint 3
+
+Para cada uma das sete rotas, a equipe pode guardar: **nome da operação, objetivo, pré-condições, corpo/cabeçalhos sem credenciais, status e resposta obtidos, resultado esperado, data e responsável**. Só marque um teste como concluído após executá-lo no ambiente da equipe.
+
+## Aviso sobre o JWT do PR #11
+
+O PR #11 não foi mesclado, mas seu diff registrou JWTs. Os arquivos atuais estão parametrizados; **isso não apaga conteúdos antigos do histórico e não invalida tokens previamente emitidos**. Os responsáveis pelos ambientes que os emitiram devem trocar o `JWT_SECRET` com segurança e reiniciar a API; se necessário, solicitar a remoção de dados sensíveis históricos ao suporte do GitHub. Não inclua as credenciais novas no repositório.
