@@ -11,9 +11,9 @@
     "prisma:migrate": "prisma migrate dev",
     "seed": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test ../insomnia/tests/api.test.ts",
     "prisma:deploy": "prisma migrate deploy",
-    "insomnia:validate": "node --test scripts/insomnia-contract.test.mjs"
+    "insomnia:validate": "node --test ../insomnia/tests/colecao.test.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
