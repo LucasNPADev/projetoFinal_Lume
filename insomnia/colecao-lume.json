@@ -19,8 +19,8 @@
         "base_url": "http://localhost:3333",
         "token": "",
         "admin_token": "",
-        "curso_id": "1",
-        "instituicao_id": "1",
+        "curso_id": "",
+        "instituicao_id": "",
         "nome_estudante": "",
         "email_estudante": "",
         "senha_estudante": "",
@@ -28,7 +28,8 @@
         "cnpj_instituicao": "",
         "nome_curso": "",
         "grau_academico": "",
-        "area_curso": ""
+        "area_curso": "",
+        "carga_horaria": ""
       },
       "_type": "environment"
     },
@@ -125,7 +126,7 @@
       },
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":1,\"area_curso\":\"{{ _.area_curso }}\"}"
+        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":{{ _.carga_horaria }},\"area_curso\":\"{{ _.area_curso }}\"}"
       }
     },
     {
