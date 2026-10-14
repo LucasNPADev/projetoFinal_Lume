@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { isAuthenticated as auth } from "./middlewares/isAuthenticated";
 import { isAdmin as admin } from "./middlewares/isAdmin";
-import * as u from "./controllers/usuarioController";
+import * as u from "./controllers/Usuario/usuarioController";
 import * as s from "./controllers/sessionController";
-import * as c from "./controllers/cursoController";
-import * as i from "./controllers/instituicaoController";
-import * as g from "./controllers/cargoController";
+import * as c from "./controllers/Curso/cursoController";
+import * as i from "./controllers/Instituicao/instituicaoController";
+import * as g from "./controllers/Cargo/cargoController";
 import * as r from "./controllers/recursosController";
 import { env } from "./config/env";
 import { prisma } from "./prisma";
+import * as t from "./controllers/testeVocacional/testeVocacionalController";
 export const routes = Router();
 routes.get("/health", (_req, res) =>
   res.json({ status: "ok", servico: "LUME API" }),
@@ -83,13 +84,13 @@ routes.post("/avaliacoes", r.avaliar);
 routes.patch("/avaliacoes/:id", r.avaliacaoEditar);
 routes.delete("/avaliacoes/:id", r.avaliacaoRemover);
 routes.post("/avaliacoes/:id/denuncias", r.denunciar);
-routes.get("/perguntas-vocacionais", r.perguntas);
+routes.get("/perguntas-vocacionais", t.perguntas);
 routes.post("/perguntas-vocacionais", admin, r.perguntaCriar);
 routes.patch("/perguntas-vocacionais/:id", admin, r.perguntaEditar);
 routes.delete("/perguntas-vocacionais/:id", admin, r.perguntaArquivar);
-routes.post("/teste-vocacional", r.responder);
-routes.get("/teste-vocacional/atual", r.resultado);
-routes.get("/teste-vocacional/historico", r.testesHistorico);
+routes.post("/teste-vocacional", t.responder);
+routes.get("/teste-vocacional/atual", t.resultado);
+routes.get("/teste-vocacional/historico", t.historico);
 routes.post("/comparativos", r.comparar);
 routes.post("/simulador-enem", r.simular);
 routes.get("/calendario", r.calendario);

@@ -3,9 +3,9 @@ import {
   criarCursoSchema,
   editarCursoSchema,
   listarCursosSchema,
-} from "../schemas/curso";
-import * as service from "../services/cursoService";
-import { parseId } from "../utils/parseId";
+} from "../../schemas/curso";
+import * as service from "../../services/cursoService";
+import { parseId } from "../../utils/parseId";
 export async function criar(req: Request, res: Response) {
   res
     .status(201)

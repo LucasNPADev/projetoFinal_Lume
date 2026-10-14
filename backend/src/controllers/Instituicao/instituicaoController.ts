@@ -5,12 +5,12 @@ import {
   vincularCursoSchema,
   vincularCursoJsonSchema,
   editarOfertaSchema,
-} from "../schemas/instituicao";
-import { buscaCatalogoSchema } from "../schemas/comum";
-import * as service from "../services/instituicaoService";
-import { listarOfertas, ofertasDisponiveis } from "../services/ofertaService";
-import { parseId } from "../utils/parseId";
-import { AppError } from "../utils/AppError";
+} from "../../schemas/instituicao";
+import { buscaCatalogoSchema } from "../../schemas/comum";
+import * as service from "../../services/instituicaoService";
+import { listarOfertas, ofertasDisponiveis } from "../../services/ofertaService";
+import { parseId } from "../../utils/parseId";
+import { AppError } from "../../utils/AppError";
 export async function criar(req: Request, res: Response) {
   res
     .status(201)

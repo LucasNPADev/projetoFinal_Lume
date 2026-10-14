@@ -4,9 +4,9 @@ import {
   editarCargoSchema,
   rotaSchema,
   listarCargosSchema,
-} from "../schemas/cargo";
-import * as service from "../services/cargoService";
-import { parseId } from "../utils/parseId";
+} from "../../schemas/cargo";
+import * as service from "../../services/cargoService";
+import { parseId } from "../../utils/parseId";
 export async function criar(req: Request, res: Response) {
   res
     .status(201)

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import * as schema from "../schemas/usuario";
-import { paginacaoSchema } from "../schemas/comum";
-import * as service from "../services/usuarioService";
+import * as schema from "../../schemas/usuario";
+import { paginacaoSchema } from "../../schemas/comum";
+import * as service from "../../services/usuarioService";
 export async function cadastrar(req: Request, res: Response) {
   res
     .status(201)
