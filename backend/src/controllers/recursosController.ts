@@ -10,6 +10,7 @@ import * as testes from "../services/testeVocacionalService";
 import * as ferramentas from "../services/ferramentasService";
 import * as admin from "../services/adminService";
 import * as notificacoes from "../services/notificacaoService";
+
 export async function favoritar(req: Request, res: Response) {
   const b = schema.favoritoSchema.parse(req.body);
   res.status(201).json(await favoritos.favoritar(req.user!.id, b.tipo, b.id));
@@ -73,21 +74,6 @@ export async function moderar(req: Request, res: Response) {
     await avaliacoes.moderar(parseId(req.params.id), b.status, b.motivo),
   );
 }
-export async function denunciasListar(req: Request, res: Response) {
-  const q = paginacaoSchema.parse(req.query);
-  res.json(await admin.listarDenuncias(q.page, q.limit));
-}
-export async function denunciaResolver(req: Request, res: Response) {
-  res.json(
-    await admin.resolverDenuncia(
-      parseId(req.params.id),
-      schema.resolverDenunciaSchema.parse(req.body),
-    ),
-  );
-}
-export async function perguntas(req: Request, res: Response) {
-  res.json(await testes.perguntas());
-}
 export async function perguntasAdmin(req: Request, res: Response) {
   res.json(await testes.perguntas(true));
 }
@@ -114,23 +100,6 @@ export async function perguntaArquivar(req: Request, res: Response) {
     await admin.editarPergunta(parseId(req.params.id), { status: false }),
   );
 }
-export async function responder(req: Request, res: Response) {
-  res
-    .status(201)
-    .json(
-      await testes.responder(
-        req.user!.id,
-        schema.respostasSchema.parse(req.body).respostas,
-      ),
-    );
-}
-export async function resultado(req: Request, res: Response) {
-  res.json(await testes.resultado(req.user!.id));
-}
-export async function testesHistorico(req: Request, res: Response) {
-  const q = paginacaoSchema.parse(req.query);
-  res.json(await testes.historico(req.user!.id, q.page, q.limit));
-}
 export async function comparar(req: Request, res: Response) {
   const b = schema.compararSchema.parse(req.body);
   res.json(await ferramentas.comparar(req.user!.id, b.tipo, b.ids));
@@ -143,47 +112,12 @@ export async function simular(req: Request, res: Response) {
     ),
   );
 }
-export async function calendario(req: Request, res: Response) {
-  res.json(
-    await ferramentas.calendario(
-      req.user!.id,
-      schema.calendarioSchema.parse(req.query),
-    ),
-  );
-}
-export async function eventoCriar(req: Request, res: Response) {
-  res
-    .status(201)
-    .json(await admin.criarEvento(schema.eventoSchema.parse(req.body)));
-}
-export async function eventoEditar(req: Request, res: Response) {
-  res.json(
-    await admin.editarEvento(
-      parseId(req.params.id),
-      schema.editarEventoSchema.parse(req.body),
-    ),
-  );
-}
-export async function eventoArquivar(req: Request, res: Response) {
-  res.json(await admin.editarEvento(parseId(req.params.id), { status: false }));
-}
-export async function eventosListar(req: Request, res: Response) {
-  const q = paginacaoSchema.parse(req.query);
-  res.json(await admin.listarEventos(q.page, q.limit));
-}
 export async function fontes(req: Request, res: Response) {
   const q = paginacaoSchema.parse(req.query);
   res.json(await admin.listarFontes(q.page, q.limit));
 }
 export async function fonteCriar(req: Request, res: Response) {
   res.status(201).json(await admin.criarFonte(fonteSchema.parse(req.body)));
-}
-export async function ofertasAdmin(req: Request, res: Response) {
-  const q = paginacaoSchema.parse(req.query);
-  res.json(await admin.ofertasAdmin(q.page, q.limit));
-}
-export async function relatorio(req: Request, res: Response) {
-  res.json(await ferramentas.relatorio());
 }
 export async function notificacoesListar(req: Request, res: Response) {
   const q = paginacaoSchema.parse(req.query);
