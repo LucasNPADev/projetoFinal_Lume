@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { parseId } from "../../utils/parseId";
 import * as schema from "../../schemas/usuario";
 import { paginacaoSchema } from "../../schemas/comum";
 import * as service from "../../services/usuarioService";
@@ -56,4 +57,12 @@ export async function historico(req: Request, res: Response) {
 }
 export async function exportar(req: Request, res: Response) {
   res.json(await service.exportarDados(req.user!.id));
+}
+
+export async function buscarPorId(req: Request, res: Response) {
+  const id = parseId(req.params.id);
+
+  res.json(
+    await service.buscarUsuarioPorId(id)
+  );
 }

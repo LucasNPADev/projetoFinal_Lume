@@ -2,10 +2,12 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { AppError } from "../utils/AppError";
 import { buscarCurso } from "./cursoService";
+import { buscarCargo } from "./cargoService";
 import { buscarInstituicao } from "./instituicaoService";
+
 export async function comparar(
   idUsuario: bigint,
-  tipo: "CURSO" | "INSTITUICAO",
+  tipo: "CURSO" | "CARGO" | "INSTITUICAO" | "OFERTA",
   ids: bigint[],
 ) {
   if (tipo === "CURSO") {
@@ -16,15 +18,31 @@ export async function comparar(
       ),
     };
   }
-  if (tipo === "INSTITUICAO")
+
+  if (tipo === "CARGO") {
+    return {
+      tipo,
+      itens: await Promise.all(
+        ids.map((id) => buscarCargo(id, idUsuario, false)),
+      ),
+    };
+  }
+
+  if (tipo === "INSTITUICAO") {
     return {
       tipo,
       itens: await Promise.all(
         ids.map((id) => buscarInstituicao(id, false)),
       ),
     };
-  throw new AppError("Tipo de comparação inválido", 400);
+  }
+
+  throw new AppError(
+    "Tipo de comparação inválido",
+    400
+  );
 }
+
 export async function validarEvento(dados: {
   id_instituicao?: bigint | null;
   inicio?: Date;

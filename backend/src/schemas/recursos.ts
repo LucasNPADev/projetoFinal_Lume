@@ -83,9 +83,15 @@ export const calendarioSchema = z
       .transform((v) => v === "true"),
   })
   .strict();
+
 export const compararSchema = z
   .object({
-    tipo: z.enum(["CURSO", "INSTITUICAO"]),
+    tipo: z.enum([
+      "CURSO",
+      "CARGO",
+      "INSTITUICAO",
+      "OFERTA"
+    ]),
     ids: z.array(idSchema).min(2).max(4),
   })
   .strict()
@@ -93,6 +99,7 @@ export const compararSchema = z
     (v) => new Set(v.ids.map(String)).size === v.ids.length,
     "Não repita IDs",
   );
+
 export const listarAvaliacoesSchema = z.object({
   id_instituicao: idSchema.optional(),
   id_curso: idSchema.optional(),

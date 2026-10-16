@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import {
   criarCargoSchema,
   editarCargoSchema,
@@ -85,4 +86,10 @@ export async function editarRota(req: Request, res: Response) {
 }
 export async function arquivarRota(req: Request, res: Response) {
   res.json(await service.arquivarRota(parseId(req.params.id)));
+}
+
+// Feed inicial: recomendações ordenadas por afinidade vocacional (maior primeiro).
+export async function feed(req: Request, res: Response) {
+  const filtros = listarCargosSchema.parse({ ...req.query, ordenar: "afinidade" });
+  res.json(await service.listarCargos(req.user!.id, filtros, req.user!.perfil === "ADMIN"));
 }

@@ -25,44 +25,54 @@ export const perfilSelect = {
   criado_em: true,
   atualizado_em: true,
 } satisfies Prisma.UsuarioSelect;
+
 export async function cadastrarUsuario({
   senha,
   aceitou_termos,
   ...dados
 }: CadastroInput) {
-  if (await prisma.usuario.findUnique({ where: { email: dados.email } }))
+
+  if (!aceitou_termos) {
+    throw new AppError(
+      "É necessário aceitar os termos",
+      400
+    );
+  }
+
+  const existente = await prisma.usuario.findUnique({
+    where: { email: dados.email },
+  });
+
+  if (existente) {
     throw new AppError("E-mail já cadastrado", 409);
+  }
+
   const usuario = await prisma.usuario.create({
     data: {
-      ...dados,
+      nome: dados.nome,
+      email: dados.email,
       senha_hash: await bcrypt.hash(senha, 12),
       perfil: "usuario",
+      rua: dados.rua,
+      cidade: dados.cidade,
+      estado: dados.estado,
+      bairro: dados.bairro,
+      latitude: dados.latitude,
+      longitude: dados.longitude,
+      origem_localizacao: "MANUAL",
+      consentimento_gps: false,
       termos_aceitos_em: new Date(),
       versao_termos: env.TERMS_VERSION,
     },
     select: perfilSelect,
   });
-  return { ...usuario, perfil: perfilPublico(usuario.perfil) };
+
+  return {
+    ...usuario,
+    perfil: perfilPublico(usuario.perfil),
+  };
 }
-export async function meuPerfil(id: bigint) {
-  const usuario = await prisma.usuario.findUnique({
-    where: { id_usuario: id },
-    select: perfilSelect,
-  });
-  if (!usuario) throw new AppError("Usuário não encontrado", 404);
-  return { ...usuario, perfil: perfilPublico(usuario.perfil) };
-}
-export async function editarPerfil(
-  id: bigint,
-  dados: { nome?: string; email?: string },
-) {
-  const usuario = await prisma.usuario.update({
-    where: { id_usuario: id },
-    data: dados,
-    select: perfilSelect,
-  });
-  return { ...usuario, perfil: perfilPublico(usuario.perfil) };
-}
+
 export async function localizacao(
   id: bigint,
   dados: Prisma.UsuarioUpdateInput,
@@ -230,3 +240,22 @@ export async function exportarDados(id: bigint) {
     notificacoes,
   };
 }
+
+export async function buscarUsuarioPorId(id: bigint) {
+  const usuario = await prisma.usuario.findUnique({
+    where: {
+      id_usuario: id,
+    },
+    select: perfilSelect,
+  });
+
+  if (!usuario) {
+    throw new AppError("Usuário não encontrado", 404);
+  }
+
+  return {
+    ...usuario,
+    perfil: perfilPublico(usuario.perfil),
+  };
+}
+
