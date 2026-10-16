@@ -2,7 +2,8 @@ import { z } from "zod";
 import {
   texto,
   modalidadeSchema,
-  buscaCatalogoSchema,
+  idSchema,
+  paginacaoSchema,
   exigirAlteracao,
 } from "./comum";
 export const MODALIDADES = ["PRESENCIAL", "EAD", "HIBRIDO"] as const;
@@ -21,6 +22,19 @@ const base = z
   .strict();
 export const criarCursoSchema = base;
 export const editarCursoSchema = base.partial().superRefine(exigirAlteracao);
-export const listarCursosSchema = buscaCatalogoSchema;
+export const listarCursosSchema = paginacaoSchema
+  .extend({
+    busca: texto(200).optional(),
+    area: texto(150).optional(),
+    modalidade: modalidadeSchema.optional(),
+    ordenar: z.enum(["nome"]).default("nome"),
+    id_cargo: idSchema.optional(),
+    id_curso: idSchema.optional(),
+    incluir_inativos: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+  })
+  .strict();
 export type CriarCursoInput = z.infer<typeof base>;
-export type ListarCursosInput = z.infer<typeof buscaCatalogoSchema>;
+export type ListarCursosInput = z.infer<typeof listarCursosSchema>;

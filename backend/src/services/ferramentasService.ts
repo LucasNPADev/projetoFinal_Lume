@@ -3,88 +3,27 @@ import { prisma } from "../prisma";
 import { AppError } from "../utils/AppError";
 import { buscarCurso } from "./cursoService";
 import { buscarInstituicao } from "./instituicaoService";
-import {
-  ofertasDisponiveis,
-  ofertaInclude,
-  enriquecerOferta,
-  contextoLocal,
-} from "./ofertaService";
 export async function comparar(
   idUsuario: bigint,
-  tipo: "CURSO" | "INSTITUICAO" | "OFERTA",
+  tipo: "CURSO" | "INSTITUICAO",
   ids: bigint[],
 ) {
   if (tipo === "CURSO") {
-    const itens = await Promise.all(
-      ids.map((id) => buscarCurso(id, idUsuario, false)),
-    );
     return {
       tipo,
-      itens: itens.map((c) => {
-        const valores = c.ofertas.filter((o) => o.mensalidade !== null);
-        return {
-          ...c,
-          mensalidade_minima: valores.length
-            ? Math.min(...valores.map((o) => Number(o.mensalidade)))
-            : null,
-          mensalidade_maxima: valores.length
-            ? Math.max(
-                ...valores.map((o) =>
-                  Number(o.mensalidade_max ?? o.mensalidade),
-                ),
-              )
-            : null,
-        };
-      }),
+      itens: await Promise.all(
+        ids.map((id) => buscarCurso(id, idUsuario, false)),
+      ),
     };
   }
   if (tipo === "INSTITUICAO")
     return {
       tipo,
       itens: await Promise.all(
-        ids.map((id) => buscarInstituicao(id, idUsuario, false)),
+        ids.map((id) => buscarInstituicao(id, false)),
       ),
     };
-  const ofertas = await ofertasDisponiveis(
-    idUsuario,
-    {},
-    { id_curso_instituicao: { in: ids } },
-  );
-  if (ofertas.length !== ids.length)
-    throw new AppError(
-      "Uma ou mais ofertas estão indisponíveis na região",
-      404,
-    );
-  return {
-    tipo,
-    itens: ids.map((id) => ofertas.find((o) => o.id_curso_instituicao === id)!),
-  };
-}
-export async function simular(
-  idUsuario: bigint,
-  dados: { nota: number; programa?: string; cidade?: string; estado?: string },
-) {
-  const ofertas = await ofertasDisponiveis(
-    idUsuario,
-    { cidade: dados.cidade, estado: dados.estado as "SP" | undefined },
-    {
-      ...(dados.programa && { programa_nota_corte: dados.programa }),
-      nota_corte: { not: null },
-      ano_nota_corte: { not: null },
-      id_fonte_nota: { not: null },
-    },
-  );
-  return {
-    nota_informada: dados.nota,
-    aviso:
-      "Comparação com a nota de corte cadastrada. Não garante aprovação, bolsa nem financiamento; pesos, cotas e edição do processo seletivo podem alterar o resultado.",
-    resultados: ofertas.map((o) => ({
-      ...o,
-      nota_referencia: Number(o.nota_corte),
-      diferenca: Math.round((dados.nota - Number(o.nota_corte)) * 100) / 100,
-      elegivel_estimado: dados.nota >= Number(o.nota_corte),
-    })),
-  };
+  throw new AppError("Tipo de comparação inválido", 400);
 }
 export async function validarEvento(dados: {
   id_instituicao?: bigint | null;
@@ -109,27 +48,11 @@ export async function calendario(
     throw new AppError("Intervalo de calendário inválido", 400);
   const favoritos = await prisma.favorito.findMany({
     where: { id_usuario: idUsuario },
-    include: {
-      curso: { include: { ofertas: { select: { id_instituicao: true } } } },
-      rota: {
-        include: {
-          etapas: {
-            include: {
-              curso: {
-                include: { ofertas: { select: { id_instituicao: true } } },
-              },
-            },
-          },
-        },
-      },
-    },
+    select: { id_instituicao: true },
   });
   const ids = new Set<bigint>();
   for (const f of favoritos) {
     if (f.id_instituicao) ids.add(f.id_instituicao);
-    for (const o of f.curso?.ofertas ?? []) ids.add(o.id_instituicao);
-    for (const etapa of f.rota?.etapas ?? [])
-      for (const o of etapa.curso.ofertas) ids.add(o.id_instituicao);
   }
   const inicio = q.inicio ?? new Date();
   const intervalo: Prisma.EventoWhereInput = {

@@ -104,14 +104,6 @@ export async function comparar(req: Request, res: Response) {
   const b = schema.compararSchema.parse(req.body);
   res.json(await ferramentas.comparar(req.user!.id, b.tipo, b.ids));
 }
-export async function simular(req: Request, res: Response) {
-  res.json(
-    await ferramentas.simular(
-      req.user!.id,
-      schema.simularSchema.parse(req.body),
-    ),
-  );
-}
 export async function fontes(req: Request, res: Response) {
   const q = paginacaoSchema.parse(req.query);
   res.json(await admin.listarFontes(q.page, q.limit));

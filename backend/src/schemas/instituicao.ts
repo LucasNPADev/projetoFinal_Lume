@@ -6,10 +6,9 @@ import {
   urlSchema,
   enderecoShape,
   validarCoordenadas,
-  valorSchema,
-  notaSchema,
   idSchema,
   exigirAlteracao,
+  paginacaoSchema,
   estadoSchema,
 } from "./comum";
 const base = z
@@ -42,39 +41,20 @@ export const editarInstituicaoSchema = base
   .partial()
   .superRefine(exigirAlteracao)
   .superRefine(validarCoordenadas);
-const oferta = z
-  .object({
-    id_curso: idSchema,
-    mensalidade: valorSchema,
-    mensalidade_max: valorSchema.nullable().optional(),
-    formas_ingresso: texto(2000),
-    nota_corte: notaSchema.nullable().optional(),
-    ano_nota_corte: z.number().int().min(2000).max(2100).nullable().optional(),
-    programa_nota_corte: z
-      .enum(["SISU", "PROUNI", "ENEM", "VESTIBULAR"])
-      .nullable()
-      .optional(),
-    id_fonte_nota: idSchema.nullable().optional(),
-    bolsas: texto(4000).nullable().optional(),
-    prouni: z.boolean().optional(),
-    fies: z.boolean().optional(),
-    polo_nome: texto(200).nullable().optional(),
-    polo_rua: texto(200).nullable().optional(),
-    polo_cidade: texto(100).nullable().optional(),
-    polo_estado: estadoSchema.nullable().optional(),
-    polo_bairro: texto(100).nullable().optional(),
-    polo_latitude: z.number().min(-90).max(90).nullable().optional(),
-    polo_longitude: z.number().min(-180).max(180).nullable().optional(),
-    status: z.boolean().optional(),
+export const listarInstituicoesSchema = paginacaoSchema
+  .extend({
+    busca: texto(200).optional(),
+    cidade: texto(100).optional(),
+    estado: estadoSchema.optional(),
+    latitude: z.coerce.number().finite().min(-90).max(90).optional(),
+    longitude: z.coerce.number().finite().min(-180).max(180).optional(),
+    raio_km: z.coerce.number().positive().max(20000).optional(),
+    ordenar: z.enum(["nome", "distancia"]).default("distancia"),
+    id_instituicao: idSchema.optional(),
+    incluir_inativos: z.enum(["true", "false"]).default("false")
+      .transform((v) => v === "true"),
   })
-  .strict();
-export const vincularCursoSchema = oferta;
-export const vincularCursoJsonSchema = oferta.extend({
-  id_instituicao: idSchema,
-});
-export const editarOfertaSchema = oferta
-  .omit({ id_curso: true })
-  .partial()
-  .superRefine(exigirAlteracao);
+  .strict()
+  .superRefine(validarCoordenadas);
 export type CriarInstituicaoInput = z.infer<typeof criarInstituicaoSchema>;
-export type VincularCursoInput = z.infer<typeof oferta>;
+export type ListarInstituicoesInput = z.infer<typeof listarInstituicoesSchema>;

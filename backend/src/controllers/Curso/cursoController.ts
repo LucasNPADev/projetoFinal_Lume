@@ -17,7 +17,6 @@ export async function listar(req: Request, res: Response) {
   res.json(
     await service.listarCursos(
       listarCursosSchema.parse(req.query),
-      req.user!.id,
       req.user!.perfil === "ADMIN",
     ),
   );

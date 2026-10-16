@@ -224,10 +224,9 @@ O Vite mostrará no terminal o endereço local para abrir no navegador.
 | `POST` | `/usuarios` | Público | Cadastrar estudante |
 | `POST` | `/session` | Público | Autenticar usuário e obter JWT |
 | `GET` | `/cursos` | Autenticado | Listar cursos, com filtros e paginação |
-| `GET` | `/cursos/:id` | Autenticado | Consultar curso e suas ofertas ativas |
+| `GET` | `/cursos/:id` | Autenticado | Consultar detalhes, trilhas e avaliações do curso |
 | `POST` | `/cursos` | Administrador | Cadastrar curso |
 | `POST` | `/instituicoes` | Administrador | Cadastrar instituição |
-| `POST` | `/instituicoes/:id/cursos` | Administrador | Vincular curso a instituição |
 
 As rotas autenticadas utilizam o cabeçalho `Authorization: Bearer <token>`. A autorização do perfil `ADMIN` é validada no backend. Para detalhes, consulte o [guia técnico do backend](backend/README.md) e o [registro das rotas](backend/src/routes.ts).
 
@@ -328,10 +327,9 @@ npm run dev                 # http://localhost:3333
 | POST | `/usuarios` | público | Cadastro (sempre cria perfil `ESTUDANTE`) |
 | POST | `/session` | público | Login — retorna `{ id, nome, email, perfil, token }` |
 | GET | `/cursos` | autenticado | Lista cursos (`?busca=&area=&modalidade=&page=&limit=`) |
-| GET | `/cursos/:id` | autenticado | Detalhe do curso + instituições ativas que o ofertam (registra em `ConsultaCurso`) |
+| GET | `/cursos/:id` | autenticado | Detalhes do curso, trilhas e avaliações (registra em `ConsultaCurso`) |
 | POST | `/cursos` | ADMIN | Cria curso |
 | POST | `/instituicoes` | ADMIN | Cria instituição |
-| POST | `/instituicoes/:id/cursos` | ADMIN | Cadastra um curso em uma instituição (`Curso_Instituicao`) |
 
 Rotas protegidas usam o header `Authorization: Bearer <token>` (igual ao app mobile de exemplo).
 
@@ -357,11 +355,7 @@ curl -X POST localhost:3333/cursos -H "Authorization: Bearer $TOKEN" -H 'Content
 curl -X POST localhost:3333/instituicoes -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"nome_instituicao":"Faculdade Exemplo","cnpj":"11.222.333/0001-81","nota_mec":4.5,"cidade":"São Bernardo do Campo","estado":"SP","bairro":"Centro"}'
 
-# Cadastrar o curso 1 na instituição 1
-curl -X POST localhost:3333/instituicoes/1/cursos -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"id_curso":1,"mensalidade":850.00,"formas_ingresso":"Vestibular, ENEM","nota_corte":620.5}'
-
-# Consultar curso (traz as instituições)
+# Consultar detalhes do curso
 curl localhost:3333/cursos/1 -H "Authorization: Bearer $TOKEN"
 ```
 

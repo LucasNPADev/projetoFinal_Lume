@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { AppError } from "../utils/AppError";
 import { CargoInput, RotaInput, ListarCargosInput } from "../schemas/cargo";
-import { ofertasDisponiveis } from "./ofertaService";
 import { notificarFavoritos } from "./notificacaoService";
 import { paginar } from "../utils/paginacao";
 import { normalizar } from "../utils/geo";
@@ -307,51 +306,17 @@ export async function buscarCargo(
         !cargo.rotas.some((r) => r.etapas.length)))
   )
     throw new AppError("Cargo não encontrado ou indisponível", 404);
-  const ofertas = await ofertasDisponiveis(
-    idUsuario,
-    {},
-    { curso: { trilhas: { some: { id_cargo: id, rota: { status: true } } } } },
-  );
   await prisma.consultaCargo.create({
     data: { id_usuario: idUsuario, id_cargo: id },
   });
   const rotas = cargo.rotas.map((r) => {
-    const etapas = r.etapas.map((e) => {
-      const disponiveis = ofertas.filter((o) => o.id_curso === e.id_curso);
-      const valores = disponiveis
-        .filter((o) => o.mensalidade !== null)
-        .map((o) => Number(o.mensalidade))
-        .filter(Number.isFinite);
-      return {
-        ...e,
-        ofertas: disponiveis,
-        disponibilidade: disponiveis.length
-          ? "Disponível"
-          : "Indisponível na Região",
-        mensalidade_media: valores.length
-          ? Math.round(
-              (valores.reduce((a, b) => a + b, 0) / valores.length) * 100,
-            ) / 100
-          : null,
-      };
-    });
+    const etapas = r.etapas;
     return {
       ...r,
       etapas,
       duracao_total_meses: etapas.some((e) => e.curso.duracao_meses === null)
         ? null
         : etapas.reduce((s, e) => s + (e.curso.duracao_meses ?? 0), 0),
-      custo_total_estimado: etapas.some(
-        (e) => e.mensalidade_media === null || e.curso.duracao_meses === null,
-      )
-        ? null
-        : Math.round(
-            etapas.reduce(
-              (s, e) => s + e.mensalidade_media! * (e.curso.duracao_meses ?? 0),
-              0,
-            ) * 100,
-          ) / 100,
-      orientativa: true,
     };
   });
   return { ...cargo, rotas };

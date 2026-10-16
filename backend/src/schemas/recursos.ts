@@ -5,7 +5,6 @@ import {
   urlSchema,
   dataSchema,
   exigirAlteracao,
-  notaSchema,
   buscaCatalogoSchema,
 } from "./comum";
 export const favoritoSchema = z
@@ -86,7 +85,7 @@ export const calendarioSchema = z
   .strict();
 export const compararSchema = z
   .object({
-    tipo: z.enum(["CURSO", "INSTITUICAO", "OFERTA"]),
+    tipo: z.enum(["CURSO", "INSTITUICAO"]),
     ids: z.array(idSchema).min(2).max(4),
   })
   .strict()
@@ -94,44 +93,6 @@ export const compararSchema = z
     (v) => new Set(v.ids.map(String)).size === v.ids.length,
     "Não repita IDs",
   );
-export const simularSchema = z
-  .object({
-    nota: notaSchema,
-    programa: z.enum(["SISU", "PROUNI", "ENEM", "VESTIBULAR"]).optional(),
-    cidade: texto(100).optional(),
-    estado: z
-      .enum([
-        "SP",
-        "RJ",
-        "MG",
-        "PR",
-        "SC",
-        "RS",
-        "ES",
-        "BA",
-        "PE",
-        "CE",
-        "DF",
-        "GO",
-        "MT",
-        "MS",
-        "AM",
-        "AC",
-        "AL",
-        "AP",
-        "MA",
-        "PA",
-        "PB",
-        "PI",
-        "RN",
-        "RO",
-        "RR",
-        "SE",
-        "TO",
-      ])
-      .optional(),
-  })
-  .strict();
 export const listarAvaliacoesSchema = z.object({
   id_instituicao: idSchema.optional(),
   id_curso: idSchema.optional(),
