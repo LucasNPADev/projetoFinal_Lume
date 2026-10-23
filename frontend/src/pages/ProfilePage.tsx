@@ -7,7 +7,7 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '32px 88px 80px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #dfdb57 100%)', padding: '32px 88px 80px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Meu Perfil</h1>
         <button onClick={logout} style={{ background: 'rgba(28,28,46,0.12)', padding: '6px 18px', borderRadius: '15px', fontWeight: 'bold', fontSize: '11px' }}>Sair</button>
       </header>
