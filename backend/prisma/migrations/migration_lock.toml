@@ -1,2 +1,1 @@
-# Prisma Migrate migration lock; nao reescrever migrations publicadas.
 provider = "postgresql"

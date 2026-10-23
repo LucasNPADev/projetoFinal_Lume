@@ -1,0 +1,6 @@
+# Arquivos locais e exportacoes com credenciais nunca entram no repositorio.
+*.local.*
+*.private.*
+*.secrets.*
+.env
+.env.*
