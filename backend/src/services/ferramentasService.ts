@@ -7,7 +7,7 @@ import { buscarInstituicao } from "./instituicaoService";
 
 export async function comparar(
   idUsuario: bigint,
-  tipo: "CURSO" | "CARGO" | "INSTITUICAO" | "OFERTA",
+  tipo: "CURSO" | "CARGO" | "INSTITUICAO",
   ids: bigint[],
 ) {
   if (tipo === "CURSO") {
@@ -31,16 +31,11 @@ export async function comparar(
   if (tipo === "INSTITUICAO") {
     return {
       tipo,
-      itens: await Promise.all(
-        ids.map((id) => buscarInstituicao(id, false)),
-      ),
+      itens: await Promise.all(ids.map((id) => buscarInstituicao(id, false))),
     };
   }
 
-  throw new AppError(
-    "Tipo de comparação inválido",
-    400
-  );
+  throw new AppError("Tipo de comparação inválido", 400);
 }
 
 export async function validarEvento(dados: {
@@ -58,6 +53,7 @@ export async function validarEvento(dados: {
   )
     throw new AppError("Instituição não encontrada", 404);
 }
+
 export async function calendario(
   idUsuario: bigint,
   q: { inicio?: Date; fim?: Date; favoritos: boolean },
@@ -69,8 +65,8 @@ export async function calendario(
     select: { id_instituicao: true },
   });
   const ids = new Set<bigint>();
-  for (const f of favoritos) {
-    if (f.id_instituicao) ids.add(f.id_instituicao);
+  for (const favorito of favoritos) {
+    if (favorito.id_instituicao) ids.add(favorito.id_instituicao);
   }
   const inicio = q.inicio ?? new Date();
   const intervalo: Prisma.EventoWhereInput = {
@@ -111,6 +107,7 @@ export async function calendario(
     },
   });
 }
+
 export async function relatorio() {
   const [
     usuarios,
@@ -153,15 +150,15 @@ export async function relatorio() {
   ]);
   const [nomesCargos, nomesCursos] = await Promise.all([
     prisma.cargo.findMany({
-      where: { id_cargo: { in: consultasCargo.map((c) => c.id_cargo) } },
+      where: { id_cargo: { in: consultasCargo.map((cargo) => cargo.id_cargo) } },
       select: { id_cargo: true, nome: true },
     }),
     prisma.curso.findMany({
       where: {
         id_curso: {
           in: [
-            ...consultasCurso.map((c) => c.id_curso),
-            ...favoritosCurso.map((c) => c.alvo_id),
+            ...consultasCurso.map((curso) => curso.id_curso),
+            ...favoritosCurso.map((curso) => curso.alvo_id),
           ],
         },
       },
@@ -178,21 +175,22 @@ export async function relatorio() {
       favoritos,
       denuncias_abertas: denuncias,
     },
-    cargos_mais_consultados: consultasCargo.map((c) => ({
-      id_cargo: c.id_cargo,
-      nome: nomesCargos.find((n) => n.id_cargo === c.id_cargo)?.nome,
-      consultas: c._count.id_consulta,
+    cargos_mais_consultados: consultasCargo.map((cargo) => ({
+      id_cargo: cargo.id_cargo,
+      nome: nomesCargos.find((nome) => nome.id_cargo === cargo.id_cargo)?.nome,
+      consultas: cargo._count.id_consulta,
     })),
-    cursos_mais_consultados: consultasCurso.map((c) => ({
-      id_curso: c.id_curso,
-      nome_curso: nomesCursos.find((n) => n.id_curso === c.id_curso)
+    cursos_mais_consultados: consultasCurso.map((curso) => ({
+      id_curso: curso.id_curso,
+      nome_curso: nomesCursos.find((nome) => nome.id_curso === curso.id_curso)
         ?.nome_curso,
-      consultas: c._count.id_consulta,
+      consultas: curso._count.id_consulta,
     })),
-    cursos_mais_favoritados: favoritosCurso.map((c) => ({
-      id_curso: c.alvo_id,
-      nome_curso: nomesCursos.find((n) => n.id_curso === c.alvo_id)?.nome_curso,
-      favoritos: c._count.id_favorito,
+    cursos_mais_favoritados: favoritosCurso.map((curso) => ({
+      id_curso: curso.alvo_id,
+      nome_curso: nomesCursos.find((nome) => nome.id_curso === curso.alvo_id)
+        ?.nome_curso,
+      favoritos: curso._count.id_favorito,
     })),
   };
 }

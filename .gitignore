@@ -3,4 +3,6 @@ node_modules/
 dist/
 build/
 .DS_Store
-*.log
+*.logbackend.zip
+
+backend.zip

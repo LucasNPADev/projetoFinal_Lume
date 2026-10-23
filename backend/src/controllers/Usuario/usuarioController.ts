@@ -58,7 +58,6 @@ export async function historico(req: Request, res: Response) {
 export async function exportar(req: Request, res: Response) {
   res.json(await service.exportarDados(req.user!.id));
 }
-
 export async function buscarPorId(req: Request, res: Response) {
   const id = parseId(req.params.id);
 

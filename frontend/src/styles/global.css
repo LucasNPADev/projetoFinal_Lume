@@ -1,0 +1,41 @@
+:root {
+  --color-narciso: #EDEB80;
+  --color-narciso-dark: #E0DC5A;
+  --color-carvao: #1C1C2E;
+  --color-porcelana: #F1F0F7;
+  --color-text-subtle: #7B7B96;
+  --color-border: #E0DFF0;
+  --color-white: #FFFFFF;
+  --font-main: 'DM Sans', Arial, sans-serif;
+  --shadow-card: 0px 5px 15px rgba(28, 28, 46, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-porcelana);
+  color: var(--color-carvao);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+input, select, textarea {
+  font-family: var(--font-main);
+  outline: none;
+}

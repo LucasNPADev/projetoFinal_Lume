@@ -90,7 +90,6 @@ export const compararSchema = z
       "CURSO",
       "CARGO",
       "INSTITUICAO",
-      "OFERTA"
     ]),
     ids: z.array(idSchema).min(2).max(4),
   })

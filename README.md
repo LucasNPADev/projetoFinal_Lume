@@ -227,6 +227,8 @@ O Vite mostrará no terminal o endereço local para abrir no navegador.
 | `GET` | `/cursos/:id` | Autenticado | Consultar detalhes, trilhas e avaliações do curso |
 | `POST` | `/cursos` | Administrador | Cadastrar curso |
 | `POST` | `/instituicoes` | Administrador | Cadastrar instituição |
+| `GET` | `/ofertas` | Autenticado | Listar cursos oferecidos por instituições regulares |
+| `POST` | `/ofertas` | Administrador | Vincular um curso a uma instituição |
 
 As rotas autenticadas utilizam o cabeçalho `Authorization: Bearer <token>`. A autorização do perfil `ADMIN` é validada no backend. Para detalhes, consulte o [guia técnico do backend](backend/README.md) e o [registro das rotas](backend/src/routes.ts).
 
@@ -330,6 +332,8 @@ npm run dev                 # http://localhost:3333
 | GET | `/cursos/:id` | autenticado | Detalhes do curso, trilhas e avaliações (registra em `ConsultaCurso`) |
 | POST | `/cursos` | ADMIN | Cria curso |
 | POST | `/instituicoes` | ADMIN | Cria instituição |
+| GET | `/ofertas` | autenticado | Lista cursos oferecidos por instituições regulares (`?busca=&page=&limit=`) |
+| POST | `/ofertas` | ADMIN | Vincula curso e instituição com mensalidade, ingresso e bolsas |
 
 Rotas protegidas usam o header `Authorization: Bearer <token>` (igual ao app mobile de exemplo).
 

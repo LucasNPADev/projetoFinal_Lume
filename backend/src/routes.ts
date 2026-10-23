@@ -7,31 +7,32 @@ import * as c from "./controllers/Curso/cursoController";
 import * as i from "./controllers/Instituicao/instituicaoController";
 import * as g from "./controllers/Cargo/cargoController";
 import * as r from "./controllers/recursosController";
+import * as oferta from "./controllers/ofertaController";
 import { env } from "./config/env";
 import { prisma } from "./prisma";
 import * as t from "./controllers/testeVocacional/testeVocacionalController";
 export const routes = Router();
 routes.get("/health", (_req, res) =>
-  res.json({ status: "ok", servico: "LUME API" }),
+ res.json({ status: "ok", servico: "LUME API" }),
 );
 routes.get("/health/db", async (_req, res) => {
-  await prisma.$queryRaw`SELECT 1`;
-  res.json({ status: "ok", banco: "conectado" });
+ await prisma.$queryRaw`SELECT 1`;
+ res.json({ status: "ok", banco: "conectado" });
 });
 routes.get("/termos", (_req, res) =>
-  res.json({
-    versao: env.TERMS_VERSION,
-    finalidade:
-      "Orientação de carreira, recomendações e recursos salvos pelo estudante.",
-    dados:
-      "Nome, e-mail, senha em hash, região escolhida, favoritos, avaliações e histórico de consultas e testes.",
-    localizacao:
-      "O GPS é opcional. A interface deve pedir permissão ao dispositivo. Você pode definir sua região manualmente e retirar o consentimento.",
-    controle:
-      "Consulte e exporte seus dados em /usuarios/me/dados. Exclua a conta em /usuarios/me. A exclusão remove os dados pessoais associados.",
-    orientacao:
-      "Resultados vocacionais e estimativas são informativos. Confirme informações de ingresso nos canais oficiais.",
-  }),
+   res.json({
+ versao: env.TERMS_VERSION,
+ finalidade:
+ "Orientação de carreira, recomendações e recursos salvos pelo estudante.",
+ dados:
+  "Nome, e-mail, senha em hash, região escolhida, favoritos, avaliações e histórico de consultas e testes.",
+ localizacao:
+  "O GPS é opcional. A interface deve pedir permissão ao dispositivo. Você pode definir sua região manualmente e retirar o consentimento.",
+ controle:
+ "Consulte e exporte seus dados em /usuarios/me/dados. Exclua a conta em /usuarios/me. A exclusão remove os dados pessoais associados.",
+ orientacao:
+  "Resultados vocacionais e estimativas são informativos. Confirme informações de ingresso nos canais oficiais.",
+ }),
 );
 routes.post("/usuarios", u.cadastrar);
 routes.post("/session", s.login);
@@ -51,14 +52,16 @@ routes.get("/usuarios/me/historico", u.historico);
 routes.get("/fontes", r.fontes);
 routes.post("/fontes", admin, r.fonteCriar);
 routes.get("/cursos", c.listar);
+routes.delete("/cursos/:id", admin, c.arquivar);
 routes.get("/cursos/:id", c.buscar);
 routes.post("/cursos", admin, c.criar);
 routes.patch("/cursos/:id", admin, c.editar);
-routes.delete("/cursos/:id", admin, c.arquivar);
 routes.get("/instituicoes", i.listar);
 routes.get("/instituicoes/:id", i.buscar);
 routes.post("/instituicoes", admin, i.criar);
 routes.patch("/instituicoes/:id", admin, i.editar);
+routes.get("/ofertas", oferta.listar);
+routes.post("/ofertas", admin, oferta.criar);
 routes.get("/cargos", g.listar);
 routes.get("/feed", g.feed);
 routes.get("/cargos/:id", g.buscar);

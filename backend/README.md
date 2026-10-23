@@ -78,7 +78,7 @@ Se o banco já possuir alterações ou migrations próprias, compare-o com `pris
 - Cadastro público exige `aceitou_termos: true` e sempre cria estudante. Administradores: seed ou `npm.cmd run admin:create -- "Nome" "email@exemplo.com" "SenhaForte@123"`.
 - Login e refresh retornam `token`, `refresh_token`, `expires_in` e `token_type`. Cada refresh substitui o anterior. Logout, troca e recuperação de senha revogam sessões.
 - Novos cursos exigem `duracao_meses`. Modalidades: `PRESENCIAL`, `EAD`, `HIBRIDO`.
-- Ofertas visíveis exigem curso e instituição ativos e `regular_mec=true`. Instituições públicas têm mensalidade zero. EAD exige polo na cidade e UF selecionadas.
+- A listagem e o detalhe mostram instituições ativas, inclusive as que aguardam validação do MEC. As ofertas de cursos só são exibidas quando curso e instituição estão ativos e `regular_mec=true`. Instituições públicas têm mensalidade zero. EAD exige polo na cidade e UF selecionadas.
 - Rotas são alternativas orientativas; suas etapas não bloqueiam a navegação do estudante.
 - Distâncias são em linha reta, em km. Sem coordenadas, a distância é `null`; a prioridade regional continua disponível. O frontend deve solicitar a permissão real de GPS do dispositivo.
 - O teste exige uma resposta de 1 a 5 para **cada pergunta ativa**. O último organiza o feed; os anteriores permanecem no histórico.

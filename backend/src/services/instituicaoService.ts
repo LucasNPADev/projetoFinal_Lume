@@ -24,7 +24,7 @@ export async function listarInstituicoes(
   if (q.incluir_inativos && !admin)
     throw new AppError("Filtro de inativos é restrito a administradores", 403);
   const where: Prisma.InstituicaoWhereInput = {
-    ...(!q.incluir_inativos && { status: true, regular_mec: true }),
+    ...(!q.incluir_inativos && { status: true }),
     ...(q.busca && {
       nome_instituicao: { contains: q.busca, mode: "insensitive" },
     }),
@@ -99,17 +99,34 @@ export async function buscarInstituicao(
   });
   if (
     !instituicao ||
-    (!admin && (!instituicao.status || !instituicao.regular_mec))
+    (!admin && !instituicao.status)
   )
     throw new AppError("Instituição não encontrada ou indisponível", 404);
-  const av = await prisma.avaliacao.aggregate({
-    where: { id_instituicao: id, status: "PUBLICADA" },
-    _avg: { nota: true },
-    _count: { id_avaliacao: true },
-  });
+  const [ofertas, av] = await Promise.all([
+    instituicao.regular_mec
+      ? prisma.curso_Instituicao.findMany({
+          where: {
+            id_instituicao: id,
+            status: true,
+            curso: { status: true },
+          },
+          include: {
+            curso: true,
+            fonte_nota: true,
+          },
+          orderBy: { curso: { nome_curso: "asc" } },
+        })
+      : Promise.resolve([]),
+    prisma.avaliacao.aggregate({
+      where: { id_instituicao: id, status: "PUBLICADA" },
+      _avg: { nota: true },
+      _count: { id_avaliacao: true },
+    }),
+  ]);
   const celular = instituicao.celular?.replace(/\D/g, "");
   return {
     ...instituicao,
+    ofertas,
     avaliacoes: { media: av._avg.nota, total: av._count.id_avaliacao },
     canais: {
       telefone: instituicao.telefone,

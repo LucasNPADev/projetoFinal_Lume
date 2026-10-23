@@ -73,6 +73,27 @@ export async function cadastrarUsuario({
   };
 }
 
+export async function meuPerfil(id: bigint) {
+  const usuario = await prisma.usuario.findUnique({
+    where: { id_usuario: id },
+    select: perfilSelect,
+  });
+  if (!usuario) throw new AppError("Usuário não encontrado", 404);
+  return { ...usuario, perfil: perfilPublico(usuario.perfil) };
+}
+
+export async function editarPerfil(
+  id: bigint,
+  dados: { nome?: string; email?: string },
+) {
+  const usuario = await prisma.usuario.update({
+    where: { id_usuario: id },
+    data: dados,
+    select: perfilSelect,
+  });
+  return { ...usuario, perfil: perfilPublico(usuario.perfil) };
+}
+
 export async function localizacao(
   id: bigint,
   dados: Prisma.UsuarioUpdateInput,
