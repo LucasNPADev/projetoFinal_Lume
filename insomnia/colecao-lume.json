@@ -7,37 +7,54 @@
     {
       "_id": "wrk_lume_backend_substituto",
       "parentId": null,
-      "name": "LUME - API recebida - dev",
+      "name": "LUME | TCC | 7 APIs de negócio",
       "scope": "collection",
       "_type": "workspace"
     },
     {
       "_id": "env_lume_backend_substituto",
       "parentId": "wrk_lume_backend_substituto",
-      "name": "Base Environment",
+      "name": "Base Environment — preencher somente localmente",
       "data": {
         "base_url": "http://localhost:3333",
         "token": "",
         "admin_token": "",
-        "curso_id": "1",
-        "instituicao_id": "1"
+        "curso_id": "",
+        "instituicao_id": "",
+        "nome_estudante": "",
+        "email_estudante": "",
+        "senha_estudante": "",
+        "nome_instituicao": "",
+        "cnpj_instituicao": "",
+        "nome_curso": "",
+        "grau_academico": "",
+        "area_curso": "",
+        "carga_horaria": ""
       },
       "_type": "environment"
     },
     {
-      "_id": "req_lume_backend_01",
+      "_id": "fld_lume_autenticacao",
       "parentId": "wrk_lume_backend_substituto",
-      "name": "Saúde",
-      "method": "GET",
-      "url": "{{ _.base_url }}/health",
-      "_type": "request",
-      "headers": [],
-      "authentication": {}
+      "name": "01 - Autenticação e usuários",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_cursos",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "02 - Cursos",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_instituicoes",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "03 - Instituições",
+      "_type": "request_group"
     },
     {
       "_id": "req_lume_backend_02",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Cadastrar estudante",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Cadastrar_usuário",
       "method": "POST",
       "url": "{{ _.base_url }}/usuarios",
       "_type": "request",
@@ -50,13 +67,13 @@
       "authentication": {},
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome\":\"Pessoa Exemplo\",\"email\":\"pessoa@example.org\",\"senha\":\"SenhaDeTeste123\"}"
+        "text": "{\"nome\":\"{{ _.nome_estudante }}\",\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
       }
     },
     {
       "_id": "req_lume_backend_03",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Login",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Autenticar_usuário",
       "method": "POST",
       "url": "{{ _.base_url }}/session",
       "_type": "request",
@@ -69,13 +86,13 @@
       "authentication": {},
       "body": {
         "mimeType": "application/json",
-        "text": "{\"email\":\"pessoa@example.org\",\"senha\":\"SenhaDeTeste123\"}"
+        "text": "{\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
       }
     },
     {
       "_id": "req_lume_backend_04",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Listar cursos",
+      "parentId": "fld_lume_cursos",
+      "name": "Listar_cursos",
       "method": "GET",
       "url": "{{ _.base_url }}/cursos",
       "_type": "request",
@@ -87,8 +104,8 @@
     },
     {
       "_id": "req_lume_backend_05",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Detalhar curso",
+      "parentId": "fld_lume_cursos",
+      "name": "Buscar_curso_por_id",
       "method": "GET",
       "url": "{{ _.base_url }}/cursos/{{ _.curso_id }}",
       "_type": "request",
@@ -100,8 +117,8 @@
     },
     {
       "_id": "req_lume_backend_06",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Criar curso (ADMIN)",
+      "parentId": "fld_lume_cursos",
+      "name": "Cadastrar_curso",
       "method": "POST",
       "url": "{{ _.base_url }}/cursos",
       "_type": "request",
@@ -117,13 +134,13 @@
       },
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome_curso\":\"Engenharia de Software\",\"grau_academico\":\"Bacharelado\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":3200,\"area_curso\":\"Tecnologia\"}"
+        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":{{ _.carga_horaria }},\"area_curso\":\"{{ _.area_curso }}\"}"
       }
     },
     {
       "_id": "req_lume_backend_07",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Criar instituição (ADMIN)",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Cadastrar_instituicao",
       "method": "POST",
       "url": "{{ _.base_url }}/instituicoes",
       "_type": "request",
@@ -139,13 +156,13 @@
       },
       "body": {
         "mimeType": "application/json",
-        "text": "{\"nome_instituicao\":\"Faculdade Exemplo\",\"cnpj\":\"11222333000181\"}"
+        "text": "{\"nome_instituicao\":\"{{ _.nome_instituicao }}\",\"cnpj\":\"{{ _.cnpj_instituicao }}\"}"
       }
     },
     {
       "_id": "req_lume_backend_08",
-      "parentId": "wrk_lume_backend_substituto",
-      "name": "Vincular curso (ADMIN)",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Curso_instituicao",
       "method": "POST",
       "url": "{{ _.base_url }}/instituicoes/{{ _.instituicao_id }}/cursos",
       "_type": "request",
