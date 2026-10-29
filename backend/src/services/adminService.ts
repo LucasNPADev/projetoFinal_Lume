@@ -10,9 +10,6 @@ export async function criarFonte(dados: {
   consultado_em: Date;
   demonstracao?: boolean;
 }) {
-  const host = new URL(dados.url).hostname.toLowerCase();
-  if (!host.endsWith(".gov.br"))
-    throw new AppError("Cadastre uma fonte oficial em domínio gov.br", 400);
   if (dados.consultado_em > new Date())
     throw new AppError("Data da consulta não pode estar no futuro", 400);
   if (env.NODE_ENV === "production" && dados.demonstracao)

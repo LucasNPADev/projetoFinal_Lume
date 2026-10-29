@@ -24,12 +24,16 @@ export const RecoverPasswordPage: React.FC = () => {
     setSubmitting(true);
     try {
       const response = await api.post<RecoveryResponse>('/usuarios/recuperar-senha', { email });
-      setMessage(response.data.mensagem);
+      setMessage(response.data.token_desenvolvimento
+        ? 'O e-mail não é enviado no modo local. Configure o SMTP no backend para receber o link por e-mail.'
+        : response.data.mensagem);
       setDevelopmentToken(response.data.token_desenvolvimento ?? '');
     } catch (error: unknown) {
       setErrorMessage(
-        axios.isAxiosError<{ error?: string }>(error)
-          ? error.response?.data?.error ?? 'Não foi possível solicitar a recuperação.'
+        axios.isAxiosError<{ error?: string; detalhes?: Array<{ mensagem: string }> }>(error)
+          ? error.response?.data?.detalhes?.map(detail => detail.mensagem).join('; ')
+            ?? error.response?.data?.error
+            ?? 'Não foi possível solicitar a recuperação.'
           : 'Não foi possível solicitar a recuperação.'
       );
     } finally {
@@ -45,7 +49,7 @@ export const RecoverPasswordPage: React.FC = () => {
         <p style={{ color: '#7B7B96', fontSize: '14px', marginBottom: '24px' }}>
           Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos instruções para criar uma nova senha.
         </p>
-        {message && <p role="status" style={{ background: '#DCFCE7', color: '#15803D', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{message}</p>}
+        {message && <p role="status" style={{ background: developmentToken ? '#FEF3C7' : '#DCFCE7', color: developmentToken ? '#92400E' : '#15803D', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{message}</p>}
         {errorMessage && <p role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{errorMessage}</p>}
         {developmentToken && (
           <button type="button" onClick={() => navigate(`/redefinir-senha?token=${encodeURIComponent(developmentToken)}`)} style={{ width: '100%', minHeight: '44px', marginBottom: '16px', border: 0, borderRadius: '8px', background: '#EDEB80', color: '#1C1C2E', fontWeight: 'bold', cursor: 'pointer' }}>

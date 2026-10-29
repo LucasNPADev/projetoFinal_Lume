@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import lumeLogo from '../assets/lume-logo.png';
 
 export const AuthLoginPage: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -41,7 +42,7 @@ export const AuthLoginPage: React.FC = () => {
         rua,
         bairro,
         cidade,
-        estado,
+        estado: estado.trim().toUpperCase(),
         latitude: -23.5505,
         longitude: -46.6333,
         aceitou_termos: aceitouTermos
@@ -53,12 +54,11 @@ export const AuthLoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100vw' }}>
-      <div style={{ width: '440px', background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '48px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div className="auth-shell" style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      <div className="auth-showcase" style={{ width: '440px', background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '48px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '11px', background: 'rgba(28,28,46,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '20px' }}>L</div>
-            <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#1C1C2E' }}>LUME</span>
+            <img src={lumeLogo} alt="LUME — GPS de Carreira" style={{ width: '150px', height: '120px', objectFit: 'contain' }} />
           </div>
           <span style={{ background: 'rgba(28,28,46,0.1)', padding: '6px 14px', borderRadius: '15px', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px' }}>GUIA UNIVERSITÁRIO</span>
           <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginTop: '24px', lineHeight: '1.2', color: '#1C1C2E' }}>
@@ -75,7 +75,7 @@ export const AuthLoginPage: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ flex: 1, background: '#F1F0F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+      <div className="auth-content" style={{ flex: 1, background: '#F1F0F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
         <div style={{ width: '100%', maxWidth: '440px' }}>
           {errorMessage && (
             <div style={{ background: '#FEE2E2', border: '1px solid #EF4444', color: '#991B1B', padding: '12px 16px', borderRadius: '10px', marginBottom: '20px', fontSize: '13px', fontWeight: 'bold' }}>
@@ -103,7 +103,7 @@ export const AuthLoginPage: React.FC = () => {
               <button type="submit" style={{ width: '100%', height: '52px', borderRadius: '10px', background: '#EDEB80', color: '#1C1C2E', fontWeight: 'bold', fontSize: '14px' }}>Entrar →</button>
 
               <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#7B7B96' }}>
-                Ainda não tem conta? <span onClick={() => { setIsRegistering(true); setErrorMessage(''); }} style={{ color: '#1C1C2E', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>Cadastre-se</span>
+                Ainda não tem conta? <button type="button" onClick={() => { setIsRegistering(true); setErrorMessage(''); }} style={{ background: 'none', color: '#1C1C2E', padding: 0, fontWeight: 'bold', textDecoration: 'underline' }}>Cadastre-se</button>
               </div>
             </form>
           ) : (
@@ -113,16 +113,16 @@ export const AuthLoginPage: React.FC = () => {
 
               <input type="text" placeholder="Nome Completo" value={nome} onChange={(e) => setNome(e.target.value)} required style={{ width: '100%', height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
               <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
-              <input type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} required style={{ width: '100%', height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
+              <input type="password" placeholder="Senha (mínimo 8 caracteres)" value={senha} onChange={(e) => setSenha(e.target.value)} minLength={8} required style={{ width: '100%', height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div className="auth-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <input type="text" placeholder="Rua" value={rua} onChange={(e) => setRua(e.target.value)} required style={{ height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
                 <input type="text" placeholder="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} required style={{ height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '12px', background: '#FFF' }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
+              <div className="auth-form-grid auth-form-grid--city" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
                 <input type="text" placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required style={{ height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '16px', background: '#FFF' }} />
-                <input type="text" placeholder="UF" value={estado} onChange={(e) => setEstado(e.target.value)} required style={{ height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '16px', background: '#FFF' }} />
+                <input type="text" placeholder="UF" value={estado} maxLength={2} onChange={(e) => setEstado(e.target.value.toUpperCase())} required style={{ height: '44px', borderRadius: '8px', border: '1px solid #E0DFF0', padding: '0 14px', marginBottom: '16px', background: '#FFF' }} />
               </div>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#7B7B96', marginBottom: '20px', cursor: 'pointer' }}>
@@ -133,14 +133,14 @@ export const AuthLoginPage: React.FC = () => {
               <button type="submit" style={{ width: '100%', height: '52px', borderRadius: '10px', background: '#EDEB80', color: '#1C1C2E', fontWeight: 'bold', fontSize: '14px' }}>Cadastrar e Entrar →</button>
 
               <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#7B7B96' }}>
-                Já possui conta? <span onClick={() => { setIsRegistering(false); setErrorMessage(''); }} style={{ color: '#1C1C2E', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>Fazer Login</span>
+                Já possui conta? <button type="button" onClick={() => { setIsRegistering(false); setErrorMessage(''); }} style={{ background: 'none', color: '#1C1C2E', padding: 0, fontWeight: 'bold', textDecoration: 'underline' }}>Fazer Login</button>
               </div>
             </form>
           )}
 
-          <div onClick={() => navigate('/admin/login')} style={{ marginTop: '28px', background: '#FFF', border: '1px solid #E0DFF0', padding: '14px', borderRadius: '10px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', color: '#1C1C2E' }}>
+          <button type="button" onClick={() => navigate('/admin/login')} style={{ width: '100%', marginTop: '28px', background: '#FFF', border: '1px solid #E0DFF0', padding: '14px', borderRadius: '10px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', color: '#1C1C2E' }}>
             🔒 Portal do Administrador
-          </div>
+          </button>
         </div>
       </div>
     </div>

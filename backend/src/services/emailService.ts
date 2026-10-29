@@ -2,13 +2,14 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env";
 export async function enviarRecuperacao(email: string, token: string) {
   if (env.EMAIL_MODE === "console") return;
+  if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASSWORD) {
+    throw new Error("Configuração SMTP incompleta.");
+  }
   const transport = nodemailer.createTransport({
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_PORT === 465,
-    ...(env.SMTP_USER && {
-      auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD },
-    }),
+    auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD },
   });
   const link = new URL("/redefinir-senha", env.FRONTEND_URL);
   link.searchParams.set("token", token);

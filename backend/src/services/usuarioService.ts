@@ -26,6 +26,17 @@ export const perfilSelect = {
   atualizado_em: true,
 } satisfies Prisma.UsuarioSelect;
 
+function isSmtpAuthenticationError(
+  error: unknown,
+): error is { code?: string; responseCode?: number } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (("code" in error && error.code === "EAUTH") ||
+      ("responseCode" in error && error.responseCode === 535))
+  );
+}
+
 export async function cadastrarUsuario({
   senha,
   aceitou_termos,
@@ -169,12 +180,48 @@ export async function solicitarRecuperacao(email: string) {
       },
     }),
   ]);
-  try {
-    await enviarRecuperacao(email, token);
-  } catch {
-    console.error("Falha ao enviar recuperação. Confira a configuração SMTP.");
+  if (env.EMAIL_MODE === "smtp") {
+    try {
+      await enviarRecuperacao(email, token);
+    } catch (error) {
+      await prisma.recuperacaoSenha.updateMany({
+        where: { id_usuario: usuario.id_usuario, usado_em: null },
+        data: { usado_em: new Date() },
+      });
+      if (isSmtpAuthenticationError(error)) {
+        console.error("Falha na autenticação SMTP:", {
+          code: error.code,
+          responseCode: error.responseCode,
+        });
+        throw new AppError(
+          "O Gmail recusou a autenticação. Confira SMTP_USER e use em SMTP_PASSWORD uma senha de app Google válida (16 caracteres), não a senha normal da conta.",
+          503,
+        );
+      }
+      const smtpDiagnostics: Record<string, string | number> = {};
+      if (typeof error === "object" && error !== null) {
+        for (const key of ["code", "command", "responseCode", "syscall", "errno"] as const) {
+          if (key in error) {
+            const value: unknown = Reflect.get(error, key);
+            if (typeof value === "string" || typeof value === "number") {
+              smtpDiagnostics[key] = value;
+            }
+          }
+        }
+      }
+      console.error(
+        "Falha ao enviar recuperação por e-mail:",
+        {
+          message: error instanceof Error ? error.message : "erro desconhecido",
+          ...smtpDiagnostics,
+        },
+      );
+      throw new AppError(
+        "Não foi possível enviar o e-mail de recuperação. Confira a configuração SMTP e tente novamente.",
+        503,
+      );
+    }
   }
-  // Apenas para teste local. Nenhum token é retornado em produção ou com SMTP.
   return {
     ...{ mensagem },
     ...(env.NODE_ENV !== "production" &&
@@ -279,4 +326,3 @@ export async function buscarUsuarioPorId(id: bigint) {
     perfil: perfilPublico(usuario.perfil),
   };
 }
-

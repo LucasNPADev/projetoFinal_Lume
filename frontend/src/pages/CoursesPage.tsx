@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BottomNav } from '../components/BottomNav';
 import { api } from '../services/api';
+import { CourseDetailPanel } from '../components/CourseDetailPanel';
 
 interface CourseOffer {
   id_curso_instituicao: string;
@@ -69,6 +69,32 @@ export const CoursesPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+
+  const groupedCourses = offers.reduce((grouped, offer) => {
+    const current = grouped.get(offer.id_curso);
+    if (!current) {
+      grouped.set(offer.id_curso, {
+        offer,
+        institutions: new Set([offer.instituicao.id_instituicao]),
+        lowestMonthly: offer.mensalidade
+      });
+      return grouped;
+    }
+    current.institutions.add(offer.instituicao.id_instituicao);
+    if (
+      offer.mensalidade != null
+      && (current.lowestMonthly == null || Number(offer.mensalidade) < Number(current.lowestMonthly))
+    ) {
+      current.lowestMonthly = offer.mensalidade;
+    }
+    return grouped;
+  }, new Map<string, {
+    offer: CourseOffer;
+    institutions: Set<string>;
+    lowestMonthly: number | string | null;
+  }>());
+  const courses = Array.from(groupedCourses.values());
 
   useEffect(() => {
     let cancelled = false;
@@ -79,12 +105,15 @@ export const CoursesPage: React.FC = () => {
       try {
         const [offersResponse, favoritesResponse] = await Promise.all([
           api.get<PaginatedOffers>('/ofertas', {
-            params: { page, limit: 20, ordenar: 'nome', ...(search && { busca: search }) }
+            params: { page, limit: 20, ordenar: 'mensalidade', ...(search && { busca: search }) }
           }),
           api.get<FavoriteItem[]>('/favoritos')
         ]);
         if (cancelled) return;
-        setOffers(offersResponse.data.data);
+        setOffers(current => page === 1
+          ? offersResponse.data.data
+          : [...new Map([...current, ...offersResponse.data.data]
+              .map(offer => [offer.id_curso_instituicao, offer])).values()]);
         setTotal(offersResponse.data.total);
         setTotalPages(offersResponse.data.totalPages);
         setFavoriteIds(new Map(
@@ -143,14 +172,25 @@ export const CoursesPage: React.FC = () => {
     }
   };
 
+  if (selectedCourseId) {
+    return (
+      <CourseDetailPanel
+        courseId={selectedCourseId}
+        isFavorite={favoriteIds.has(selectedCourseId)}
+        onBack={() => setSelectedCourseId(null)}
+        onToggleFavorite={() => void toggleCourseFavorite(selectedCourseId)}
+      />
+    );
+  }
+
   return (
-    <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME — Cursos em Faculdades</h1>
-        <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{total} ofertas de cursos disponíveis</p>
+    <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Cursos</h1>
+        <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{courses.length} cursos · {total} ofertas disponíveis</p>
       </header>
 
-      <main style={{ padding: '32px 88px' }}>
+      <main className="student-main" style={{ padding: '32px 88px' }}>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
           <input
             type="search"
@@ -168,15 +208,16 @@ export const CoursesPage: React.FC = () => {
             {errorMessage}
           </div>
         )}
-        {!loading && !errorMessage && offers.length === 0 && (
-          <p>Nenhuma oferta de curso encontrada.</p>
+        {!loading && !errorMessage && courses.length === 0 && (
+          <p>Nenhum curso encontrado.</p>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          {offers.map(offer => {
-            const favorite = favoriteIds.has(offer.id_curso);
+          {courses.map(({ offer, institutions, lowestMonthly }) => {
+            const courseId = offer.id_curso;
+            const favorite = favoriteIds.has(courseId);
             return (
-              <article key={offer.id_curso_instituicao} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px' }}>
+              <article key={courseId} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                   <div>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1C1C2E' }}>{offer.curso.nome_curso}</h2>
@@ -187,35 +228,22 @@ export const CoursesPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div style={{ marginTop: '16px', padding: '12px', background: '#F8F7FB', borderRadius: '8px' }}>
-                  <strong style={{ display: 'block', fontSize: '14px' }}>{offer.instituicao.nome_instituicao}</strong>
-                  <span style={{ fontSize: '12px', color: '#7B7B96' }}>
-                    {offer.local_oferta.polo_nome ? `${offer.local_oferta.polo_nome} · ` : ''}
-                    {offer.local_oferta.cidade ?? offer.instituicao.cidade ?? 'Local não informado'}
-                    {offer.local_oferta.estado ?? offer.instituicao.estado ? `, ${offer.local_oferta.estado ?? offer.instituicao.estado}` : ''}
-                    {offer.distancia_km != null ? ` · ${offer.distancia_km.toFixed(1)} km` : ''}
-                  </span>
-                </div>
-
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '14px 0' }}>
                   {[offer.curso.modalidade, `${offer.curso.duracao_meses ?? '—'} meses`, `${offer.curso.carga_horaria} horas`].map(label => (
                     <span key={label} style={{ background: '#F1F0F7', color: '#4338CA', padding: '5px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>{label}</span>
                   ))}
                 </div>
 
-                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#15803D' }}>
-                  Mensalidade: {money(offer.mensalidade)}
-                  {offer.mensalidade_max != null && Number(offer.mensalidade_max) !== Number(offer.mensalidade) ? ` até ${money(offer.mensalidade_max)}` : ''}
+                <div style={{ marginTop: '16px', padding: '12px', background: '#F8F7FB', borderRadius: '8px' }}>
+                  <strong style={{ display: 'block', fontSize: '14px' }}>{institutions.size} {institutions.size === 1 ? 'faculdade encontrada até aqui' : 'faculdades encontradas até aqui'}</strong>
+                  <span style={{ fontSize: '12px', color: '#7B7B96' }}>Veja todas as faculdades e condições ao abrir o curso.</span>
+                </div>
+                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#15803D', marginTop: '12px' }}>
+                  Mensalidade a partir de: {money(lowestMonthly)}
                 </p>
-                <p style={{ fontSize: '12px', color: '#1C1C2E', marginTop: '10px' }}>
-                  <strong>Ingresso:</strong> {offer.formas_ingresso || 'Consulte a instituição'}
-                </p>
-                {offer.bolsas && <p style={{ fontSize: '12px', color: '#1C1C2E', marginTop: '6px' }}><strong>Bolsas:</strong> {offer.bolsas}</p>}
-                {(offer.prouni || offer.fies) && (
-                  <p style={{ fontSize: '11px', color: '#7B7B96', marginTop: '8px' }}>
-                    {offer.prouni ? 'ProUni' : ''}{offer.prouni && offer.fies ? ' · ' : ''}{offer.fies ? 'FIES' : ''}
-                  </p>
-                )}
+                <button type="button" onClick={() => setSelectedCourseId(courseId)} style={{ width: '100%', minHeight: '44px', marginTop: '16px', borderRadius: '9px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold' }}>
+                  Ver faculdades e detalhes
+                </button>
               </article>
             );
           })}
@@ -229,7 +257,6 @@ export const CoursesPage: React.FC = () => {
           </div>
         )}
       </main>
-      <BottomNav />
     </div>
   );
 };

@@ -16,6 +16,9 @@ interface SourceOption {
   id_fonte: string;
   nome: string;
   orgao: string;
+  url: string;
+  consultado_em: string;
+  demonstracao: boolean;
 }
 
 interface InstitutionOption {
@@ -26,7 +29,10 @@ interface InstitutionOption {
   status: boolean;
 }
 
-type AdminTab = 'INSTITUICAO' | 'CURSO' | 'CARGO' | 'OFERTA' | 'PERGUNTA';
+type AdminTab = 'INSTITUICAO' | 'CURSO' | 'FONTE' | 'CARGO' | 'OFERTA' | 'PERGUNTA';
+
+const localDateTimeNow = () =>
+  new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 
 export const AdminDashboardPage: React.FC = () => {
   const { logout, user } = useAuth();
@@ -38,6 +44,14 @@ export const AdminDashboardPage: React.FC = () => {
   const [institutions, setInstitutions] = useState<InstitutionOption[]>([]);
   const [loadingOfferOptions, setLoadingOfferOptions] = useState(false);
   const [loadingCargoOptions, setLoadingCargoOptions] = useState(false);
+  const [loadingSources, setLoadingSources] = useState(false);
+  const [source, setSource] = useState({
+    nome: '',
+    orgao: '',
+    url: '',
+    consultado_em: localDateTimeNow(),
+    demonstracao: false
+  });
   const [question, setQuestion] = useState({
     enunciado: '',
     area_afinidade: '',
@@ -117,6 +131,33 @@ export const AdminDashboardPage: React.FC = () => {
       descricao: ''
     }
   });
+
+  useEffect(() => {
+    if (activeTab !== 'FONTE') return;
+
+    let cancelled = false;
+    setLoadingSources(true);
+    setErrorMsg('');
+    api.get<{ data: SourceOption[] }>('/fontes', { params: { limit: 100 } })
+      .then(response => {
+        if (!cancelled) setSources(response.data.data);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setErrorMsg(
+          axios.isAxiosError<{ error?: string }>(error)
+            ? error.response?.data?.error ?? 'Não foi possível carregar as fontes cadastradas.'
+            : 'Não foi possível carregar as fontes cadastradas.'
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSources(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== 'CARGO') return;
@@ -347,14 +388,43 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  const handleCreateSource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccessMsg('');
+    setErrorMsg('');
+    try {
+      const { data } = await api.post<SourceOption>('/fontes', {
+        ...source,
+        consultado_em: new Date(source.consultado_em).toISOString()
+      });
+      setSources(current => [...current, data]);
+      setSuccessMsg('Fonte cadastrada com sucesso!');
+      setSource({
+        nome: '',
+        orgao: '',
+        url: '',
+        consultado_em: localDateTimeNow(),
+        demonstracao: false
+      });
+    } catch (error: unknown) {
+      setErrorMsg(
+        axios.isAxiosError<{ error?: string; detalhes?: Array<{ campo: string; mensagem: string }> }>(error)
+          ? error.response?.data?.detalhes?.map(detail => `${detail.campo}: ${detail.mensagem}`).join('; ')
+            || error.response?.data?.error
+            || 'Não foi possível cadastrar a fonte.'
+          : 'Não foi possível cadastrar a fonte.'
+      );
+    }
+  };
+
   const selectedOfferCourse = courses.find(course => course.id_curso === offer.id_curso);
   const selectedOfferInstitution = institutions.find(
     institution => institution.id_instituicao === offer.id_instituicao
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="admin-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="admin-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <span style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME — Painel Administrativo</span>
           <p style={{ fontSize: '13px', color: 'rgba(28,28,46,0.7)' }}>Gestor: {user?.email}</p>
@@ -364,7 +434,7 @@ export const AdminDashboardPage: React.FC = () => {
         </button>
       </header>
 
-      <main style={{ padding: '32px 88px', maxWidth: '1000px', margin: '0 auto' }}>
+      <main className="admin-main" style={{ padding: '32px 88px', maxWidth: '1000px', margin: '0 auto' }}>
         {successMsg && (
           <div style={{ background: '#DCFCE7', color: '#15803D', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold', textAlign: 'center' }}>
             ✓ {successMsg}
@@ -376,15 +446,57 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-          {(['INSTITUICAO', 'CURSO', 'CARGO', 'OFERTA', 'PERGUNTA'] as const).map(tab => (
-            <button key={tab} onClick={() => { setActiveTab(tab); setSuccessMsg(''); setErrorMsg(''); }} style={{ flex: 1, height: '48px', borderRadius: '8px', background: activeTab === tab ? '#1C1C2E' : '#FFF', color: activeTab === tab ? '#EDEB80' : '#1C1C2E', fontWeight: 'bold', border: '1px solid #E0DFF0' }}>
-              + {tab === 'OFERTA' ? 'Vincular curso à faculdade' : tab === 'PERGUNTA' ? 'Pergunta vocacional' : `Cadastrar ${tab.toLowerCase()}`}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
+          {(['INSTITUICAO', 'CURSO', 'FONTE', 'CARGO', 'OFERTA', 'PERGUNTA'] as const).map(tab => (
+            <button key={tab} onClick={() => { setActiveTab(tab); setSuccessMsg(''); setErrorMsg(''); }} style={{ flex: '1 1 150px', minHeight: '48px', borderRadius: '8px', background: activeTab === tab ? '#1C1C2E' : '#FFF', color: activeTab === tab ? '#EDEB80' : '#1C1C2E', fontWeight: 'bold', border: '1px solid #E0DFF0' }}>
+              + {tab === 'OFERTA' ? 'Vincular curso à faculdade' : tab === 'PERGUNTA' ? 'Pergunta vocacional' : tab === 'FONTE' ? 'Cadastrar fonte' : `Cadastrar ${tab.toLowerCase()}`}
             </button>
           ))}
         </div>
 
         <div style={{ background: '#FFF', padding: '32px', borderRadius: '12px', border: '1px solid #E0DFF0' }}>
+          {activeTab === 'FONTE' && (
+            <>
+              <form onSubmit={handleCreateSource}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>Cadastrar fonte de dados</h3>
+                <p style={{ fontSize: '13px', color: '#7B7B96', marginBottom: '20px' }}>Registre a origem dos dados e a data em que foram consultados. Podem ser usadas fontes governamentais, institucionais ou outros sites; informe uma URL http/https válida. O banco gera o ID automaticamente e a data não pode estar no futuro.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                  <input type="text" value={source.nome} onChange={e => setSource({ ...source, nome: e.target.value })} required minLength={1} maxLength={200} placeholder="Nome da fonte (até 200 caracteres)" style={{ boxSizing: 'border-box', width: '100%', height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                  <input type="text" value={source.orgao} onChange={e => setSource({ ...source, orgao: e.target.value })} required minLength={1} maxLength={150} placeholder="Órgão responsável (até 150 caracteres)" style={{ boxSizing: 'border-box', width: '100%', height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                  <input type="url" value={source.url} onChange={e => setSource({ ...source, url: e.target.value })} required maxLength={2048} placeholder="URL da fonte (ex.: https://site-da-faculdade.edu.br)" style={{ boxSizing: 'border-box', width: '100%', height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#1C1C2E', fontSize: '12px', fontWeight: 'bold' }}>
+                    DATA E HORA DA CONSULTA
+                    <input type="datetime-local" value={source.consultado_em} onChange={e => setSource({ ...source, consultado_em: e.target.value })} required max={localDateTimeNow()} style={{ boxSizing: 'border-box', width: '100%', height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                  </label>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', fontSize: '13px' }}>
+                  <input type="checkbox" checked={source.demonstracao} onChange={e => setSource({ ...source, demonstracao: e.target.checked })} />
+                  Fonte demonstrativa (não permitida em produção)
+                </label>
+                <button type="submit" style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px' }}>Salvar fonte</button>
+              </form>
+
+              <section aria-labelledby="registered-sources-title" style={{ marginTop: '32px' }}>
+                <h4 id="registered-sources-title" style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>Fontes cadastradas</h4>
+                {loadingSources ? <p style={{ color: '#7B7B96', fontSize: '13px' }}>Carregando fontes...</p> : null}
+                {!loadingSources && sources.length === 0 ? <p style={{ color: '#7B7B96', fontSize: '13px' }}>Nenhuma fonte cadastrada.</p> : null}
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {sources.map(item => (
+                    <article key={item.id_fonte} style={{ display: 'grid', gap: '5px', padding: '14px', background: '#F8F7FB', border: '1px solid #E0DFF0', borderRadius: '10px' }}>
+                      <strong style={{ color: '#1C1C2E', fontSize: '14px' }}>{item.nome} — {item.orgao}</strong>
+                      <a href={item.url} target="_blank" rel="noreferrer" style={{ color: '#6D4AFF', fontSize: '12px', overflowWrap: 'anywhere' }}>{item.url}</a>
+                      <span style={{ color: '#7B7B96', fontSize: '11px' }}>
+                        Consultada em {new Date(item.consultado_em).toLocaleString('pt-BR')}
+                        {' · '}{item.demonstracao ? 'Demonstrativa' : 'Oficial'}
+                        {' · '}ID {item.id_fonte}
+                      </span>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
+
           {activeTab === 'INSTITUICAO' && (
             <form onSubmit={handleCreateInst}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>Cadastrar Nova Instituição de Ensino</h3>

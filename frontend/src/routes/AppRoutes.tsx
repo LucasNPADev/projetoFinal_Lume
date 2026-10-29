@@ -13,7 +13,10 @@ import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 import { SiteRegistrationPage } from '../pages/SiteRegistrationPage';
 import { RecoverPasswordPage } from '../pages/RecoverPasswordPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
+import { EditProfilePage } from '../pages/EditProfilePage';
 import { useAuth } from '../hooks/useAuth';
+import { StudentNavigation } from '../components/StudentNavigation';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 const PrivateRoute: React.FC<{ element: React.ReactElement; adminOnly?: boolean }> = ({ element, adminOnly }) => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -28,6 +31,8 @@ const PrivateRoute: React.FC<{ element: React.ReactElement; adminOnly?: boolean 
 export const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
+      <StudentNavigation />
+      <ThemeToggle />
       <Routes>
         <Route path="/" element={<AuthLoginPage />} />
         <Route path="/recuperar-senha" element={<RecoverPasswordPage />} />
@@ -41,6 +46,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/cursos" element={<PrivateRoute element={<CoursesPage />} />} />
         <Route path="/favoritos" element={<PrivateRoute element={<FavoritesPage />} />} />
         <Route path="/perfil" element={<PrivateRoute element={<ProfilePage />} />} />
+        <Route path="/perfil/editar" element={<PrivateRoute element={<EditProfilePage />} />} />
 
         <Route path="/admin/dashboard" element={<PrivateRoute element={<AdminDashboardPage />} adminOnly />} />
         <Route path="/admin/cadastrar-instituicao" element={<PrivateRoute element={<SiteRegistrationPage />} adminOnly />} />

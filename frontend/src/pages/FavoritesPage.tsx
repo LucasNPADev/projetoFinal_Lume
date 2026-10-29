@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BottomNav } from '../components/BottomNav';
 import { api } from '../services/api';
 
 interface FavoriteEntry {
@@ -125,13 +124,13 @@ export const FavoritesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
+    <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
         <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Meus favoritos</h1>
         <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{favorites.length} itens salvos na sua conta</p>
       </header>
 
-      <main style={{ padding: '32px 88px' }}>
+      <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando favoritos...</p>}
         {errorMessage && (
           <div role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold' }}>
@@ -164,7 +163,6 @@ export const FavoritesPage: React.FC = () => {
           ))}
         </div>
       </main>
-      <BottomNav />
     </div>
   );
 };

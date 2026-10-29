@@ -18,7 +18,7 @@ const envSchema = z.object({
   HOST: z.string().default("0.0.0.0"),
   CORS_ORIGINS: z
     .string()
-    .default("http://localhost:5173,http://localhost:3000"),
+    .default("http://localhost:5173,http://localhost:3000,http://localhost"),
   EMAIL_MODE: z.enum(["console", "smtp"]).default("console"),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().default(587),
@@ -42,5 +42,19 @@ if (env.NODE_ENV === "production" && env.EMAIL_MODE !== "smtp") {
     "Em produção, configure EMAIL_MODE=smtp para recuperação de senha.",
   );
 }
-if (env.EMAIL_MODE === "smtp" && !env.SMTP_HOST)
-  throw new Error("Configure SMTP_HOST.");
+if (env.EMAIL_MODE === "smtp") {
+  if (!env.SMTP_HOST) throw new Error("Configure SMTP_HOST.");
+  if (!env.SMTP_USER || !env.SMTP_PASSWORD)
+    throw new Error("Configure SMTP_USER e SMTP_PASSWORD.");
+  const placeholders = /SEU_ENDERECO|SUA_SENHA|seu-email|senha-de-app/i;
+  if (
+    placeholders.test(env.SMTP_USER) ||
+    placeholders.test(env.SMTP_PASSWORD) ||
+    placeholders.test(env.EMAIL_FROM) ||
+    env.EMAIL_FROM.includes("@lume.local")
+  ) {
+    throw new Error(
+      "Substitua os valores de exemplo em SMTP_USER, SMTP_PASSWORD e EMAIL_FROM no .env.",
+    );
+  }
+}

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BottomNav } from '../components/BottomNav';
 import { Career } from '../types';
 import { api } from '../services/api';
+import { CareerDetailPanel } from '../components/CareerDetailPanel';
 
 interface CareerListItem {
   id_cargo: string;
@@ -39,6 +39,7 @@ export const CareersPage: React.FC = () => {
   const [careers, setCareers] = useState<CareerCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedCareerId, setSelectedCareerId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,13 +127,25 @@ export const CareersPage: React.FC = () => {
     }
   };
 
+  if (selectedCareerId) {
+    const selectedCareer = careers.find(career => career.id === selectedCareerId);
+    return (
+      <CareerDetailPanel
+        careerId={selectedCareerId}
+        isFavorite={Boolean(selectedCareer?.favorito)}
+        onBack={() => setSelectedCareerId(null)}
+        onToggleFavorite={() => void handleFav(selectedCareerId, selectedCareer?.favorito)}
+      />
+    );
+  }
+
   return (
-    <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
+    <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
         <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME — Panorama de Carreiras</h1>
       </header>
 
-      <main style={{ padding: '32px 88px' }}>
+      <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando carreiras...</p>}
         {errorMessage && (
           <div role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold' }}>
@@ -146,10 +159,10 @@ export const CareersPage: React.FC = () => {
           {careers.map((c) => (
             <div key={c.id} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
+                <button type="button" className="career-card-title" onClick={() => setSelectedCareerId(c.id)}>
                   <h3 style={{ fontSize: '18px', fontWeight: 'bold' }}>{c.nome}</h3>
                   <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4338CA' }}>{c.area_atuacao}</span>
-                </div>
+                </button>
                 <button type="button" aria-label={c.favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} onClick={() => handleFav(c.id, c.favorito)} style={{ background: c.favorito ? '#FEE2E2' : '#F8F7FB', border: '1px solid #E0DFF0', width: '36px', height: '36px', borderRadius: '50%', fontSize: '16px' }}>
                   {c.favorito ? '❤️' : '🤍'}
                 </button>
@@ -173,11 +186,13 @@ export const CareersPage: React.FC = () => {
               <div style={{ fontSize: '12px', color: '#1C1C2E' }}>
                 <strong>Panorama do mercado:</strong> {c.panorama_mercado}
               </div>
+              <button type="button" className="primary-button" onClick={() => setSelectedCareerId(c.id)}>
+                Conhecer carreira e trilhas
+              </button>
             </div>
           ))}
         </div>
       </main>
-      <BottomNav />
     </div>
   );
 };

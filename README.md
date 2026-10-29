@@ -47,10 +47,26 @@ O cadastro comum cria estudantes. A criação da conta administrativa é realiza
 
 ### 🖥️ Interface web existente
 
-O repositório também contém um frontend **React + Vite + TypeScript**, com estrutura inicial e páginas de **Início**, **Carreiras** e **Quiz Vocacional**.
+O repositório também contém um frontend **React + Vite + TypeScript** para uso no computador. O aplicativo mobile nativo fica separado em `mobile` e é construído com **Expo + React Native**.
+
+### 📱 Executar o app mobile com Expo
+
+Na pasta `mobile`, instale as dependências e inicie o Expo:
+
+```powershell
+cd mobile
+npm.cmd install
+npm.cmd start
+```
+
+O app usa `http://10.0.2.2:3333` por padrão no emulador Android e `http://localhost:3333` no simulador iOS. Inicie o backend antes de usar login e os recursos conectados à API.
+
+Para testar em um aparelho físico, copie `mobile/.env.example` para `mobile/.env` e ajuste `EXPO_PUBLIC_API_URL=http://IP_DO_COMPUTADOR:3333`. O aparelho e o computador devem estar na mesma rede, o backend deve aceitar conexões pela rede e o firewall deve liberar a porta `3333`.
+
+Antes de publicar, configure uma URL HTTPS em `EXPO_PUBLIC_API_URL`.
 
 > [!WARNING]
-> **Integração ainda pendente:** o frontend contém chamadas para `/cargos` e `/quiz/perguntas`, que **não existem no backend atual da `dev`**. Seu cliente HTTP também usa, por padrão, o prefixo `/api`, enquanto a nova API responde **sem esse prefixo**. Portanto, essas páginas não devem ser apresentadas como uma integração ponta a ponta concluída.
+> O aplicativo Expo depende da API e do banco de dados estarem ativos. Os dados e a disponibilidade das telas dependem das instituições, ofertas, carreiras e perguntas cadastradas no ambiente.
 
 ### 🗂️ Estrutura modelada no banco
 

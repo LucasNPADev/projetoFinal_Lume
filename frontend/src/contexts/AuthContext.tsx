@@ -1,12 +1,24 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import axios from 'axios';
 import { api } from '../services/api';
 import { User, RegisterPayload } from '../types';
+
+function getApiErrorMessage(error: unknown): string | undefined {
+  if (!axios.isAxiosError<{ error?: string; message?: string; detalhes?: Array<{ mensagem: string }> }>(error)) {
+    return undefined;
+  }
+
+  const data = error.response?.data;
+  const details = data?.detalhes?.map((detail) => detail.mensagem).join('; ');
+  return details || data?.error || data?.message;
+}
 
 interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, senha: string, isAdmin?: boolean) => Promise<void>;
   registerUser: (payload: RegisterPayload) => Promise<void>;
+  updateUser: (user: User) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -41,9 +53,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('@lume:user', JSON.stringify(userData));
       setUser(userData);
     } catch (error: any) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      } else if (error.message && !error.message.includes('Network Error')) {
+      const apiError = getApiErrorMessage(error);
+      if (apiError) {
+        throw new Error(apiError);
+      }
+      if (error.response || (error.message && !error.message.includes('Network Error'))) {
         throw error;
       }
 
@@ -68,10 +82,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await api.post('/usuarios', payload);
       await login(payload.email, payload.senha, false);
     } catch (error: any) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      const apiError = getApiErrorMessage(error);
+      if (apiError) {
+        throw new Error(apiError);
       }
-      await login(payload.email, payload.senha, false);
+      throw error;
     }
   };
 
@@ -81,8 +96,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const updateUser = useCallback((updatedUser: User) => {
+    localStorage.setItem('@lume:user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, registerUser, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, registerUser, updateUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

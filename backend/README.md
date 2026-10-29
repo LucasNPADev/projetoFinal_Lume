@@ -87,9 +87,9 @@ Se o banco já possuir alterações ou migrations próprias, compare-o com `pris
 
 ## Recuperação de senha e publicação
 
-Em desenvolvimento, `EMAIL_MODE=console` permite testar sem servidor de e-mail. A resposta de recuperação de uma conta existente contém `token_desenvolvimento`. Esse token não é retornado em produção ou no modo SMTP.
+Em desenvolvimento, `EMAIL_MODE=console` permite testar sem servidor de e-mail e retorna `token_desenvolvimento` para a tela de recuperação. Esse modo não envia mensagens.
 
-Para envio real, configure `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM` e `FRONTEND_URL`. O frontend deve implementar `/redefinir-senha?token=...` e enviar o token à API. Em produção, o backend exige SMTP.
+Para envio real, configure `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM` e `FRONTEND_URL` no `backend/.env`, depois reinicie o backend. Com Gmail, use `smtp.gmail.com`, porta `587`, seu endereço como usuário e uma senha de app do Google (não a senha normal da conta). O remetente deve ser autorizado pelo provedor. O backend envia um link válido por 15 minutos; falhas de entrega são registradas no terminal e informadas na tela. Em produção, o backend exige SMTP.
 
 Cadastre fontes e valores reais antes de publicar. Fontes aceitas são URLs HTTP(S) em domínios governamentais `.gov.br`. Novos vínculos com fontes demonstrativas são bloqueados em produção. A API não coleta automaticamente salários, notas de corte ou dados do MEC.
 

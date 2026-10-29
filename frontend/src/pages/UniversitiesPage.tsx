@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { BottomNav } from '../components/BottomNav';
 import { Institution } from '../types';
 import { api } from '../services/api';
+import lumeLogo from '../assets/lume-logo.png';
 
 interface InstitutionRecord {
   id_instituicao: string;
@@ -150,11 +150,11 @@ export const UniversitiesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
+    <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(28,28,46,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>L</div>
+            <img src={lumeLogo} alt="LUME — GPS de Carreira" style={{ width: '48px', height: '42px', objectFit: 'contain' }} />
             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME</span>
           </div>
           <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{total} instituições disponíveis</p>
@@ -165,7 +165,7 @@ export const UniversitiesPage: React.FC = () => {
         </form>
       </header>
 
-      <main style={{ padding: '32px 88px' }}>
+      <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando instituições...</p>}
         {errorMessage && (
           <div role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold' }}>
@@ -210,7 +210,6 @@ export const UniversitiesPage: React.FC = () => {
           ))}
         </div>
       </main>
-      <BottomNav />
     </div>
   );
 };

@@ -93,6 +93,7 @@ export interface Institution {
   latitude: number;
   longitude: number;
   status?: boolean;
+  regular_mec?: boolean;
   favorito?: boolean;
 }
 

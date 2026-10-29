@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BottomNav } from '../components/BottomNav';
 import { api } from '../services/api';
 
 interface UniversityOffer {
@@ -101,12 +100,12 @@ export const UniversityDetailPage: React.FC = () => {
   }, [id]);
 
   return (
-    <div style={{ paddingBottom: '100px', minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
+    <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
+      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
         <button type="button" onClick={() => navigate('/faculdades')} style={{ background: 'transparent', fontWeight: 'bold', fontSize: '14px', color: '#1C1C2E' }}>← Voltar para faculdades</button>
       </header>
 
-      <main style={{ padding: '32px 88px' }}>
+      <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando instituição...</p>}
         {errorMessage && (
           <div role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold' }}>
@@ -195,7 +194,6 @@ export const UniversityDetailPage: React.FC = () => {
           </>
         )}
       </main>
-      <BottomNav />
     </div>
   );
 };
