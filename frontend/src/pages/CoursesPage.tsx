@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
 import { CourseDetailPanel } from '../components/CourseDetailPanel';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface CourseOffer {
   id_curso_instituicao: string;
@@ -105,7 +106,7 @@ export const CoursesPage: React.FC = () => {
       try {
         const [offersResponse, favoritesResponse] = await Promise.all([
           api.get<PaginatedOffers>('/ofertas', {
-            params: { page, limit: 20, ordenar: 'mensalidade', ...(search && { busca: search }) }
+            params: { page, limit: 20, ordenar: 'nome', ...(search && { busca: search }) }
           }),
           api.get<FavoriteItem[]>('/favoritos')
         ]);
@@ -185,23 +186,23 @@ export const CoursesPage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Cursos</h1>
-        <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{courses.length} cursos · {total} ofertas disponíveis</p>
-      </header>
+      <StudentPageHeader
+        title="Cursos"
+        subtitle={`${courses.length} cursos · ${total} ofertas disponíveis`}
+        search={(
+          <form onSubmit={handleSearch} className="universities-header__search">
+            <input
+              type="search"
+              placeholder="Buscar curso ou faculdade..."
+              value={searchText}
+              onChange={event => setSearchText(event.target.value)}
+            />
+            <button type="submit">Buscar</button>
+          </form>
+        )}
+      />
 
       <main className="student-main" style={{ padding: '32px 88px' }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-          <input
-            type="search"
-            placeholder="Buscar curso ou faculdade..."
-            value={searchText}
-            onChange={event => setSearchText(event.target.value)}
-            style={{ flex: 1, height: '44px', borderRadius: '10px', border: '1px solid #E0DFF0', background: '#FFF', padding: '0 16px', fontSize: '13px' }}
-          />
-          <button type="submit" style={{ padding: '0 24px', borderRadius: '10px', border: 0, background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold' }}>Buscar</button>
-        </form>
-
         {loading && <p role="status">Carregando cursos...</p>}
         {errorMessage && (
           <div role="alert" style={{ background: '#FEE2E2', color: '#B91C1C', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontWeight: 'bold' }}>

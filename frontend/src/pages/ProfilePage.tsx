@@ -4,33 +4,25 @@ import { useAuth } from '../hooks/useAuth';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface PageResult<T> {
   data: T[];
   total: number;
 }
 
-interface FavoriteRecord {
-  id_favorito: string;
-}
-
 export const ProfilePage: React.FC = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const [favoriteCount, setFavoriteCount] = useState(0);
   const [quizCount, setQuizCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      api.get<FavoriteRecord[]>('/favoritos'),
-      api.get<PageResult<unknown>>('/teste-vocacional/historico', { params: { page: 1, limit: 1 } })
-    ])
-      .then(([favorites, history]) => {
+    api.get<PageResult<unknown>>('/teste-vocacional/historico', { params: { page: 1, limit: 1 } })
+      .then((history) => {
         if (!active) return;
-        setFavoriteCount(favorites.data.length);
         setQuizCount(history.data.total);
       })
       .catch((error: unknown) => {
@@ -47,12 +39,13 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #dfdb57 100%)', padding: '32px 88px 80px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Meu Perfil</h1>
-        <button onClick={logout} style={{ background: 'rgba(28,28,46,0.12)', padding: '6px 18px', borderRadius: '15px', fontWeight: 'bold', fontSize: '11px' }}>Sair</button>
-      </header>
+      <StudentPageHeader
+        title="Meu perfil"
+        subtitle="Seus dados e atividades no LUME."
+        action={<button type="button" className="student-page-header__logout" onClick={logout}>Sair</button>}
+      />
 
-      <main className="student-main" style={{ padding: '0 88px', marginTop: '-50px' }}>
+      <main className="student-main" style={{ padding: '0 88px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
           <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#4338CA', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '28px', border: '4px solid #FFF' }}>
             {user?.nome ? user.nome.substring(0, 2).toUpperCase() : 'US'}
@@ -76,14 +69,10 @@ export const ProfilePage: React.FC = () => {
           </div>
         )}
         {loading && <p role="status" style={{ marginBottom: '16px' }}>Carregando atividades...</p>}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ background: '#FFF', padding: '16px', borderRadius: '10px', border: '1px solid #E0DFF0', textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{loading ? '—' : favoriteCount}</div>
-            <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#7B7B96' }}>FAVORITOS SALVOS</div>
-          </div>
-          <div style={{ background: '#FFF', padding: '16px', borderRadius: '10px', border: '1px solid #E0DFF0', textAlign: 'center' }}>
+        <div className="profile-activity">
+          <div className="profile-activity__summary">
             <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{loading ? '—' : quizCount}</div>
-            <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#7B7B96' }}>TESTES VOCACIONAIS</div>
+            <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#7B7B96' }}>TESTES VOCACIONAIS REALIZADOS</div>
           </div>
         </div>
         <div className="profile-actions">

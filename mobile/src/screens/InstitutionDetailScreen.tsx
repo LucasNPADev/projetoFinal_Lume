@@ -37,10 +37,9 @@ interface InstitutionDetail {
     fies: boolean;
     curso: { nome_curso: string; grau_academico: string; modalidade: string; duracao_meses: number | null };
   }>;
-  avaliacoes: { media: number | string | null; total: number };
 }
 
-type DetailTab = 'overview' | 'courses' | 'contact' | 'reviews';
+type DetailTab = 'overview' | 'courses' | 'contact';
 
 const money = (value: number | string | null) =>
   value == null ? 'Consulte a instituição' : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -149,7 +148,6 @@ export function InstitutionDetailView({
             {tabButton('overview', 'Visão geral')}
             {tabButton('courses', 'Cursos')}
             {tabButton('contact', 'Contato')}
-            {tabButton('reviews', 'Avaliações')}
           </View>
 
           {activeTab === 'overview' ? (
@@ -216,16 +214,6 @@ export function InstitutionDetailView({
             </Card>
           ) : null}
 
-          {activeTab === 'reviews' ? (
-            <Card>
-              <Text style={{ color: colors.text, fontSize: 14, fontWeight: '900' }}>Avaliação geral</Text>
-              <Text style={{ color: colors.text, fontSize: 25, fontWeight: '900' }}>
-                {institution.avaliacoes.media == null ? 'Sem avaliações' : `${Number(institution.avaliacoes.media).toLocaleString('pt-BR')} / 5`}
-              </Text>
-              <Text style={{ color: colors.subtle, fontSize: 12 }}>{institution.avaliacoes.total} avaliações publicadas</Text>
-              <Text style={{ color: colors.subtle, fontSize: 11, lineHeight: 17 }}>A nota é calculada a partir das avaliações publicadas pelos estudantes.</Text>
-            </Card>
-          ) : null}
         </>
       ) : null}
     </Page>

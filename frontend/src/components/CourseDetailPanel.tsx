@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { StudentPageHeader } from './StudentPageHeader';
 
 interface CourseRecord {
   id_curso: string;
@@ -14,7 +15,6 @@ interface CourseRecord {
   descricao: string | null;
   grade_curricular: string | null;
   cargos: Array<{ id_cargo: string; nome: string; area_atuacao: string }>;
-  avaliacoes: { media: number | string | null; total: number };
 }
 
 interface CourseOffer {
@@ -141,9 +141,11 @@ export const CourseDetailPanel: React.FC<{
 
   return (
     <div className="student-page">
-      <header className="student-header">
-        <button type="button" className="secondary-button" onClick={onBack}>← Voltar aos cursos</button>
-      </header>
+      <StudentPageHeader
+        title="Cursos"
+        subtitle="Detalhes do curso e instituições com oferta."
+        action={<button type="button" className="student-page-header__back" onClick={onBack}>Voltar aos cursos</button>}
+      />
       <main className="student-main detail-layout">
         {loading && <p role="status">Carregando detalhes do curso...</p>}
         {errorMessage && <div role="alert" className="notice notice--error">{errorMessage}</div>}
@@ -175,7 +177,6 @@ export const CourseDetailPanel: React.FC<{
               <article><span>Duração</span><strong>{course.duracao_meses == null ? 'Não informada' : `${course.duracao_meses} meses`}</strong></article>
               <article><span>Carga horária</span><strong>{course.carga_horaria} horas</strong></article>
               <article><span>Ofertas disponíveis</span><strong>{offerCount}</strong></article>
-              <article><span>Avaliação</span><strong>{course.avaliacoes.media == null ? 'Sem avaliações' : `${Number(course.avaliacoes.media).toLocaleString('pt-BR')} / 5`}</strong></article>
             </section>
 
             {grade.length > 0 && (

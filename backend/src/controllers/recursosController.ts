@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as schema from "../schemas/recursos";
 import { paginacaoSchema } from "../schemas/comum";
-import { fonteSchema } from "../schemas/cargo";
+import { editarFonteSchema, fonteSchema } from "../schemas/cargo";
 import { parseId } from "../utils/parseId";
 import { AppError } from "../utils/AppError";
 import * as favoritos from "../services/favoritoService";
@@ -77,6 +77,10 @@ export async function moderar(req: Request, res: Response) {
 export async function perguntasAdmin(req: Request, res: Response) {
   res.json(await testes.perguntas(true));
 }
+export async function ofertasAdmin(req: Request, res: Response) {
+  const q = paginacaoSchema.parse(req.query);
+  res.json(await admin.ofertasAdmin(q.page, q.limit));
+}
 export async function perguntaCriar(req: Request, res: Response) {
   res
     .status(201)
@@ -110,6 +114,18 @@ export async function fontes(req: Request, res: Response) {
 }
 export async function fonteCriar(req: Request, res: Response) {
   res.status(201).json(await admin.criarFonte(fonteSchema.parse(req.body)));
+}
+export async function fonteEditar(req: Request, res: Response) {
+  res.json(
+    await admin.editarFonte(
+      parseId(req.params.id),
+      editarFonteSchema.parse(req.body),
+    ),
+  );
+}
+export async function fonteExcluir(req: Request, res: Response) {
+  await admin.excluirFonte(parseId(req.params.id));
+  res.status(204).end();
 }
 export async function notificacoesListar(req: Request, res: Response) {
   const q = paginacaoSchema.parse(req.query);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface FavoriteEntry {
   id_favorito: string;
@@ -125,10 +126,10 @@ export const FavoritesPage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Meus favoritos</h1>
-        <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{favorites.length} itens salvos na sua conta</p>
-      </header>
+      <StudentPageHeader
+        title="Meus favoritos"
+        subtitle={`${favorites.length} ${favorites.length === 1 ? 'item salvo' : 'itens salvos'} na sua conta`}
+      />
 
       <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando favoritos...</p>}

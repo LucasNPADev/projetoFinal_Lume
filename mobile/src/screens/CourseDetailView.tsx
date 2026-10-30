@@ -43,7 +43,6 @@ interface CourseDetail {
   descricao: string | null;
   grade_curricular: string | null;
   cargos: Array<{ id_cargo: string; nome: string; area_atuacao: string }>;
-  avaliacoes: { media: number | string | null; total: number };
 }
 
 interface PageResult<T> { data: T[]; total: number; totalPages: number }
@@ -189,7 +188,6 @@ export function CourseDetailView({
             <InfoTile icon="⏳" label="Duração" value={course.duracao_meses == null ? 'Não informada' : `${course.duracao_meses} meses`} />
             <InfoTile icon="📝" label="Carga horária" value={`${course.carga_horaria} horas`} />
             <InfoTile icon="🏫" label="Ofertas disponíveis" value={String(offerCount)} />
-            <InfoTile icon="⭐" label="Avaliação" value={course.avaliacoes.media == null ? 'Sem avaliações' : `${Number(course.avaliacoes.media).toLocaleString('pt-BR')} / 5`} />
           </View>
 
           {gradeItems.length ? (

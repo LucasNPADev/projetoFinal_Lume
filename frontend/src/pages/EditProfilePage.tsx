@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { User } from '../types';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface ProfileRecord {
   id_usuario: string;
@@ -189,16 +190,12 @@ export const EditProfilePage: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '26px 48px' }}>
-        <button type="button" onClick={() => navigate('/perfil')} style={{ background: 'transparent', color: '#1C1C2E', fontWeight: 800 }}>
-          ← Voltar ao perfil
-        </button>
-      </header>
+      <StudentPageHeader
+        title="Editar cadastro"
+        subtitle="Mantenha seus dados atualizados para receber recomendações mais relevantes."
+        action={<button type="button" className="student-page-header__back" onClick={() => navigate('/perfil')}>Voltar ao perfil</button>}
+      />
       <main style={{ width: 'min(100% - 40px, 760px)', margin: '0 auto', padding: '32px 0 56px' }}>
-        <h1 style={{ color: '#1C1C2E', fontSize: '28px', marginBottom: '8px' }}>Editar cadastro</h1>
-        <p style={{ color: '#7B7B96', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
-          Mantenha seus dados atualizados para receber recomendações mais relevantes.
-        </p>
         {errorMessage ? <div role="alert" style={{ marginBottom: '16px', padding: '12px 16px', background: '#FEE2E2', color: '#B91C1C', borderRadius: '10px' }}>{errorMessage}</div> : null}
         {successMessage ? <div role="status" style={{ marginBottom: '16px', padding: '12px 16px', background: '#DCFCE7', color: '#166534', borderRadius: '10px' }}>{successMessage}</div> : null}
         {loading ? <p role="status" style={{ color: '#7B7B96' }}>Carregando seus dados...</p> : (

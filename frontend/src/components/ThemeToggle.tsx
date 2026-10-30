@@ -34,7 +34,7 @@ export const ThemeToggle: React.FC = () => {
       onClick={() => setTheme(current => current === 'dark' ? 'light' : 'dark')}
     >
       <span aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
-      <span>{isDark ? 'Modo claro' : 'Modo escuro'}</span>
+      <span className="theme-toggle__label">{isDark ? 'Modo claro' : 'Modo escuro'}</span>
     </button>
   );
 };

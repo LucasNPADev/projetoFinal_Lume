@@ -15,12 +15,12 @@ export interface RegisterPayload {
   nome: string;
   email: string;
   senha: string;
-  rua: string;
-  cidade: string;
-  estado: string;
-  bairro: string;
-  latitude: number;
-  longitude: number;
+  rua?: string;
+  cidade?: string;
+  estado?: string;
+  bairro?: string;
+  latitude?: number;
+  longitude?: number;
   aceitou_termos: boolean;
 }
 

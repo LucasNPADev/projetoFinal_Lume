@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface UniversityOffer {
   id_curso_instituicao: string;
@@ -40,10 +41,6 @@ interface UniversityDetail {
   estado: string | null;
   bairro: string | null;
   ofertas: UniversityOffer[];
-  avaliacoes: {
-    media: number | string | null;
-    total: number;
-  };
   canais: {
     telefone: string | null;
     whatsapp: string | null;
@@ -101,9 +98,11 @@ export const UniversityDetailPage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
-        <button type="button" onClick={() => navigate('/faculdades')} style={{ background: 'transparent', fontWeight: 'bold', fontSize: '14px', color: '#1C1C2E' }}>← Voltar para faculdades</button>
-      </header>
+      <StudentPageHeader
+        title="Faculdades perto de você"
+        subtitle="Detalhes da instituição e cursos disponíveis."
+        action={<button type="button" className="student-page-header__back" onClick={() => navigate('/faculdades')}>Voltar para faculdades</button>}
+      />
 
       <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando instituição...</p>}
@@ -127,10 +126,6 @@ export const UniversityDetailPage: React.FC = () => {
                 </span>
                 <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>
                   {institution.regular_mec ? 'Regularizada no MEC' : 'Aguardando validação MEC'}
-                </span>
-                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>
-                  Avaliação: {institution.avaliacoes.media == null ? 'Sem avaliações' : `${Number(institution.avaliacoes.media).toLocaleString('pt-BR')} / 5`}
-                  {institution.avaliacoes.total ? ` (${institution.avaliacoes.total})` : ''}
                 </span>
               </div>
             </section>

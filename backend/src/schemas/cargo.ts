@@ -68,6 +68,9 @@ export const fonteSchema = z
     demonstracao: z.boolean().optional(),
   })
   .strict();
+export const editarFonteSchema = fonteSchema
+  .partial()
+  .superRefine(exigirAlteracao);
 export const listarCargosSchema = paginacaoSchema
   .extend({
     busca: texto(200).optional(),

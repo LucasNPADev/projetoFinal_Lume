@@ -15,7 +15,6 @@ import { RecoverPasswordPage } from '../pages/RecoverPasswordPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
 import { EditProfilePage } from '../pages/EditProfilePage';
 import { useAuth } from '../hooks/useAuth';
-import { StudentNavigation } from '../components/StudentNavigation';
 import { ThemeToggle } from '../components/ThemeToggle';
 
 const PrivateRoute: React.FC<{ element: React.ReactElement; adminOnly?: boolean }> = ({ element, adminOnly }) => {
@@ -31,7 +30,6 @@ const PrivateRoute: React.FC<{ element: React.ReactElement; adminOnly?: boolean 
 export const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
-      <StudentNavigation />
       <ThemeToggle />
       <Routes>
         <Route path="/" element={<AuthLoginPage />} />

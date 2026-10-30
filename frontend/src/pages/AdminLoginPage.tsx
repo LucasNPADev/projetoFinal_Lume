@@ -46,7 +46,7 @@ export const AdminLoginPage: React.FC = () => {
           <h2 style={{ fontSize: '30px', fontWeight: 'bold', color: '#1C1C2E', marginTop: '8px' }}>Acesse sua conta</h2>
 
           <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#7B7B96', letterSpacing: '1.2px', marginTop: '24px', display: 'block' }}>E-MAIL ADMINISTRATIVO</label>
-          <input type="email" placeholder="admin@lume.com" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', height: '48px', borderRadius: '10px', border: '2px solid #E0DFF0', padding: '0 16px', margin: '8px 0 16px 0', background: '#FFF' }} />
+          <input type="email" placeholder="email@lume.com" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', height: '48px', borderRadius: '10px', border: '2px solid #E0DFF0', padding: '0 16px', margin: '8px 0 16px 0', background: '#FFF' }} />
 
           <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#7B7B96', letterSpacing: '1.2px' }}>SENHA</label>
           <input type="password" placeholder="••••••••" value={senha} onChange={(e) => setSenha(e.target.value)} required style={{ width: '100%', height: '48px', borderRadius: '10px', border: '2px solid #E0DFF0', padding: '0 16px', margin: '8px 0 24px 0', background: '#FFF' }} />

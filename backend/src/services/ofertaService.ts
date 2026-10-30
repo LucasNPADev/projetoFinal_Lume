@@ -228,6 +228,14 @@ export async function listarOfertas(idUsuario: bigint, filtros: BuscaCatalogo) {
 }
 
 export async function criarOferta(dados: CriarOfertaInput) {
+  await validarDadosOferta(dados);
+  return prisma.curso_Instituicao.create({
+    data: dados,
+    include: ofertaInclude,
+  });
+}
+
+async function validarDadosOferta(dados: CriarOfertaInput) {
   const [instituicao, curso] = await Promise.all([
     prisma.instituicao.findUnique({
       where: { id_instituicao: dados.id_instituicao },
@@ -257,7 +265,12 @@ export async function criarOferta(dados: CriarOfertaInput) {
       "Curso EAD exige nome, cidade e estado do polo",
       400,
     );
-  if (dados.id_fonte_nota != null) {
+  if (
+    dados.id_fonte_nota != null &&
+    dados.nota_corte != null &&
+    dados.ano_nota_corte != null &&
+    dados.programa_nota_corte != null
+  ) {
     const fonte = await prisma.fonteDados.findUnique({
       where: { id_fonte: dados.id_fonte_nota },
     });
@@ -268,9 +281,20 @@ export async function criarOferta(dados: CriarOfertaInput) {
         400,
       );
   }
+}
 
-  return prisma.curso_Instituicao.create({
+export async function editarOferta(id: bigint, dados: CriarOfertaInput) {
+  await validarDadosOferta(dados);
+  return prisma.curso_Instituicao.update({
+    where: { id_curso_instituicao: id },
     data: dados,
     include: ofertaInclude,
+  });
+}
+
+export async function arquivarOferta(id: bigint) {
+  return prisma.curso_Instituicao.update({
+    where: { id_curso_instituicao: id },
+    data: { status: false },
   });
 }

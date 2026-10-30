@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Career } from '../types';
 import { api } from '../services/api';
 import { CareerDetailPanel } from '../components/CareerDetailPanel';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface CareerListItem {
   id_cargo: string;
@@ -49,13 +50,13 @@ export const CareersPage: React.FC = () => {
       setErrorMessage('');
       try {
         const [firstPage, favoritesResponse] = await Promise.all([
-          api.get<PaginatedCareers>('/cargos', { params: { page: 1, limit: 100 } }),
+          api.get<PaginatedCareers>('/cargos', { params: { page: 1, limit: 100, ordenar: 'nome' } }),
           api.get<FavoriteItem[]>('/favoritos')
         ]);
         const pages = await Promise.all(
           Array.from({ length: Math.max(0, firstPage.data.totalPages - 1) }, (_, index) =>
             api.get<PaginatedCareers>('/cargos', {
-              params: { page: index + 2, limit: 100 }
+              params: { page: index + 2, limit: 100, ordenar: 'nome' }
             })
           )
         );
@@ -141,9 +142,10 @@ export const CareersPage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME — Panorama de Carreiras</h1>
-      </header>
+      <StudentPageHeader
+        title="Panorama de carreiras"
+        subtitle="Explore áreas de atuação e caminhos profissionais."
+      />
 
       <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando carreiras...</p>}

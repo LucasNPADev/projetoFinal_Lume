@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Institution } from '../types';
 import { api } from '../services/api';
-import lumeLogo from '../assets/lume-logo.png';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface InstitutionRecord {
   id_instituicao: string;
@@ -151,19 +151,16 @@ export const UniversitiesPage: React.FC = () => {
 
   return (
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="student-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src={lumeLogo} alt="LUME — GPS de Carreira" style={{ width: '48px', height: '42px', objectFit: 'contain' }} />
-            <span style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME</span>
-          </div>
-          <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>{total} instituições disponíveis</p>
-        </div>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px' }}>
-          <input type="search" placeholder="Buscar por instituição..." value={searchText} onChange={event => setSearchText(event.target.value)} style={{ width: 'min(360px, 40vw)', height: '44px', borderRadius: '10px', border: '1px solid rgba(28,28,46,0.15)', background: '#FFF', padding: '0 16px', fontSize: '13px' }} />
-          <button type="submit" style={{ border: 0, borderRadius: '10px', padding: '0 16px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold' }}>Buscar</button>
-        </form>
-      </header>
+      <StudentPageHeader
+        title="Faculdades perto de você"
+        subtitle={`${total} instituições disponíveis`}
+        search={(
+          <form onSubmit={handleSearch} className="universities-header__search">
+            <input type="search" placeholder="Buscar por instituição..." value={searchText} onChange={event => setSearchText(event.target.value)} />
+            <button type="submit">Buscar</button>
+          </form>
+        )}
+      />
 
       <main className="student-main" style={{ padding: '32px 88px' }}>
         {loading && <p role="status">Carregando instituições...</p>}

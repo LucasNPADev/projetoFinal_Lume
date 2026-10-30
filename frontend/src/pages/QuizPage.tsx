@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
+import { StudentPageHeader } from '../components/StudentPageHeader';
 
 interface Question {
   id_pergunta: string;
@@ -76,10 +77,10 @@ export const QuizPage: React.FC = () => {
 
   return (
     <div className="student-page">
-      <header className="student-header">
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Quiz vocacional</h1>
-        <p style={{ marginTop: '6px', fontSize: '13px', fontWeight: '600' }}>Descubra suas afinidades e explore caminhos profissionais.</p>
-      </header>
+      <StudentPageHeader
+        title="Quiz vocacional"
+        subtitle="Descubra suas afinidades e explore caminhos profissionais."
+      />
 
       <main className="student-main quiz-main">
         <div className="quiz-intro">
@@ -122,7 +123,7 @@ export const QuizPage: React.FC = () => {
             </div>
             <p className="quiz-scale-label">
               {scale.find(item => item.valor === 1)?.rotulo ?? 'Pouco interesse'}
-              {' → '}
+              {' — '}
               {scale.find(item => item.valor === 5)?.rotulo ?? 'Muito interesse'}
             </p>
             <div className="quiz-scale" role="group" aria-label={`Resposta da pergunta ${index + 1}`}>
@@ -149,7 +150,7 @@ export const QuizPage: React.FC = () => {
             onClick={() => void handleSubmitQuiz()}
             disabled={Object.keys(answers).length !== questions.length || submitting}
           >
-            {submitting ? 'Enviando...' : 'Ver meu resultado →'}
+            {submitting ? 'Enviando...' : 'Ver meu resultado'}
           </button>
         )}
       </main>

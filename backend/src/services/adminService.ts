@@ -16,6 +16,40 @@ export async function criarFonte(dados: {
     throw new AppError("Fonte demonstrativa não permitida em produção", 400);
   return prisma.fonteDados.create({ data: dados });
 }
+export async function editarFonte(
+  id: bigint,
+  dados: Prisma.FonteDadosUpdateInput,
+) {
+  const atual = await prisma.fonteDados.findUnique({
+    where: { id_fonte: id },
+  });
+  if (!atual) throw new AppError("Fonte de dados não encontrada", 404);
+  const consultadoEm =
+    dados.consultado_em instanceof Date
+      ? dados.consultado_em
+      : atual.consultado_em;
+  const demonstracao =
+    typeof dados.demonstracao === "boolean"
+      ? dados.demonstracao
+      : atual.demonstracao;
+  if (consultadoEm > new Date())
+    throw new AppError("Data da consulta não pode estar no futuro", 400);
+  if (env.NODE_ENV === "production" && demonstracao)
+    throw new AppError("Fonte demonstrativa não permitida em produção", 400);
+  return prisma.fonteDados.update({ where: { id_fonte: id }, data: dados });
+}
+export async function excluirFonte(id: bigint) {
+  const [cargos, ofertas] = await Promise.all([
+    prisma.cargo.count({ where: { id_fonte: id } }),
+    prisma.curso_Instituicao.count({ where: { id_fonte_nota: id } }),
+  ]);
+  if (cargos > 0 || ofertas > 0)
+    throw new AppError(
+      "Não é possível remover uma fonte vinculada a cargos ou ofertas.",
+      409,
+    );
+  return prisma.fonteDados.delete({ where: { id_fonte: id } });
+}
 export async function criarPergunta(
   idUsuario: bigint,
   dados: { enunciado: string; area_afinidade: string; status?: boolean },

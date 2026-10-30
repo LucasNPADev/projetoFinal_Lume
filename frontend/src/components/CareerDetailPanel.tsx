@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
+import { StudentPageHeader } from './StudentPageHeader';
 
 interface CareerRoute {
   id_rota: string;
@@ -88,9 +89,11 @@ export const CareerDetailPanel: React.FC<{
 
   return (
     <div className="student-page">
-      <header className="student-header">
-        <button type="button" className="secondary-button" onClick={onBack}>← Voltar às carreiras</button>
-      </header>
+      <StudentPageHeader
+        title="Panorama de carreiras"
+        subtitle="Detalhes, habilidades e trilhas profissionais."
+        action={<button type="button" className="student-page-header__back" onClick={onBack}>Voltar às carreiras</button>}
+      />
       <main className="student-main detail-layout">
         {loading && <p role="status">Carregando carreira...</p>}
         {errorMessage && <div role="alert" className="notice notice--error">{errorMessage}</div>}
@@ -105,14 +108,6 @@ export const CareerDetailPanel: React.FC<{
               <button type="button" className={`favorite-button${isFavorite ? ' is-favorite' : ''}`} onClick={onToggleFavorite} aria-label={isFavorite ? 'Remover carreira dos favoritos' : 'Salvar carreira nos favoritos'}>
                 {isFavorite ? '♥' : '♡'}
               </button>
-              <div className="salary-summary">
-                {salaries.map(item => (
-                  <div key={item.label}>
-                    <strong>{money(item.value)}</strong>
-                    <span>{item.label}</span>
-                  </div>
-                ))}
-              </div>
             </section>
 
             <div className="detail-tabs" role="tablist" aria-label="Informações da carreira">
