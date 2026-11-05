@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { InstitutionPayload, CoursePayload, CareerPayload } from '../types';
+import lumeLogo from '../assets/lume-logo.png';
 
 interface CourseOption {
   id_curso: string;
@@ -872,14 +873,32 @@ export const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="admin-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
-      <header className="admin-header" style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <span style={{ fontSize: '20px', fontWeight: 'bold' }}>LUME — Painel Administrativo</span>
-          <p style={{ fontSize: '13px', color: 'rgba(28,28,46,0.7)' }}>Gestor: {user?.email}</p>
+      <header className="admin-header admin-dashboard-header">
+        <div className="admin-dashboard-header__identity">
+          <img src={lumeLogo} alt="LUME — GPS de Carreira" />
+          <div>
+            <h1>Painel administrativo</h1>
+            <p>Gestor: {user?.email}</p>
+          </div>
         </div>
-        <button onClick={logout} style={{ background: '#1C1C2E', color: '#EDEB80', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}>
-          Sair do Painel 🚪
+        <button type="button" className="admin-dashboard-header__logout" onClick={logout}>
+          Sair do painel
         </button>
+        <nav className="admin-dashboard-header__sections" aria-label="Seções administrativas">
+          {(['INSTITUICAO', 'CURSO', 'FONTE', 'CARGO', 'OFERTA', 'PERGUNTA'] as const).map(tab => (
+            <button
+              key={tab}
+              type="button"
+              className={`admin-dashboard-header__section${activeTab === tab ? ' is-active' : ''}`}
+              aria-current={activeTab === tab ? 'page' : undefined}
+              onClick={() => { setActiveTab(tab); setEditingItem(null); setSuccessMsg(''); setErrorMsg(''); }}
+            >
+              {tab === 'OFERTA' ? 'Vincular curso à faculdade' :
+                tab === 'PERGUNTA' ? 'Pergunta vocacional' :
+                  `Cadastrar ${tab === 'INSTITUICAO' ? 'instituição' : tab === 'FONTE' ? 'fonte' : tab.toLowerCase()}`}
+            </button>
+          ))}
+        </nav>
       </header>
 
       <main className="admin-main" style={{ padding: '32px 88px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -893,14 +912,6 @@ export const AdminDashboardPage: React.FC = () => {
             {errorMsg}
           </div>
         )}
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
-          {(['INSTITUICAO', 'CURSO', 'FONTE', 'CARGO', 'OFERTA', 'PERGUNTA'] as const).map(tab => (
-            <button key={tab} onClick={() => { setActiveTab(tab); setEditingItem(null); setSuccessMsg(''); setErrorMsg(''); }} style={{ flex: '1 1 150px', minHeight: '48px', borderRadius: '8px', background: activeTab === tab ? '#1C1C2E' : '#FFF', color: activeTab === tab ? '#EDEB80' : '#1C1C2E', fontWeight: 'bold', border: '1px solid #E0DFF0' }}>
-              + {tab === 'OFERTA' ? 'Vincular curso à faculdade' : tab === 'PERGUNTA' ? 'Pergunta vocacional' : tab === 'FONTE' ? 'Cadastrar fonte' : `Cadastrar ${tab.toLowerCase()}`}
-            </button>
-          ))}
-        </div>
 
         <div id="admin-editor" style={{ background: '#FFF', padding: '32px', borderRadius: '12px', border: '1px solid #E0DFF0' }}>
           {editingItem?.kind === activeTab && (
@@ -942,13 +953,13 @@ export const AdminDashboardPage: React.FC = () => {
 
           {activeTab === 'INSTITUICAO' && (
             <form onSubmit={handleCreateInst}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'INSTITUICAO' ? 'Editar Instituição de Ensino' : 'Cadastrar Nova Instituição de Ensino'}</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'INSTITUICAO' ? 'Editar instituição de ensino' : 'Cadastrar nova instituição de ensino'}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <input type="text" placeholder="Nome da Instituição" value={inst.nome_instituicao} onChange={(e) => setInst({ ...inst, nome_instituicao: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="text" placeholder="Nome da instituição" value={inst.nome_instituicao} onChange={(e) => setInst({ ...inst, nome_instituicao: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="CNPJ (00.000.000/0001-00)" value={inst.cnpj} onChange={(e) => setInst({ ...inst, cnpj: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="Telefone" value={inst.telefone} onChange={(e) => setInst({ ...inst, telefone: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="Celular/WhatsApp" value={inst.celular} onChange={(e) => setInst({ ...inst, celular: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="email" placeholder="E-mail Institucional" value={inst.email} onChange={(e) => setInst({ ...inst, email: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="email" placeholder="E-mail institucional" value={inst.email} onChange={(e) => setInst({ ...inst, email: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="number" min="1" max="5" placeholder="Nota MEC (1-5)" value={inst.nota_mec} onChange={(e) => setInst({ ...inst, nota_mec: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="Rua" value={inst.rua} onChange={(e) => setInst({ ...inst, rua: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="Bairro" value={inst.bairro} onChange={(e) => setInst({ ...inst, bairro: e.target.value })} required={editingItem?.kind !== 'INSTITUICAO'} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
@@ -963,28 +974,28 @@ export const AdminDashboardPage: React.FC = () => {
                 <input type="checkbox" checked={inst.regular_mec} onChange={e => setInst({ ...inst, regular_mec: e.target.checked })} />
                 Instituição regularizada no MEC (necessário para exibição aos estudantes)
               </label>
-              <button type="submit" style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px' }}>{editingItem?.kind === 'INSTITUICAO' ? 'Salvar alterações' : 'Salvar Instituição'}</button>
+              <button type="submit" style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px' }}>{editingItem?.kind === 'INSTITUICAO' ? 'Salvar alterações' : 'Salvar instituição'}</button>
             </form>
           )}
 
           {activeTab === 'CURSO' && (
             <form onSubmit={handleCreateCurso}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'CURSO' ? 'Editar Curso' : 'Cadastrar Novo Curso'}</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'CURSO' ? 'Editar curso' : 'Cadastrar novo curso'}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <input type="text" placeholder="Nome do Curso" value={curso.nome_curso} onChange={(e) => setCurso({ ...curso, nome_curso: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="text" placeholder="Área do Curso" value={curso.area_curso} onChange={(e) => setCurso({ ...curso, area_curso: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="text" placeholder="Nome do curso" value={curso.nome_curso} onChange={(e) => setCurso({ ...curso, nome_curso: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="text" placeholder="Área do curso" value={curso.area_curso} onChange={(e) => setCurso({ ...curso, area_curso: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="text" placeholder="Grau acadêmico" value={curso.grau_academico} onChange={e => setCurso({ ...curso, grau_academico: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <select value={curso.modalidade} onChange={e => setCurso({ ...curso, modalidade: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }}>
                   <option value="PRESENCIAL">Presencial</option>
                   <option value="EAD">EAD</option>
                   <option value="HIBRIDO">Híbrido</option>
                 </select>
-                <input type="number" placeholder="Carga Horária (hs)" value={curso.carga_horaria} onChange={(e) => setCurso({ ...curso, carga_horaria: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="number" placeholder="Carga horária (h)" value={curso.carga_horaria} onChange={(e) => setCurso({ ...curso, carga_horaria: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
                 <input type="number" placeholder="Duração (meses)" value={curso.duracao_meses} onChange={(e) => setCurso({ ...curso, duracao_meses: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
               </div>
               <textarea placeholder="Descrição (opcional)" value={curso.descricao} onChange={e => setCurso({ ...curso, descricao: e.target.value })} style={{ boxSizing: 'border-box', width: '100%', minHeight: '70px', padding: '12px', borderRadius: '8px', border: '1px solid #E0DFF0', marginTop: '12px' }} />
               <textarea placeholder="Grade curricular (opcional; separe as disciplinas por linha)" value={curso.grade_curricular} onChange={e => setCurso({ ...curso, grade_curricular: e.target.value })} style={{ boxSizing: 'border-box', width: '100%', minHeight: '70px', padding: '12px', borderRadius: '8px', border: '1px solid #E0DFF0', marginTop: '12px' }} />
-              <button type="submit" style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px' }}>{editingItem?.kind === 'CURSO' ? 'Salvar alterações' : 'Salvar Curso'}</button>
+              <button type="submit" style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px' }}>{editingItem?.kind === 'CURSO' ? 'Salvar alterações' : 'Salvar curso'}</button>
             </form>
           )}
 
@@ -1072,14 +1083,14 @@ export const AdminDashboardPage: React.FC = () => {
 
           {activeTab === 'CARGO' && (
             <form onSubmit={handleCreateCargo}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'CARGO' ? 'Editar Cargo' : 'Cadastrar Novo Cargo'}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <input type="text" placeholder="Nome do Cargo" value={cargo.nome} onChange={(e) => setCargo({ ...cargo, nome: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="text" placeholder="Área de Atuação" value={cargo.area_atuacao} onChange={(e) => setCargo({ ...cargo, area_atuacao: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="number" min="0" step="0.01" placeholder="Salário Piso" value={cargo.salario_piso} onChange={(e) => setCargo({ ...cargo, salario_piso: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="number" min="0" step="0.01" placeholder="Salário Médio" value={cargo.salario_media} onChange={(e) => setCargo({ ...cargo, salario_media: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <input type="number" min="0" step="0.01" placeholder="Salário Teto" value={cargo.salario_teto} onChange={(e) => setCargo({ ...cargo, salario_teto: Number(e.target.value) })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <select value={cargo.id_fonte} onChange={(e) => setCargo({ ...cargo, id_fonte: e.target.value })} required disabled={loadingCargoOptions || sources.length === 0} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>{editingItem?.kind === 'CARGO' ? 'Editar cargo' : 'Cadastrar novo cargo'}</h3>
+              <div className="admin-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px' }}>
+                <input type="text" placeholder="Nome do Cargo" value={cargo.nome} onChange={(e) => setCargo({ ...cargo, nome: e.target.value })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="text" placeholder="Área de Atuação" value={cargo.area_atuacao} onChange={(e) => setCargo({ ...cargo, area_atuacao: e.target.value })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="number" min="0" step="0.01" placeholder="Salário piso" value={cargo.salario_piso} onChange={(e) => setCargo({ ...cargo, salario_piso: Number(e.target.value) })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="number" min="0" step="0.01" placeholder="Salário médio" value={cargo.salario_media} onChange={(e) => setCargo({ ...cargo, salario_media: Number(e.target.value) })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="number" min="0" step="0.01" placeholder="Salário teto" value={cargo.salario_teto} onChange={(e) => setCargo({ ...cargo, salario_teto: Number(e.target.value) })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <select value={cargo.id_fonte} onChange={(e) => setCargo({ ...cargo, id_fonte: e.target.value })} required disabled={loadingCargoOptions || sources.length === 0} style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }}>
                   <option value="">Selecione a fonte dos dados</option>
                   {sources.map(source => <option key={source.id_fonte} value={source.id_fonte}>{source.nome} — {source.orgao}</option>)}
                 </select>
@@ -1094,13 +1105,13 @@ export const AdminDashboardPage: React.FC = () => {
               ) : (
                 <>
               <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '20px' }}>Rota de formação (obrigatória)</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
-                <input type="text" placeholder="Nome da rota" value={rota.nome} onChange={(e) => setRota({ ...rota, nome: e.target.value })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
-                <select value={rota.etapa.id_curso} onChange={(e) => setRota({ ...rota, etapa: { ...rota.etapa, id_curso: e.target.value } })} required disabled={loadingCargoOptions || courses.length === 0} style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }}>
+              <div className="admin-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', marginTop: '12px' }}>
+                <input type="text" placeholder="Nome da rota" value={rota.nome} onChange={(e) => setRota({ ...rota, nome: e.target.value })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <select value={rota.etapa.id_curso} onChange={(e) => setRota({ ...rota, etapa: { ...rota.etapa, id_curso: e.target.value } })} required disabled={loadingCargoOptions || courses.length === 0} style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }}>
                   <option value="">Selecione um curso ativo para a etapa</option>
                   {courses.map(course => <option key={course.id_curso} value={course.id_curso}>{course.nome_curso}</option>)}
                 </select>
-                <input type="number" min="1" max="100" placeholder="Ordem da etapa" value={rota.etapa.ordem_etapa} onChange={(e) => setRota({ ...rota, etapa: { ...rota.etapa, ordem_etapa: Number(e.target.value) } })} required style={{ height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
+                <input type="number" min="1" max="100" placeholder="Ordem da etapa" value={rota.etapa.ordem_etapa} onChange={(e) => setRota({ ...rota, etapa: { ...rota.etapa, ordem_etapa: Number(e.target.value) } })} required style={{ width: '100%', minWidth: 0, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid #E0DFF0' }} />
               </div>
               <textarea placeholder="Descrição da rota" value={rota.descricao} onChange={(e) => setRota({ ...rota, descricao: e.target.value })} style={{ width: '100%', height: '70px', padding: '12px', borderRadius: '8px', border: '1px solid #E0DFF0', marginTop: '12px' }} />
               <textarea placeholder="Descrição da etapa (opcional)" value={rota.etapa.descricao} onChange={(e) => setRota({ ...rota, etapa: { ...rota.etapa, descricao: e.target.value } })} style={{ width: '100%', height: '70px', padding: '12px', borderRadius: '8px', border: '1px solid #E0DFF0', marginTop: '12px' }} />
@@ -1108,7 +1119,7 @@ export const AdminDashboardPage: React.FC = () => {
               {courses.length === 0 && !loadingCargoOptions && <p role="alert">Cadastre um curso ativo com duração definida antes de criar uma rota.</p>}
                 </>
               )}
-              <button type="submit" disabled={editingItem?.kind !== 'CARGO' && (loadingCargoOptions || sources.length === 0 || courses.length === 0)} style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px', opacity: editingItem?.kind !== 'CARGO' && (loadingCargoOptions || sources.length === 0 || courses.length === 0) ? 0.6 : 1 }}>{editingItem?.kind === 'CARGO' ? 'Salvar alterações' : 'Salvar Cargo'}</button>
+              <button type="submit" disabled={editingItem?.kind !== 'CARGO' && (loadingCargoOptions || sources.length === 0 || courses.length === 0)} style={{ width: '100%', height: '48px', borderRadius: '8px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold', marginTop: '20px', opacity: editingItem?.kind !== 'CARGO' && (loadingCargoOptions || sources.length === 0 || courses.length === 0) ? 0.6 : 1 }}>{editingItem?.kind === 'CARGO' ? 'Salvar alterações' : 'Salvar cargo'}</button>
             </form>
           )}
 

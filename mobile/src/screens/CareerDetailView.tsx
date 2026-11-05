@@ -32,17 +32,18 @@ interface CareerDetail {
   rotas: CareerRoute[];
 }
 
-type DetailTab = 'overview' | 'skills' | 'formation';
+type DetailTab = 'overview' | 'salary' | 'skills' | 'formation';
 
 const careerAccent = '#C81045';
 
-const money = (value: number | string | null) =>
-  value == null
-    ? 'Não informado'
-    : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
-
 function splitSkills(value: string) {
   return value.split(/[,;\n]/).map((skill) => skill.trim()).filter(Boolean);
+}
+
+function money(value: number | string | null) {
+  return value == null
+    ? 'Não informado'
+    : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 }
 
 function formatDuration(months: number | null) {
@@ -135,22 +136,11 @@ export function CareerDetailView({
                 <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{career.afinidade}%</Text>
               ) : null}
             </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[
-                { label: 'PISO', value: career.salario_piso },
-                { label: 'MÉDIA', value: career.salario_media },
-                { label: 'TETO', value: career.salario_teto },
-              ].map((salary) => (
-                <View key={salary.label} style={{ flex: 1, alignItems: 'center', gap: 3, paddingVertical: 10, paddingHorizontal: 4, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 10 }}>
-                  <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '900' }}>{money(salary.value)}</Text>
-                  <Text style={{ color: '#FCE8EF', fontSize: 9, fontWeight: '800' }}>{salary.label}</Text>
-                </View>
-              ))}
-            </View>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 3, padding: 4, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 12 }}>
             {tabButton('overview', 'Visão geral')}
+            {tabButton('salary', 'Salário')}
             {tabButton('skills', 'Habilidades')}
             {tabButton('formation', 'Formação')}
           </View>
@@ -160,27 +150,6 @@ export function CareerDetailView({
               <Card>
                 <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Sobre a carreira</Text>
                 <Text style={{ color: colors.subtle, fontSize: 12, lineHeight: 19 }}>{career.descricao || 'Descrição não informada.'}</Text>
-              </Card>
-              <Card>
-                <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Faixa salarial detalhada</Text>
-                {[
-                  { label: 'Piso (entrada)', value: career.salario_piso },
-                  { label: 'Média do mercado', value: career.salario_media },
-                  { label: 'Teto (sênior/especialista)', value: career.salario_teto },
-                ].map((salary) => {
-                  const amount = salary.value == null ? null : Number(salary.value);
-                  const maximum = career.salario_teto == null ? amount : Number(career.salario_teto);
-                  const width = amount === null || !maximum ? '0%' : `${Math.max(12, Math.min(100, amount / maximum * 100))}%`;
-                  return (
-                    <View key={salary.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                      <Text style={{ flex: 1.2, color: colors.subtle, fontSize: 10 }}>{salary.label}</Text>
-                      <View style={{ flex: 0.6, height: 8, overflow: 'hidden', backgroundColor: colors.muted, borderRadius: 6 }}>
-                        <View style={{ width, height: '100%', backgroundColor: careerAccent, borderRadius: 6 }} />
-                      </View>
-                      <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 0.75, color: colors.text, fontSize: 10, fontWeight: '900', textAlign: 'right' }}>{money(salary.value)}</Text>
-                    </View>
-                  );
-                })}
               </Card>
               <Card>
                 <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Cursos relacionados</Text>
@@ -199,10 +168,35 @@ export function CareerDetailView({
             </>
           ) : null}
 
+          {activeTab === 'salary' ? (
+            <Card>
+              <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Faixa salarial</Text>
+              <Text style={{ color: colors.subtle, fontSize: 12, lineHeight: 18 }}>Valores estimados para diferentes níveis de experiência na carreira.</Text>
+              {[
+                { label: 'Piso (entrada)', value: career.salario_piso },
+                { label: 'Média do mercado', value: career.salario_media },
+                { label: 'Teto (sênior/especialista)', value: career.salario_teto },
+              ].map((salary) => {
+                const amount = salary.value == null ? null : Number(salary.value);
+                const maximum = career.salario_teto == null ? amount : Number(career.salario_teto);
+                const width = amount === null || !maximum ? '0%' : `${Math.max(12, Math.min(100, amount / maximum * 100))}%`;
+                return (
+                  <View key={salary.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                    <Text style={{ flex: 1.2, color: colors.subtle, fontSize: 10 }}>{salary.label}</Text>
+                    <View style={{ flex: 0.6, height: 8, overflow: 'hidden', backgroundColor: colors.muted, borderRadius: 6 }}>
+                      <View style={{ width, height: '100%', backgroundColor: careerAccent, borderRadius: 6 }} />
+                    </View>
+                    <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 0.75, color: colors.text, fontSize: 10, fontWeight: '900', textAlign: 'right' }}>{money(salary.value)}</Text>
+                  </View>
+                );
+              })}
+            </Card>
+          ) : null}
+
           {activeTab === 'skills' ? (
             <>
               <Card>
-                <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Hard Skills (técnicas)</Text>
+                <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Hard skills (técnicas)</Text>
                 {splitSkills(career.hard_skills).length ? splitSkills(career.hard_skills).map((skill, index) => (
                   <View key={skill} style={{ minHeight: 37, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 9, paddingVertical: 6, backgroundColor: colors.muted, borderRadius: 8 }}>
                     <View style={{ width: 20, height: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: careerAccent, borderRadius: 11 }}>
@@ -213,7 +207,7 @@ export function CareerDetailView({
                 )) : <Text style={{ color: colors.subtle, fontSize: 12 }}>Não informado.</Text>}
               </Card>
               <Card>
-                <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Soft Skills (comportamentais)</Text>
+                <Text style={{ color: colors.text, fontSize: 13, fontWeight: '900' }}>Soft skills (comportamentais)</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
                   {splitSkills(career.soft_skills).length ? splitSkills(career.soft_skills).map((skill) => (
                     <Text key={skill} style={{ overflow: 'hidden', paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.softWarning, borderWidth: 1, borderColor: colors.border, borderRadius: 16, color: colors.warning, fontSize: 10, fontWeight: '600' }}>

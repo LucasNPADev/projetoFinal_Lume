@@ -8,7 +8,7 @@ export const SiteRegistrationPage: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', background: '#F1F0F7' }}>
       <header style={{ background: 'linear-gradient(135deg, #EDEB80 0%, #E0DC5A 100%)', padding: '24px 88px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button onClick={() => navigate('/admin/dashboard')} style={{ background: 'transparent', fontWeight: 'bold', fontSize: '14px' }}>← Voltar / Cadastrar Instituição</button>
+        <button onClick={() => navigate('/admin/dashboard')} style={{ background: 'transparent', fontWeight: 'bold', fontSize: '14px' }}>← Voltar / Cadastrar instituição</button>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           {['1. Instituição', '2. Responsável', '3. Acesso', '4. Confirmação'].map((st, i) => (
             <span key={i} style={{ fontSize: '12px', fontWeight: 'bold', opacity: i + 1 === step ? 1 : 0.5 }}>{st}</span>

@@ -172,14 +172,14 @@ export const UniversitiesPage: React.FC = () => {
         {!loading && !errorMessage && universities.length === 0 && (
           <p>Nenhuma instituição regularizada e disponível foi encontrada.</p>
         )}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        <div className="institution-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
           {universities.map(university => (
-            <article key={university.id} onClick={() => navigate(`/faculdade/${university.id}`)} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px', position: 'relative', cursor: 'pointer' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                <div>
-                  <h2 style={{ fontSize: '17px', fontWeight: 'bold', color: '#1C1C2E' }}>{university.nome_instituicao}</h2>
-                  <p style={{ fontSize: '12px', color: '#7B7B96', marginTop: '2px' }}>{university.cidade || 'Cidade não informada'}{university.estado ? `, ${university.estado}` : ''}</p>
-                  <span style={{ display: 'inline-block', marginTop: '6px', color: university.regular_mec ? '#15803D' : '#A16207', fontSize: '10px', fontWeight: 'bold' }}>
+            <article key={university.id} className="institution-card" onClick={() => navigate(`/faculdade/${university.id}`)} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px', position: 'relative', cursor: 'pointer' }}>
+              <div className="institution-card__heading">
+                <div className="institution-card__identity">
+                  <h2 title={university.nome_instituicao}>{university.nome_instituicao}</h2>
+                  <p>{university.cidade || 'Cidade não informada'}{university.estado ? `, ${university.estado}` : ''}</p>
+                  <span className={university.regular_mec ? 'is-regular' : 'is-pending'}>
                     {university.regular_mec ? 'REGULARIZADA NO MEC' : 'AGUARDANDO VALIDAÇÃO MEC'}
                   </span>
                 </div>
@@ -188,20 +188,20 @@ export const UniversitiesPage: React.FC = () => {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', margin: '16px 0' }}>
-                <div style={{ flex: 1, background: '#F8F7FB', border: '1px solid #E0DFF0', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#15803D' }}>⭐ {university.nota_mec || '—'} / 5</div>
-                  <div style={{ fontSize: '9px', color: '#7B7B96', fontWeight: 'bold' }}>NOTA MEC</div>
+              <div className="institution-card__metrics">
+                <div className="institution-card__metric">
+                  <div className="institution-card__metric-value">⭐ {university.nota_mec || '—'} / 5</div>
+                  <div className="institution-card__metric-label">NOTA MEC</div>
                 </div>
-                <div style={{ flex: 1, background: '#F8F7FB', border: '1px solid #E0DFF0', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 'bold', marginTop: '4px' }}>{university.telefone || 'Não informado'}</div>
-                  <div style={{ fontSize: '9px', color: '#7B7B96', fontWeight: 'bold' }}>TELEFONE</div>
+                <div className="institution-card__metric">
+                  <div className="institution-card__metric-phone">{university.telefone || 'Não informado'}</div>
+                  <div className="institution-card__metric-label">TELEFONE</div>
                 </div>
               </div>
 
-              <div style={{ fontSize: '12px', color: '#7B7B96' }}>
-                {university.rua ? `📍 ${university.rua}${university.bairro ? `, ${university.bairro}` : ''}` : 'Endereço não informado'}
-                {university.email ? ` · ${university.email}` : ''}
+              <div className="institution-card__contact">
+                <p>{university.rua ? `📍 ${university.rua}${university.bairro ? `, ${university.bairro}` : ''}` : '📍 Endereço não informado'}</p>
+                {university.email && <p>{university.email}</p>}
               </div>
             </article>
           ))}

@@ -5,9 +5,9 @@ import lumeLogo from '../assets/lume-logo.png';
 
 const links = [
   { label: 'Faculdades', route: '/faculdades' },
+  { label: 'Cursos', route: '/cursos' },
   { label: 'Quiz', route: '/quiz' },
   { label: 'Carreiras', route: '/carreiras' },
-  { label: 'Perfil', route: '/perfil' },
 ];
 
 export const StudentNavigation: React.FC<{ inHeader?: boolean }> = ({ inHeader = false }) => {

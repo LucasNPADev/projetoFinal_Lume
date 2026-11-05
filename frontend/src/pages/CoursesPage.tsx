@@ -213,14 +213,14 @@ export const CoursesPage: React.FC = () => {
           <p>Nenhum curso encontrado.</p>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div className="course-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
           {courses.map(({ offer, institutions, lowestMonthly }) => {
             const courseId = offer.id_curso;
             const favorite = favoriteIds.has(courseId);
             return (
-              <article key={courseId} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                  <div>
+              <article key={courseId} className="course-card" style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px' }}>
+                <div className="course-card__heading" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                  <div className="course-card__identity">
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1C1C2E' }}>{offer.curso.nome_curso}</h2>
                     <p style={{ fontSize: '12px', color: '#4338CA', fontWeight: 'bold', marginTop: '4px' }}>{offer.curso.area_curso} · {offer.curso.grau_academico}</p>
                   </div>
@@ -229,22 +229,24 @@ export const CoursesPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '14px 0' }}>
+                <div className="course-card__tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '14px 0' }}>
                   {[offer.curso.modalidade, `${offer.curso.duracao_meses ?? '—'} meses`, `${offer.curso.carga_horaria} horas`].map(label => (
                     <span key={label} style={{ background: '#F1F0F7', color: '#4338CA', padding: '5px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>{label}</span>
                   ))}
                 </div>
 
-                <div style={{ marginTop: '16px', padding: '12px', background: '#F8F7FB', borderRadius: '8px' }}>
+                <div className="course-card__institutions" style={{ marginTop: '16px', padding: '12px', background: '#F8F7FB', borderRadius: '8px' }}>
                   <strong style={{ display: 'block', fontSize: '14px' }}>{institutions.size} {institutions.size === 1 ? 'faculdade encontrada até aqui' : 'faculdades encontradas até aqui'}</strong>
                   <span style={{ fontSize: '12px', color: '#7B7B96' }}>Veja todas as faculdades e condições ao abrir o curso.</span>
                 </div>
-                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#15803D', marginTop: '12px' }}>
+                <p className="course-card__price" style={{ fontSize: '13px', fontWeight: 'bold', color: '#15803D', marginTop: '12px' }}>
                   Mensalidade a partir de: {money(lowestMonthly)}
                 </p>
-                <button type="button" onClick={() => setSelectedCourseId(courseId)} style={{ width: '100%', minHeight: '44px', marginTop: '16px', borderRadius: '9px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold' }}>
-                  Ver faculdades e detalhes
-                </button>
+                <div className="course-card__action">
+                  <button type="button" onClick={() => setSelectedCourseId(courseId)} style={{ width: '100%', minHeight: '44px', marginTop: '16px', borderRadius: '9px', background: '#1C1C2E', color: '#EDEB80', fontWeight: 'bold' }}>
+                    Ver faculdades e detalhes
+                  </button>
+                </div>
               </article>
             );
           })}

@@ -70,19 +70,23 @@ export function calcularAfinidades(
     grupos.set(key, atual);
   }
  
-  // Percentual de 0% (todas as respostas 1) a 100% (todas 5), por área.
-  const areas = [...grupos.values()]
-    .map((a) => ({
-      ...a,
-      percentual:
-        Math.round(((a.pontos - a.quantidade) / (4 * a.quantidade)) * 10000) /
-        100,
-    }))
-    .sort((a, b) => b.percentual - a.percentual || a.area.localeCompare(b.area));
+  // Cada área recebe sua participação na afinidade total do teste.
+  const pontuacoes = [...grupos.values()]
+    .map((a) => ({ ...a, afinidade: a.pontos - a.quantidade }))
+    .sort((a, b) => b.afinidade - a.afinidade || a.area.localeCompare(b.area));
+  const afinidadeTotal = pontuacoes.reduce((total, a) => total + a.afinidade, 0);
+  const areas = pontuacoes.map(({ afinidade, ...a }) => ({
+    ...a,
+    percentual:
+      afinidadeTotal === 0
+        ? 0
+        : Math.round((afinidade / afinidadeTotal) * 10000) / 100,
+  }));
  
   const vencedora = areas[0];
   const empate =
-    areas.length > 1 && areas[1].percentual === vencedora.percentual;
+    pontuacoes.length > 1 &&
+    pontuacoes[1].afinidade === pontuacoes[0].afinidade;
  
   return {
     versao: 1,

@@ -18,7 +18,7 @@ export function Page({ children }: React.PropsWithChildren) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'left', 'right']}>
       <ScrollView
-        contentContainerStyle={{ padding: 18, paddingBottom: 26, gap: 14 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 12 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -63,12 +63,12 @@ export function MobileHeader({
 
   return (
     <View style={{
-      minHeight: 76,
-      marginHorizontal: -18,
-      marginTop: -18,
+      minHeight: 72,
+      marginHorizontal: -16,
+      marginTop: -16,
       marginBottom: 2,
       paddingHorizontal: 16,
-      paddingVertical: 8,
+      paddingVertical: 6,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
@@ -107,8 +107,8 @@ export function MobileHeader({
 export function Heading({ title, subtitle }: { title: string; subtitle?: string }) {
   useTheme();
   return (
-    <View style={{ gap: 4, marginBottom: 2 }}>
-      <Text style={{ color: colors.text, fontSize: 24, fontWeight: '800' }}>{title}</Text>
+    <View style={{ gap: 3, marginBottom: 1 }}>
+      <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800' }}>{title}</Text>
       {subtitle ? <Text style={{ color: colors.subtle, fontSize: 13, lineHeight: 19 }}>{subtitle}</Text> : null}
     </View>
   );
@@ -118,12 +118,12 @@ export function Card({ children }: React.PropsWithChildren) {
   useTheme();
   return (
     <View style={{
-      padding: 16,
-      gap: 10,
+      padding: 14,
+      gap: 8,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 14,
+      borderRadius: 12,
     }}>
       {children}
     </View>

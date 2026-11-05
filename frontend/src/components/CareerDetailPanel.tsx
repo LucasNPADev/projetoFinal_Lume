@@ -30,12 +30,7 @@ interface CareerRecord {
   rotas: CareerRoute[];
 }
 
-type Tab = 'overview' | 'skills' | 'formation';
-
-const money = (value: number | string | null) =>
-  value == null
-    ? 'Não informado'
-    : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+type Tab = 'overview' | 'salary' | 'skills' | 'formation';
 
 const splitItems = (value: string | null) =>
   (value ?? '').split(/[,;\n]/).map(item => item.trim()).filter(Boolean);
@@ -54,6 +49,12 @@ function duration(months: number | null) {
     years ? `${years} ${years === 1 ? 'ano' : 'anos'}` : '',
     remaining ? `${remaining} ${remaining === 1 ? 'mês' : 'meses'}` : ''
   ].filter(Boolean).join(' e ');
+}
+
+function money(value: number | string | null) {
+  return value == null
+    ? 'Não informado'
+    : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 }
 
 export const CareerDetailPanel: React.FC<{
@@ -77,15 +78,6 @@ export const CareerDetailPanel: React.FC<{
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [careerId]);
-
-  const relatedCourses = career
-    ? [...new Set(career.rotas.flatMap(route => route.etapas.map(stage => stage.curso.nome_curso)))]
-    : [];
-  const salaries = career ? [
-    { label: 'Piso', value: career.salario_piso },
-    { label: 'Média', value: career.salario_media },
-    { label: 'Teto', value: career.salario_teto }
-  ] : [];
 
   return (
     <div className="student-page">
@@ -113,6 +105,7 @@ export const CareerDetailPanel: React.FC<{
             <div className="detail-tabs" role="tablist" aria-label="Informações da carreira">
               {([
                 ['overview', 'Visão geral'],
+                ['salary', 'Salário'],
                 ['skills', 'Habilidades'],
                 ['formation', 'Formação']
               ] as const).map(([id, label]) => (
@@ -128,32 +121,32 @@ export const CareerDetailPanel: React.FC<{
                   <h2>Sobre a carreira</h2>
                   <p>{career.descricao || 'Descrição não informada.'}</p>
                 </section>
-                <section className="detail-section">
-                  <h2>Faixa salarial detalhada</h2>
-                  <div className="salary-bars">
-                    {salaries.map(item => {
-                      const amount = item.value == null ? 0 : Number(item.value);
-                      const maximum = career.salario_teto == null ? amount : Number(career.salario_teto);
-                      const width = amount === 0 || maximum === 0 ? 0 : Math.max(12, Math.min(100, amount / maximum * 100));
-                      return (
-                        <div className="salary-bar-row" key={item.label}>
-                          <span>{item.label}</span>
-                          <div className="salary-bar"><span style={{ width: `${width}%` }} /></div>
-                          <strong>{money(item.value)}</strong>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-                <section className="detail-section">
-                  <h2>Cursos relacionados</h2>
-                  <div className="detail-chip-row">
-                    {relatedCourses.length
-                      ? relatedCourses.map(course => <span key={course}>{course}</span>)
-                      : <p>Nenhum curso relacionado cadastrado.</p>}
-                  </div>
-                </section>
               </>
+            )}
+
+            {tab === 'salary' && (
+              <section className="detail-section">
+                <h2>Faixa salarial</h2>
+                <p>Valores estimados para diferentes níveis de experiência na carreira.</p>
+                <div className="salary-bars">
+                  {[
+                    { label: 'Piso (entrada)', value: career.salario_piso },
+                    { label: 'Média do mercado', value: career.salario_media },
+                    { label: 'Teto (sênior/especialista)', value: career.salario_teto }
+                  ].map(({ label, value }) => {
+                    const amount = value == null ? null : Number(value);
+                    const maximum = career.salario_teto == null ? amount : Number(career.salario_teto);
+                    const width = amount === null || !maximum ? '0%' : `${Math.max(12, Math.min(100, amount / maximum * 100))}%`;
+                    return (
+                      <div className="salary-bar-row" key={label}>
+                        <span>{label}</span>
+                        <div className="salary-bar"><span style={{ width }} /></div>
+                        <strong>{money(value)}</strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
             )}
 
             {tab === 'skills' && (

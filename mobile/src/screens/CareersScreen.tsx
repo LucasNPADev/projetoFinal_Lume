@@ -18,17 +18,11 @@ interface Career {
   hard_skills: string;
   soft_skills: string;
   panorama_mercado: string;
-  salario_piso: number | string | null;
-  salario_media: number | string | null;
-  salario_teto: number | string | null;
   afinidade: number | null;
 }
 
 interface PageResult<T> { data: T[]; total: number; totalPages: number }
 interface Favorite { id_favorito: string; tipo: string; alvo_id: string }
-
-const money = (value: number | string | null) =>
-  value == null ? 'Não informado' : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export function CareersScreen() {
   useTheme();
@@ -99,45 +93,42 @@ export function CareersScreen() {
 
   return (
     <Page>
-      <MobileHeader caption="Explore carreiras, salários e trilhas de formação" onProfilePress={() => navigation.navigate('MainTabs', { screen: 'Perfil' })} />
+      <MobileHeader caption="Explore carreiras e trilhas de formação" onProfilePress={() => navigation.navigate('MainTabs', { screen: 'Perfil' })} />
       <Heading title="Carreiras" subtitle="Conheça áreas de atuação e caminhos profissionais." />
       {errorMessage ? <Message error>{errorMessage}</Message> : null}
       {loading ? <Loading label="Carregando carreiras..." /> : null}
       {!loading && !careers.length ? <Message>Nenhuma carreira disponível no momento.</Message> : null}
       {careers.map((career) => (
         <Card key={career.id_cargo}>
-          <Text onPress={() => setSelectedCareerId(career.id_cargo)} style={{ color: colors.accent, fontSize: 11, fontWeight: '800', textAlign: 'right' }}>Ver detalhes →</Text>
-          <Pressable onPress={() => setSelectedCareerId(career.id_cargo)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 42, height: 42, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.softAccent, borderRadius: 12 }}>
-              <Text style={{ color: colors.accent, fontSize: 18, fontWeight: '900' }}>{career.nome.slice(0, 1).toUpperCase()}</Text>
+          <Pressable
+            onPress={() => setSelectedCareerId(career.id_cargo)}
+            style={({ pressed }) => [{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+              marginHorizontal: -16,
+              marginTop: -16,
+              padding: 16,
+              backgroundColor: '#B20F3F',
+              borderTopLeftRadius: 13,
+              borderTopRightRadius: 13,
+            }, pressed && { opacity: 0.9 }]}
+          >
+            <View style={{ width: 42, height: 42, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '900' }}>{career.nome.slice(0, 1).toUpperCase()}</Text>
             </View>
-            <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>{career.nome}</Text>
-              <Text style={{ color: colors.accent, fontSize: 12, fontWeight: '800' }}>{career.area_atuacao}</Text>
+            <View style={{ flex: 1, gap: 3 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900' }}>{career.nome}</Text>
+              <Text style={{ color: '#FCE8EF', fontSize: 12, fontWeight: '800' }}>{career.area_atuacao}</Text>
             </View>
             {career.afinidade !== null ? (
-              <View style={{ paddingHorizontal: 8, paddingVertical: 5, backgroundColor: colors.softSuccess, borderRadius: 12 }}>
-                <Text style={{ color: colors.success, fontSize: 10, fontWeight: '800' }}>{career.afinidade}% afinidade</Text>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 5, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '800' }}>{career.afinidade}%</Text>
               </View>
             ) : null}
           </Pressable>
           <Text style={{ color: colors.subtle, fontSize: 13, lineHeight: 19 }}>{career.descricao}</Text>
-          <View style={{ padding: 12, gap: 10, backgroundColor: colors.softWarning, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 12 }}>
-            <Text style={{ color: colors.warning, fontSize: 10, fontWeight: '900', letterSpacing: 0.8 }}>FAIXA SALARIAL ESTIMADA</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 6 }}>
-              {[
-                { label: 'PISO', value: career.salario_piso },
-                { label: 'MÉDIA', value: career.salario_media },
-                { label: 'TETO', value: career.salario_teto },
-              ].map((salary) => (
-                <View key={salary.label} style={{ flex: 1, alignItems: 'center', gap: 3 }}>
-                  <Text style={{ color: colors.subtle, fontSize: 9, fontWeight: '800' }}>{salary.label}</Text>
-                  <Text style={{ color: colors.text, fontSize: 11, fontWeight: '900', textAlign: 'center' }}>{money(salary.value)}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-          <Text style={{ color: colors.text, fontSize: 12 }}><Text style={{ fontWeight: '800' }}>Habilidades: </Text>{[career.hard_skills, career.soft_skills].filter(Boolean).join(' · ')}</Text>
+          <Text style={{ color: colors.text, fontSize: 12 }}><Text style={{ color: '#EDEB80', fontWeight: '800' }}>Habilidades: </Text>{[career.hard_skills, career.soft_skills].filter(Boolean).join(' · ')}</Text>
           <Text style={{ color: colors.subtle, fontSize: 12, lineHeight: 18 }}>{career.panorama_mercado}</Text>
           <Button title="Conhecer carreira" secondary onPress={() => setSelectedCareerId(career.id_cargo)} />
           <Button
