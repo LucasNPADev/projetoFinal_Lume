@@ -35,7 +35,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
 
 ## 🧭 Fase 2: Ambiente de Usuário - Funcionalidades Principais
 
-- [ ] **CT006 - Resolução Completa do Teste Vocacional com Geração de Perfil**
+- [x] **CT006 - Resolução Completa do Teste Vocacional com Geração de Perfil**
   - **Objetivo:** Validar o algoritmo de afinidade e a geração do gráfico final.
   - **Commit sugerido:** `test(vocational): implementa CT006 para resolucao completa do teste`
 
