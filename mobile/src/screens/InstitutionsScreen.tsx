@@ -1,6 +1,6 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { Button, Card, Field, Heading, Loading, Message, MobileHeader, Page } from '../components/UI';
@@ -47,8 +47,10 @@ export function InstitutionsScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedInstitutionId, setSelectedInstitutionId] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   const load = useCallback(async () => {
+    const currentRequestId = ++requestId.current;
     setLoading(true);
     setErrorMessage('');
     try {
@@ -58,6 +60,7 @@ export function InstitutionsScreen() {
         }),
         api.get<Favorite[]>('/favoritos'),
       ]);
+      if (currentRequestId !== requestId.current) return;
       setItems((current) => page === 1
         ? institutions.data.data
         : [...new Map([...current, ...institutions.data.data].map((item) => [item.id_instituicao, item])).values()]);
@@ -69,13 +72,25 @@ export function InstitutionsScreen() {
           .map((favorite) => [favorite.alvo_id, favorite.id_favorito]),
       ));
     } catch (error) {
+      if (currentRequestId !== requestId.current) return;
       setErrorMessage(getErrorMessage(error, 'Não foi possível carregar as instituições.'));
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestId.current) setLoading(false);
     }
   }, [page, search]);
 
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
+  useFocusEffect(useCallback(() => {
+    void load();
+    return () => { requestId.current += 1; };
+  }, [load]));
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setPage(1);
+      setSearch(searchText.trim());
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchText]);
 
   const toggleFavorite = async (item: Institution) => {
     setErrorMessage('');
@@ -150,14 +165,14 @@ export function InstitutionsScreen() {
         </View>
       </View>
       <Heading title="Instituições" subtitle="Conheça as opções disponíveis e salve as suas favoritas." />
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-        <View style={{ flex: 1 }}>
-          <Field label="BUSCAR INSTITUIÇÃO" value={searchText} onChangeText={setSearchText} placeholder="Nome da faculdade" returnKeyType="search" onSubmitEditing={() => setSearch(searchText.trim())} />
-        </View>
-        <View style={{ width: 92, marginBottom: 4 }}>
-          <Button title="Buscar" onPress={() => { setPage(1); setSearch(searchText.trim()); }} />
-        </View>
-      </View>
+      <Field
+        label="BUSCAR INSTITUIÇÃO"
+        value={searchText}
+        onChangeText={setSearchText}
+        placeholder="Nome da faculdade"
+        returnKeyType="search"
+        onSubmitEditing={() => { setPage(1); setSearch(searchText.trim()); }}
+      />
       {errorMessage ? <Message error>{errorMessage}</Message> : null}
       {loading ? <Loading label="Carregando instituições..." /> : null}
       {!loading && !items.length ? <Message>Nenhuma instituição encontrada.</Message> : null}

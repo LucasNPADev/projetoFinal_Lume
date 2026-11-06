@@ -39,14 +39,22 @@ interface InstitutionCard extends Institution {
   favoriteId?: string;
 }
 
+const normalizeSearchText = (value: string) =>
+  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+
 export const UniversitiesPage: React.FC = () => {
   const [universities, setUniversities] = useState<InstitutionCard[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const normalizedSearch = normalizeSearchText(searchText);
+  const filteredUniversities = normalizedSearch
+    ? universities.filter(university =>
+        normalizeSearchText(university.nome_instituicao).includes(normalizedSearch)
+      )
+    : universities;
 
   useEffect(() => {
     let cancelled = false;
@@ -57,14 +65,14 @@ export const UniversitiesPage: React.FC = () => {
       try {
         const [firstPage, favoritesResponse] = await Promise.all([
           api.get<InstitutionPage>('/instituicoes', {
-            params: { page: 1, limit: 100, ordenar: 'nome', ...(search && { busca: search }) }
+            params: { page: 1, limit: 100, ordenar: 'nome' }
           }),
           api.get<FavoriteRecord[]>('/favoritos')
         ]);
         const pages = await Promise.all(
           Array.from({ length: Math.max(0, firstPage.data.totalPages - 1) }, (_, index) =>
             api.get<InstitutionPage>('/instituicoes', {
-              params: { page: index + 2, limit: 100, ordenar: 'nome', ...(search && { busca: search }) }
+              params: { page: index + 2, limit: 100, ordenar: 'nome' }
             })
           )
         );
@@ -115,12 +123,7 @@ export const UniversitiesPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [search]);
-
-  const handleSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    setSearch(searchText.trim());
-  };
+  }, []);
 
   const handleFavorite = async (event: React.MouseEvent, institution: InstitutionCard) => {
     event.stopPropagation();
@@ -153,11 +156,16 @@ export const UniversitiesPage: React.FC = () => {
     <div className="student-page" style={{ minHeight: '100vh', background: '#F1F0F7' }}>
       <StudentPageHeader
         title="Faculdades perto de você"
-        subtitle={`${total} instituições disponíveis`}
+        subtitle={`${normalizedSearch ? filteredUniversities.length : total} instituições disponíveis`}
         search={(
-          <form onSubmit={handleSearch} className="universities-header__search">
-            <input type="search" placeholder="Buscar por instituição..." value={searchText} onChange={event => setSearchText(event.target.value)} />
-            <button type="submit">Buscar</button>
+          <form onSubmit={event => event.preventDefault()} className="universities-header__search">
+            <input
+              type="search"
+              placeholder="Buscar por instituição..."
+              value={searchText}
+              onChange={event => setSearchText(event.target.value)}
+              aria-label="Buscar por instituição"
+            />
           </form>
         )}
       />
@@ -169,11 +177,11 @@ export const UniversitiesPage: React.FC = () => {
             {errorMessage}
           </div>
         )}
-        {!loading && !errorMessage && universities.length === 0 && (
-          <p>Nenhuma instituição regularizada e disponível foi encontrada.</p>
+        {!loading && !errorMessage && filteredUniversities.length === 0 && (
+          <p>Nenhuma instituição {normalizedSearch ? 'corresponde à busca' : 'regularizada e disponível foi encontrada'}.</p>
         )}
         <div className="institution-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-          {universities.map(university => (
+          {filteredUniversities.map(university => (
             <article key={university.id} className="institution-card" onClick={() => navigate(`/faculdade/${university.id}`)} style={{ background: '#FFF', borderRadius: '12px', border: '2px solid #E0DFF0', padding: '24px', position: 'relative', cursor: 'pointer' }}>
               <div className="institution-card__heading">
                 <div className="institution-card__identity">

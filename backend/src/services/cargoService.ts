@@ -4,7 +4,7 @@ import { AppError } from "../utils/AppError";
 import { CargoInput, RotaInput, ListarCargosInput } from "../schemas/cargo";
 import { notificarFavoritos } from "./notificacaoService";
 import { paginar } from "../utils/paginacao";
-import { normalizar } from "../utils/geo";
+import { buscarAfinidadeArea } from "../utils/afinidade";
 import { env } from "../config/env";
 type DB = Prisma.TransactionClient;
 export const rotaInclude = {
@@ -260,8 +260,7 @@ export async function listarCargos(
   const data = cargos.map((c) => ({
     ...c,
     afinidade:
-      areas.find((a) => normalizar(a.area) === normalizar(c.area_atuacao))
-        ?.percentual ?? null,
+      buscarAfinidadeArea(areas, c.area_atuacao),
     rotas: c.rotas.map((r) => ({
       ...r,
       duracao_total_meses: r.etapas.some((e) => e.curso.duracao_meses === null)

@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { AppError } from "../utils/AppError";
-import { normalizar } from "../utils/geo";
+import { normalizarAreaAfinidade } from "../utils/afinidade";
  
 export const ESCALA = [
   { valor: 1, rotulo: "Discordo totalmente" },
@@ -59,7 +59,7 @@ export function calcularAfinidades(
     { area: string; pontos: number; quantidade: number }
   >();
   for (const p of perguntas) {
-    const key = normalizar(p.area_afinidade);
+    const key = normalizarAreaAfinidade(p.area_afinidade);
     const atual = grupos.get(key) ?? {
       area: p.area_afinidade.trim(),
       pontos: 0,
