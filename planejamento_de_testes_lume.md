@@ -39,7 +39,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar o algoritmo de afinidade e a geração do gráfico final.
   - **Commit sugerido:** `test(vocational): implementa CT006 para resolucao completa do teste`
 
-- [ ] **CT007 - Cancelamento do Envio do Teste Vocacional com Respostas Pendentes**
+- [x] **CT007 - Cancelamento do Envio do Teste Vocacional com Respostas Pendentes**
   - **Objetivo:** Validar a obrigatoriedade de 100% de preenchimento do form.
   - **Commit sugerido:** `test(vocational): implementa CT007 para bloqueio de teste incompleto`
 
