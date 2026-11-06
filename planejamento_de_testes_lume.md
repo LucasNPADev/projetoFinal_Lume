@@ -27,7 +27,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar retorno HTTP 401 e recusa de acesso.
   - **Commit sugerido:** `test(auth): implementa CT004 para bloqueio de login com senha incorreta`
 
-- [ ] **CT005 - Solicitação de recuperação de senha com e-mail válido**
+- [x] **CT005 - Solicitação de recuperação de senha com e-mail válido**
   - **Objetivo:** Validar o fluxo de SMTP e geração de link/token de recuperação.
   - **Commit sugerido:** `test(auth): implementa CT005 para solicitacao de recuperacao via SMTP`
 
