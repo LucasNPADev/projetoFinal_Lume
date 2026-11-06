@@ -11,7 +11,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
 
 ## 📱 Fase 1: Ambiente de Usuário - Autenticação e Onboarding
 
-- [ ] **CT001 - Cadastro de Novo Estudante no Aplicativo com Dados Válidos**
+- [x] **CT001 - Cadastro de Novo Estudante no Aplicativo com Dados Válidos**
   - **Objetivo:** Validar a criação de conta e persistência com hash bcrypt.
   - **Commit sugerido:** `test(auth): implementa CT001 para cadastro valido de estudante`
 
