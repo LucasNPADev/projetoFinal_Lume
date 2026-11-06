@@ -19,7 +19,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar o status HTTP 409 e o alerta no frontend.
   - **Commit sugerido:** `test(auth): implementa CT002 para bloqueio de email duplicado`
 
-- [ ] **CT003 - Autenticação de Estudante (Login)**
+- [x] **CT003 - Autenticação de Estudante (Login)**
   - **Objetivo:** Validar retorno do HTTP 200 OK, gravação do token JWT e redirecionamento.
   - **Commit sugerido:** `test(auth): implementa CT003 para login de estudante com sucesso`
 
