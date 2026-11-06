@@ -55,7 +55,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
 
 ## ⚙️ Fase 3: Ambiente de Admin (Portal Web)
 
-- [ ] **CT010 - Autenticação Administrativa e Concessão de Permissão (ROLE_ADMIN)**
+- [x] **CT010 - Autenticação Administrativa e Concessão de Permissão (ROLE_ADMIN)**
   - **Objetivo:** Validar o RBAC (Role-Based Access Control) e acesso ao painel.
   - **Commit sugerido:** `test(admin): implementa CT010 para autenticacao exclusiva ROLE_ADMIN`
 

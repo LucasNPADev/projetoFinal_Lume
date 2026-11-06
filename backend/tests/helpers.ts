@@ -13,7 +13,7 @@ export async function createTestUser(overrides: {
   nome?: string;
   email?: string;
   senha?: string;
-  perfil?: "usuario" | "ADMIN";
+  perfil?: "usuario" | "admin";
 } = {}) {
   const rawPassword = overrides.senha ?? "SenhaForte123!";
   const email = overrides.email ?? uniqueEmail("user");
@@ -42,7 +42,7 @@ export async function createAdminUser(overrides: {
     ...overrides,
     nome: overrides.nome ?? "Administrador de Teste",
     email: overrides.email ?? uniqueEmail("admin"),
-    perfil: "ADMIN",
+    perfil: "admin",
   });
 }
 
