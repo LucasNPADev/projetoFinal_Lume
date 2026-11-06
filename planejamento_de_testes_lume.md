@@ -43,7 +43,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar a obrigatoriedade de 100% de preenchimento do form.
   - **Commit sugerido:** `test(vocational): implementa CT007 para bloqueio de teste incompleto`
 
-- [ ] **CT008 - Consulta e Busca de Cargos/Profissões por Palavra-Chave**
+- [x] **CT008 - Consulta e Busca de Cargos/Profissões por Palavra-Chave**
   - **Objetivo:** Validar o filtro em tempo real de listagem de cargos.
   - **Commit sugerido:** `test(search): implementa CT008 para busca de cargos por palavra-chave`
 
