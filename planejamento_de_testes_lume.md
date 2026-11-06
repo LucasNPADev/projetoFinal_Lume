@@ -47,7 +47,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar o filtro em tempo real de listagem de cargos.
   - **Commit sugerido:** `test(search): implementa CT008 para busca de cargos por palavra-chave`
 
-- [ ] **CT009 - Consulta e Filtragem de Cursos por Modalidade (EAD e Presencial)**
+- [x] **CT009 - Consulta e Filtragem de Cursos por Modalidade (EAD e Presencial)**
   - **Objetivo:** Validar a aplicação de filtros combinados (modalidade + texto).
   - **Commit sugerido:** `test(search): implementa CT009 para filtro de cursos por modalidade`
 
