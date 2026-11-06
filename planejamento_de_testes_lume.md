@@ -15,7 +15,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar a criação de conta e persistência com hash bcrypt.
   - **Commit sugerido:** `test(auth): implementa CT001 para cadastro valido de estudante`
 
-- [ ] **CT002 - Bloqueio de Cadastro com E-mail Já Existente no Sistema**
+- [x] **CT002 - Bloqueio de Cadastro com E-mail Já Existente no Sistema**
   - **Objetivo:** Validar o status HTTP 409 e o alerta no frontend.
   - **Commit sugerido:** `test(auth): implementa CT002 para bloqueio de email duplicado`
 
