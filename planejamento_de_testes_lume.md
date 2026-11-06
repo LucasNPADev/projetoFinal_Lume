@@ -23,7 +23,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar retorno do HTTP 200 OK, gravação do token JWT e redirecionamento.
   - **Commit sugerido:** `test(auth): implementa CT003 para login de estudante com sucesso`
 
-- [ ] **CT004 - Bloqueio de Autenticação com Senha Incorreta**
+- [x] **CT004 - Bloqueio de Autenticação com Senha Incorreta**
   - **Objetivo:** Validar retorno HTTP 401 e recusa de acesso.
   - **Commit sugerido:** `test(auth): implementa CT004 para bloqueio de login com senha incorreta`
 
