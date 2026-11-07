@@ -59,7 +59,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar o RBAC (Role-Based Access Control) e acesso ao painel.
   - **Commit sugerido:** `test(admin): implementa CT010 para autenticacao exclusiva ROLE_ADMIN`
 
-- [ ] **CT011 - Cadastramento de Perguntas para o Teste Vocacional**
+- [x] **CT011 - Cadastramento de Perguntas para o Teste Vocacional**
   - **Objetivo:** Validar a persistência de novas perguntas e pesos no banco.
   - **Commit sugerido:** `test(admin): implementa CT011 para cadastro de novas perguntas`
 
