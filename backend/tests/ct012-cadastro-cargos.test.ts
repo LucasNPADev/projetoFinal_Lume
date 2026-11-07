@@ -58,7 +58,7 @@ describe("CT012 - Cadastramento de Novo Cargo e Especificação de Requisitos", 
 
   afterAll(async () => {
     if (createdCargoId) {
-      await prisma.etapaRotaFormacao.deleteMany({ where: { id_cargo: createdCargoId } });
+      await prisma.trilhaCargoCurso.deleteMany({ where: { id_cargo: createdCargoId } });
       await prisma.rotaFormacao.deleteMany({ where: { id_cargo: createdCargoId } });
       await prisma.cargo.deleteMany({ where: { id_cargo: createdCargoId } });
     }
