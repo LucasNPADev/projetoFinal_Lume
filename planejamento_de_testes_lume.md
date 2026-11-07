@@ -67,6 +67,6 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar a inclusão de um novo cargo e sua disponibilidade no app.
   - **Commit sugerido:** `test(admin): implementa CT012 para criacao de novo cargo`
 
-- [ ] **CT013 - Cadastramento de Instituições de Ensino e Inclusão de Cursos**
+- [x] **CT013 - Cadastramento de Instituições de Ensino e Inclusão de Cursos**
   - **Objetivo:** Validar relacionamento entre Instituição e Curso no banco relacional.
   - **Commit sugerido:** `test(admin): implementa CT013 para cadastro de instituicao e cursos`
