@@ -63,7 +63,7 @@ Este documento detalha o roteiro de implementação da suíte de testes do siste
   - **Objetivo:** Validar a persistência de novas perguntas e pesos no banco.
   - **Commit sugerido:** `test(admin): implementa CT011 para cadastro de novas perguntas`
 
-- [ ] **CT012 - Cadastramento de Novo Cargo e Especificação de Requisitos**
+- [x] **CT012 - Cadastramento de Novo Cargo e Especificação de Requisitos**
   - **Objetivo:** Validar a inclusão de um novo cargo e sua disponibilidade no app.
   - **Commit sugerido:** `test(admin): implementa CT012 para criacao de novo cargo`
 
