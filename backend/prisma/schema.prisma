@@ -7,19 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Nomes das tabelas e IDs do DER original preservados.
 model Usuario {
-  id_usuario BigInt   @id @default(autoincrement())
-  nome       String   @db.VarChar(150)
-  email      String   @unique @db.VarChar(255)
-  senha_hash String   @db.VarChar(255)
-  perfil     String   @default("ESTUDANTE") @db.VarChar(20)
-  rua        String?  @db.VarChar(200)
-  cidade     String?  @db.VarChar(100)
-  estado     String?  @db.Char(2)
-  bairro     String?  @db.VarChar(100)
-  latitude   Decimal? @db.Decimal(10, 7)
-  longitude  Decimal? @db.Decimal(10, 7)
-
+  id_usuario               BigInt                     @id @default(autoincrement())
+  nome                     String                     @db.VarChar(150)
+  email                    String                     @unique @db.VarChar(255)
+  senha_hash               String                     @db.VarChar(255)
+  perfil                   String                     @default("usuario") @db.VarChar(20)
+  rua                      String?                    @db.VarChar(200)
+  cidade                   String?                    @db.VarChar(100)
+  estado                   String?                    @db.Char(2)
+  bairro                   String?                    @db.VarChar(100)
+  latitude                 Decimal?                   @db.Decimal(10, 7)
+  longitude                Decimal?                   @db.Decimal(10, 7)
+  origem_localizacao       String                     @default("MANUAL") @db.VarChar(10)
+  consentimento_gps        Boolean                    @default(false)
+  termos_aceitos_em        DateTime?                  @db.Timestamptz()
+  versao_termos            String?                    @db.VarChar(30)
+  criado_em                DateTime                   @default(now()) @db.Timestamptz()
+  atualizado_em            DateTime                   @updatedAt @db.Timestamptz()
   cargos_cadastrados       Cargo[]
   cursos_cadastrados       Curso[]
   instituicoes_cadastradas Instituicao[]
@@ -28,84 +34,161 @@ model Usuario {
   consultas_cargo          ConsultaCargo[]
   avaliacoes               Avaliacao[]
   historico_testes         HistoricoTesteVocacional[]
+  sessoes                  Sessao[]
+  recuperacoes             RecuperacaoSenha[]
+  favoritos                Favorito[]
+  denuncias                Denuncia[]
+  notificacoes             Notificacao[]
+}
+
+model FonteDados {
+  id_fonte      BigInt              @id @default(autoincrement())
+  nome          String              @db.VarChar(200)
+  orgao         String              @db.VarChar(150)
+  url           String              @db.VarChar(2048)
+  consultado_em DateTime            @db.Timestamptz()
+  demonstracao  Boolean             @default(false)
+  cargos        Cargo[]
+  ofertas       Curso_Instituicao[]
 }
 
 model Cargo {
-  id_cargo               BigInt   @id @default(autoincrement())
-  nome                   String   @db.VarChar(150)
-  area_atuacao           String   @db.VarChar(150)
-  salario                Decimal? @db.Decimal(10, 0)
-  descricao              String?  @db.Text
-  hard_skills            String?  @db.Text
-  soft_skills            String?  @db.Text
-  id_usuario_cadastrador BigInt
+  id_cargo               BigInt             @id @default(autoincrement())
+  nome                   String             @db.VarChar(150)
+  area_atuacao           String             @db.VarChar(150)
+  salario                Decimal?           @db.Decimal(10, 0)
+  salario_piso           Decimal?           @db.Decimal(12, 2)
+  salario_media          Decimal?           @db.Decimal(12, 2)
+  salario_teto           Decimal?           @db.Decimal(12, 2)
+  descricao              String?            @db.Text
+  hard_skills            String?            @db.Text
+  soft_skills            String?            @db.Text
+  panorama_mercado       String?            @db.Text
+  status                 Boolean            @default(true)
+  id_fonte               BigInt?
+  atualizado_em          DateTime           @updatedAt @db.Timestamptz()
+  id_usuario_cadastrador BigInt?
+  cadastrador            Usuario?           @relation(fields: [id_usuario_cadastrador], references: [id_usuario], onDelete: SetNull)
+  fonte                  FonteDados?        @relation(fields: [id_fonte], references: [id_fonte])
+  trilhas                TrilhaCargoCurso[]
+  rotas                  RotaFormacao[]
+  consultas              ConsultaCargo[]
+  favoritos              Favorito[]
 
-  cadastrador Usuario           @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
-  trilhas     TrilhaCargoCurso[]
-  consultas   ConsultaCargo[]
+  @@index([status, area_atuacao])
 }
 
 model Curso {
-  id_curso               BigInt @id @default(autoincrement())
-  nome_curso             String @db.VarChar(200)
-  grau_academico         String @db.VarChar(80)
-  modalidade             String @db.VarChar(50)
+  id_curso               BigInt              @id @default(autoincrement())
+  nome_curso             String              @db.VarChar(200)
+  grau_academico         String              @db.VarChar(80)
+  modalidade             String              @db.VarChar(50)
   carga_horaria          Int
-  area_curso             String @db.VarChar(150)
-  id_usuario_cadastrador BigInt
+  area_curso             String              @db.VarChar(150)
+  duracao_meses          Int?
+  descricao              String?             @db.Text
+  grade_curricular       String?             @db.Text
+  status                 Boolean             @default(true)
+  atualizado_em          DateTime            @updatedAt @db.Timestamptz()
+  id_usuario_cadastrador BigInt?
+  cadastrador            Usuario?            @relation(fields: [id_usuario_cadastrador], references: [id_usuario], onDelete: SetNull)
+  ofertas                Curso_Instituicao[]
+  trilhas                TrilhaCargoCurso[]
+  consultas              ConsultaCurso[]
+  favoritos              Favorito[]
+  avaliacoes             Avaliacao[]
 
-  cadastrador Usuario            @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
-  ofertas     Curso_Instituicao[]
-  trilhas     TrilhaCargoCurso[]
-  consultas   ConsultaCurso[]
+  @@index([status, area_curso, modalidade])
 }
 
 model Instituicao {
-  id_instituicao         BigInt   @id @default(autoincrement())
-  nome_instituicao       String   @db.VarChar(200)
-  cnpj                   String   @unique @db.VarChar(14)
-  nota_mec               Decimal? @db.Decimal(2, 1)
-  status                 Boolean  @default(true)
-  telefone               String?  @db.VarChar(20)
-  celular                String?  @db.VarChar(20)
-  email                  String?  @db.VarChar(255)
-  rua                    String?  @db.VarChar(200)
-  cidade                 String?  @db.VarChar(100)
-  estado                 String?  @db.Char(2)
-  bairro                 String?  @db.VarChar(100)
-  latitude               Decimal? @db.Decimal(10, 7)
-  longitude              Decimal? @db.Decimal(10, 7)
-  id_usuario_cadastrador BigInt
+  id_instituicao         BigInt              @id @default(autoincrement())
+  nome_instituicao       String              @db.VarChar(200)
+  cnpj                   String              @unique @db.VarChar(14)
+  nota_mec               Decimal?            @db.Decimal(2, 1)
+  status                 Boolean             @default(true)
+  regular_mec            Boolean             @default(false)
+  natureza               String              @default("PRIVADA") @db.VarChar(10)
+  telefone               String?             @db.VarChar(20)
+  celular                String?             @db.VarChar(20)
+  email                  String?             @db.VarChar(255)
+  site                   String?             @db.VarChar(2048)
+  rua                    String?             @db.VarChar(200)
+  cidade                 String?             @db.VarChar(100)
+  estado                 String?             @db.Char(2)
+  bairro                 String?             @db.VarChar(100)
+  latitude               Decimal?            @db.Decimal(10, 7)
+  longitude              Decimal?            @db.Decimal(10, 7)
+  atualizado_em          DateTime            @updatedAt @db.Timestamptz()
+  id_usuario_cadastrador BigInt?
+  cadastrador            Usuario?            @relation(fields: [id_usuario_cadastrador], references: [id_usuario], onDelete: SetNull)
+  ofertas                Curso_Instituicao[]
+  avaliacoes             Avaliacao[]
+  favoritos              Favorito[]
+  eventos                Evento[]
 
-  cadastrador Usuario             @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
-  ofertas     Curso_Instituicao[]
-  avaliacoes  Avaliacao[]
+  @@index([status, regular_mec, cidade, estado])
 }
 
 model Curso_Instituicao {
-  id_curso_instituicao BigInt   @id @default(autoincrement())
+  id_curso_instituicao BigInt      @id @default(autoincrement())
   id_curso             BigInt
   id_instituicao       BigInt
-  mensalidade          Decimal? @db.Decimal(10, 2)
-  formas_ingresso      String?  @db.Text
-  nota_corte           Decimal? @db.Decimal(6, 2)
-  status               Boolean  @default(true)
-
-  curso       Curso       @relation(fields: [id_curso], references: [id_curso])
-  instituicao Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+  mensalidade          Decimal?    @db.Decimal(10, 2)
+  mensalidade_max      Decimal?    @db.Decimal(10, 2)
+  formas_ingresso      String?     @db.Text
+  nota_corte           Decimal?    @db.Decimal(6, 2)
+  ano_nota_corte       Int?
+  programa_nota_corte  String?     @db.VarChar(30)
+  id_fonte_nota        BigInt?
+  bolsas               String?     @db.Text
+  prouni               Boolean     @default(false)
+  fies                 Boolean     @default(false)
+  polo_nome            String?     @db.VarChar(200)
+  polo_rua             String?     @db.VarChar(200)
+  polo_cidade          String?     @db.VarChar(100)
+  polo_estado          String?     @db.Char(2)
+  polo_bairro          String?     @db.VarChar(100)
+  polo_latitude        Decimal?    @db.Decimal(10, 7)
+  polo_longitude       Decimal?    @db.Decimal(10, 7)
+  status               Boolean     @default(true)
+  atualizado_em        DateTime    @updatedAt @db.Timestamptz()
+  curso                Curso       @relation(fields: [id_curso], references: [id_curso])
+  instituicao          Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+  fonte_nota           FonteDados? @relation(fields: [id_fonte_nota], references: [id_fonte])
 
   @@unique([id_curso, id_instituicao])
+  @@index([status, id_curso])
+}
+
+// Uma rota representa uma alternativa completa; TrilhaCargoCurso representa cada etapa.
+model RotaFormacao {
+  id_rota   BigInt             @id @default(autoincrement())
+  id_cargo  BigInt
+  nome      String             @db.VarChar(200)
+  descricao String?            @db.Text
+  status    Boolean            @default(true)
+  cargo     Cargo              @relation(fields: [id_cargo], references: [id_cargo])
+  etapas    TrilhaCargoCurso[]
+  favoritos Favorito[]
+
+  @@unique([id_cargo, nome])
 }
 
 model TrilhaCargoCurso {
-  id_trilha   BigInt  @id @default(autoincrement())
+  id_trilha   BigInt       @id @default(autoincrement())
   id_cargo    BigInt
+  id_rota     BigInt
   id_curso    BigInt
   ordem_etapa Int
-  descricao   String? @db.Text
+  descricao   String?      @db.Text
+  cargo       Cargo        @relation(fields: [id_cargo], references: [id_cargo])
+  rota        RotaFormacao @relation(fields: [id_rota], references: [id_rota], onDelete: Cascade)
+  curso       Curso        @relation(fields: [id_curso], references: [id_curso])
 
-  cargo Cargo @relation(fields: [id_cargo], references: [id_cargo])
-  curso Curso @relation(fields: [id_curso], references: [id_curso])
+  @@unique([id_rota, id_curso])
+  @@unique([id_rota, ordem_etapa])
+  @@index([id_cargo, id_curso])
 }
 
 model ConsultaCurso {
@@ -113,9 +196,10 @@ model ConsultaCurso {
   id_usuario    BigInt
   id_curso      BigInt
   data_consulta DateTime @default(now()) @db.Timestamptz()
+  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  curso         Curso    @relation(fields: [id_curso], references: [id_curso])
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  curso   Curso   @relation(fields: [id_curso], references: [id_curso])
+  @@index([id_usuario, data_consulta])
 }
 
 model ConsultaCargo {
@@ -123,36 +207,128 @@ model ConsultaCargo {
   id_usuario    BigInt
   id_cargo      BigInt
   data_consulta DateTime @default(now()) @db.Timestamptz()
+  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  cargo         Cargo    @relation(fields: [id_cargo], references: [id_cargo])
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  cargo   Cargo   @relation(fields: [id_cargo], references: [id_cargo])
+  @@index([id_usuario, data_consulta])
 }
 
 model Avaliacao {
-  id_avaliacao    BigInt   @id @default(autoincrement())
-  id_usuario      BigInt
-  id_instituicao  BigInt
-  comentario      String?  @db.Text
-  data_publicacao DateTime @default(now()) @db.Timestamptz()
+  id_avaliacao     BigInt      @id @default(autoincrement())
+  id_usuario       BigInt
+  id_instituicao   BigInt
+  id_curso         BigInt?
+  nota             Int?
+  comentario       String?     @db.Text
+  status           String      @default("PUBLICADA") @db.VarChar(20)
+  motivo_moderacao String?     @db.Text
+  data_publicacao  DateTime    @default(now()) @db.Timestamptz()
+  usuario          Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  instituicao      Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+  curso            Curso?      @relation(fields: [id_curso], references: [id_curso])
+  denuncias        Denuncia[]
 
-  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario])
-  instituicao Instituicao @relation(fields: [id_instituicao], references: [id_instituicao])
+  @@index([id_instituicao, status])
+}
+
+model Denuncia {
+  id_denuncia  BigInt    @id @default(autoincrement())
+  id_avaliacao BigInt
+  id_usuario   BigInt
+  motivo       String    @db.Text
+  status       String    @default("ABERTA") @db.VarChar(20)
+  resposta     String?   @db.Text
+  criado_em    DateTime  @default(now()) @db.Timestamptz()
+  usuario      Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  avaliacao    Avaliacao @relation(fields: [id_avaliacao], references: [id_avaliacao], onDelete: Cascade)
+
+  @@unique([id_usuario, id_avaliacao])
 }
 
 model PerguntaVocacional {
-  id_pergunta            BigInt @id @default(autoincrement())
-  enunciado              String @db.Text
-  area_afinidade         String @db.VarChar(150)
-  id_usuario_cadastrador BigInt
-
-  cadastrador Usuario @relation(fields: [id_usuario_cadastrador], references: [id_usuario])
+  id_pergunta            BigInt   @id @default(autoincrement())
+  enunciado              String   @db.Text
+  area_afinidade         String   @db.VarChar(150)
+  status                 Boolean  @default(true)
+  id_usuario_cadastrador BigInt?
+  cadastrador            Usuario? @relation(fields: [id_usuario_cadastrador], references: [id_usuario], onDelete: SetNull)
 }
 
 model HistoricoTesteVocacional {
   id_historico        BigInt   @id @default(autoincrement())
   id_usuario          BigInt
   data_realizada      DateTime @default(now()) @db.Timestamptz()
-  pontuacao_detalhada Json     @db.JsonB
+  pontuacao_detalhada Json     @default("{}") @db.JsonB
+  usuario             Usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  @@index([id_usuario, data_realizada])
+}
+
+model Sessao {
+  id_sessao    String    @id @default(uuid()) @db.Uuid
+  id_usuario   BigInt
+  refresh_hash String    @unique @db.VarChar(64)
+  expira_em    DateTime  @db.Timestamptz()
+  revogada_em  DateTime? @db.Timestamptz()
+  criado_em    DateTime  @default(now()) @db.Timestamptz()
+  usuario      Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@index([id_usuario])
+}
+
+model RecuperacaoSenha {
+  id_recuperacao String    @id @default(uuid()) @db.Uuid
+  id_usuario     BigInt
+  token_hash     String    @unique @db.VarChar(64)
+  expira_em      DateTime  @db.Timestamptz()
+  usado_em       DateTime? @db.Timestamptz()
+  usuario        Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+}
+
+model Favorito {
+  id_favorito    BigInt        @id @default(autoincrement())
+  id_usuario     BigInt
+  tipo           String        @db.VarChar(15)
+  alvo_id        BigInt
+  id_cargo       BigInt?
+  id_curso       BigInt?
+  id_instituicao BigInt?
+  id_rota        BigInt?
+  criado_em      DateTime      @default(now()) @db.Timestamptz()
+  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  cargo          Cargo?        @relation(fields: [id_cargo], references: [id_cargo])
+  curso          Curso?        @relation(fields: [id_curso], references: [id_curso])
+  instituicao    Instituicao?  @relation(fields: [id_instituicao], references: [id_instituicao])
+  rota           RotaFormacao? @relation(fields: [id_rota], references: [id_rota])
+
+  @@unique([id_usuario, tipo, alvo_id])
+}
+
+model Evento {
+  id_evento      BigInt       @id @default(autoincrement())
+  id_instituicao BigInt?
+  titulo         String       @db.VarChar(200)
+  tipo           String       @db.VarChar(30)
+  inicio         DateTime     @db.Timestamptz()
+  fim            DateTime?    @db.Timestamptz()
+  descricao      String?      @db.Text
+  url            String       @db.VarChar(2048)
+  status         Boolean      @default(true)
+  instituicao    Instituicao? @relation(fields: [id_instituicao], references: [id_instituicao])
+
+  @@index([status, inicio])
+}
+
+model Notificacao {
+  id_notificacao BigInt    @id @default(autoincrement())
+  id_usuario     BigInt
+  titulo         String    @db.VarChar(200)
+  mensagem       String    @db.Text
+  tipo           String    @db.VarChar(30)
+  alvo_id        BigInt?
+  lida_em        DateTime? @db.Timestamptz()
+  criado_em      DateTime  @default(now()) @db.Timestamptz()
+  usuario        Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@index([id_usuario, criado_em])
 }

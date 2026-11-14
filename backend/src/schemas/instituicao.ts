@@ -1,35 +1,60 @@
-import { z } from 'zod';
-import { validarCnpj } from '../utils/cnpj';
-
-export const criarInstituicaoSchema = z.object({
-  nome_instituicao: z.string().trim().min(2).max(200),
-  cnpj: z
-    .string()
-    .transform((v) => v.replace(/\D/g, ''))
-    .pipe(z.string().length(14, 'CNPJ deve ter 14 dígitos'))
-    .refine(validarCnpj, 'CNPJ inválido'),
-  nota_mec: z.number().min(0).max(5).optional(),
-  status: z.boolean().default(true),
-  telefone: z.string().trim().max(20).optional(),
-  celular: z.string().trim().max(20).optional(),
-  email: z.string().trim().toLowerCase().email().max(255).optional(),
-  rua: z.string().trim().max(200).optional(),
-  cidade: z.string().trim().max(100).optional(),
-  estado: z.string().trim().length(2, 'Use a sigla do estado (ex: SP)').toUpperCase().optional(),
-  bairro: z.string().trim().max(100).optional(),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
-});
-
-export const vincularCursoSchema = z.object({
-  id_curso: z
-    .union([z.string().regex(/^\d+$/, 'id_curso inválido'), z.number().int().positive()])
-    .transform((v) => BigInt(v)),
-  mensalidade: z.number().min(0).optional(),
-  formas_ingresso: z.string().trim().max(2000).optional(),
-  nota_corte: z.number().min(0).optional(),
-  status: z.boolean().default(true),
-});
-
+import { z } from "zod";
+import { validarCnpj } from "../utils/cnpj";
+import {
+  texto,
+  emailSchema,
+  urlSchema,
+  enderecoShape,
+  validarCoordenadas,
+  idSchema,
+  exigirAlteracao,
+  paginacaoSchema,
+  estadoSchema,
+} from "./comum";
+const base = z
+  .object({
+    nome_instituicao: texto(200),
+    cnpj: z
+      .string()
+      .regex(/^[\d.\/-]+$/)
+      .transform((v) => v.replace(/\D/g, ""))
+      .refine(validarCnpj, "CNPJ inválido"),
+    nota_mec: z
+      .number()
+      .min(1)
+      .max(5)
+      .refine((v) => Number.isInteger(v * 10), "Use no máximo 1 casa decimal")
+      .nullable()
+      .optional(),
+    status: z.boolean().optional(),
+    regular_mec: z.boolean().optional(),
+    natureza: z.enum(["PUBLICA", "PRIVADA"]).optional(),
+    telefone: texto(20).nullable().optional(),
+    celular: texto(20).nullable().optional(),
+    email: emailSchema.nullable().optional(),
+    site: urlSchema.nullable().optional(),
+    ...enderecoShape,
+  })
+  .strict();
+export const criarInstituicaoSchema = base.superRefine(validarCoordenadas);
+export const editarInstituicaoSchema = base
+  .partial()
+  .superRefine(exigirAlteracao)
+  .superRefine(validarCoordenadas);
+export const listarInstituicoesSchema = paginacaoSchema
+  .extend({
+    busca: texto(200).optional(),
+    cidade: texto(100).optional(),
+    estado: estadoSchema.optional(),
+    latitude: z.coerce.number().finite().min(-90).max(90).optional(),
+    longitude: z.coerce.number().finite().min(-180).max(180).optional(),
+    raio_km: z.coerce.number().positive().max(20000).optional(),
+    ordenar: z.enum(["nome", "distancia"]).default("distancia"),
+    id_instituicao: idSchema.optional(),
+    incluir_inativos: z.enum(["true", "false"]).default("false")
+      .transform((v) => v === "true"),
+  })
+  .strict()
+  .superRefine(validarCoordenadas);
 export type CriarInstituicaoInput = z.infer<typeof criarInstituicaoSchema>;
-export type VincularCursoInput = z.infer<typeof vincularCursoSchema>;
+export type ListarInstituicoesInput = z.infer<typeof listarInstituicoesSchema>;
