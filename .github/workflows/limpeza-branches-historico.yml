@@ -11,7 +11,7 @@ permissions:
 jobs:
   excluir-branches-depois-da-preservacao:
     name: Verificar e limpar referencias antigas
-    if: ${{ github.repository == 'LucasNPADev/projetoFinal_Lume' && startsWith(github.event.head_commit.message, 'merge: preservar commits historicos do LUME') }}
+    if: "${{ github.repository == 'LucasNPADev/projetoFinal_Lume' && startsWith(github.event.head_commit.message, 'merge: preservar commits historicos do LUME') }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout completo da dev
