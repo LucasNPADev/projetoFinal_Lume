@@ -62,4 +62,14 @@ jobs:
       - name: Validar colecao Insomnia
         run: npm run insomnia:validate
       - name: Testes de API
+        # A entrega de e-mail é substituída por mock no CT005; não há envio real.
+        env:
+          NODE_ENV: test
+          EMAIL_MODE: smtp
+          SMTP_HOST: smtp.invalid
+          SMTP_PORT: '587'
+          SMTP_USER: testes@lume.test
+          SMTP_PASSWORD: senha-ficticia-exclusiva-ci
+          EMAIL_FROM: 'LUME Testes <testes@lume.test>'
+          FRONTEND_URL: http://localhost:3000
         run: npm test

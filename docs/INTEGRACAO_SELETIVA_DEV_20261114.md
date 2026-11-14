@@ -30,3 +30,12 @@
 ## Decisão operacional
 
 Esta branch é uma **proposta rastreável** de integração, não confirmação de deploy nem de execução de todos os testes. Não exclua arquivos adicionais da `dev` ou force push; integre pelo PR e preserve as proteções da branch.
+
+## Primeira execução de CI no PR #19 — correções guiadas por logs
+
+O build da API, o `prisma migrate deploy` sobre banco novo, a validação do Insomnia, a compilação Web e a checagem Mobile passaram. A primeira rodada de testes backend identificou:
+- CT012: limpeza tentava excluir Cargo ainda referenciado por ConsultaCargo; o teardown foi ajustado para eliminar os registros de consulta criados pelo teste.
+- CT005: o teste verifica envio SMTP via `nodemailer` simulado, mas a configuração de CI usava modo console; o job agora injeta configuração SMTP fictícia exclusivamente na etapa de testes.
+- CT008: o teste dependia de profissões existentes no seed; passa a criar, usar e limpar sua própria fonte, curso, cargos e rotas válidas.
+
+Essas correções não removem validações de negócio nem modificam dados externos; apenas isolam e tornam verificáveis os testes de CI.
