@@ -1,0 +1,86 @@
+name: Limpeza segura e unica das branches antigas
+on:
+  push:
+    branches: [dev]
+    paths:
+      - docs/GOVERNANCA_RECUPERACAO_BRANCHES_20261114.md
+
+permissions:
+  contents: write
+
+jobs:
+  excluir-branches-depois-da-preservacao:
+    name: Verificar e limpar referencias antigas
+    if: ${{ github.repository == 'LucasNPADev/projetoFinal_Lume' && startsWith(github.event.head_commit.message, 'merge: preservar commits historicos do LUME') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout completo da dev
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validar ancestralidade e ausencia de novos commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
+          while IFS='|' read -r branch sha; do
+            current=$(git rev-parse "refs/remotes/origin/${branch}")
+            if [ "$current" != "$sha" ]; then
+              echo "::error::Branch ${branch} recebeu novos commits. Interrompendo exclusao."
+              exit 1
+            fi
+            if ! git merge-base --is-ancestor "$sha" HEAD; then
+              echo "::error::Commit de ${branch} nao consta na historia da dev."
+              exit 1
+            fi
+            echo "OK: ${branch} @ ${sha} preservado em dev"
+          done <<'BRANCHES'
+          bugfix/atualizacao-lume|5d3f97d282dec98acba48ed063cf89cc20999a96
+          feature/testes-lume|c34d8204a102d3f7c4a967a1491501b5c22a116b
+          feature/finalizacao-testes-lume|235e2e301f9abca746d9b993e2e17026665367dd
+          feature/sprint4-organizacao|d871c558c3a2713293e0cfeb4be317edcc1421a7
+          BRANCHES
+
+      - name: Excluir refs antigas verificadas
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branches = [
+              ["bugfix/atualizacao-lume", "5d3f97d282dec98acba48ed063cf89cc20999a96"],
+              ["feature/testes-lume", "c34d8204a102d3f7c4a967a1491501b5c22a116b"],
+              ["feature/finalizacao-testes-lume", "235e2e301f9abca746d9b993e2e17026665367dd"],
+              ["feature/sprint4-organizacao", "d871c558c3a2713293e0cfeb4be317edcc1421a7"],
+            ];
+            const { owner, repo } = context.repo;
+            // Preflight: nao excluir nenhuma branch se alguma mudou desde a auditoria.
+            for (const [branch, expected] of branches) {
+              const { data } = await github.rest.git.getRef({owner, repo, ref: `heads/${branch}`});
+              if (data.object.sha !== expected) {
+                throw new Error(`Exclusao bloqueada: ${branch} mudou para ${data.object.sha}`);
+              }
+            }
+            for (const [branch, expected] of branches) {
+              const { data } = await github.rest.git.getRef({owner, repo, ref: `heads/${branch}`});
+              if (data.object.sha !== expected) throw new Error(`Branch alterada: ${branch}`);
+              await github.rest.git.deleteRef({owner, repo, ref: `heads/${branch}`});
+              core.info(`Excluida: ${branch} (restauravel no commit ${expected})`);
+            }
+            // A propria branch temporaria do PR pode ser removida apos o merge.
+            const temporary = "feature/preservacao-historico-branches";
+            try {
+              const { data: ref } = await github.rest.git.getRef({owner, repo, ref: `heads/${temporary}`});
+              const cmp = await github.rest.repos.compareCommitsWithBasehead({
+                owner, repo, basehead: `${ref.object.sha}...${context.sha}`
+              });
+              if (cmp.data.behind_by === 0) {
+                await github.rest.git.deleteRef({owner, repo, ref: `heads/${temporary}`});
+                core.info(`Excluida branch temporaria de arquivamento: ${temporary}`);
+              } else {
+                core.warning(`Branch temporaria ${temporary} recebeu commits novos; preservada.`);
+              }
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              core.info("Branch temporaria ja foi apagada automaticamente.");
+            }
