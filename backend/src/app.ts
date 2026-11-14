@@ -1,28 +1,51 @@
-import "dotenv/config";
-import cors from "cors";
+import "./utils/bigint";
 import express from "express";
+import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
-import { montarRotasApi } from "./routes/routes";
-import { ApiError, errorHandler, notFound } from "./middlewares/errors";
-
-const app = express();
+import { routes } from "./routes";
+import { errorHandler } from "./middlewares/errorHandler";
+import { env } from "./config/env";
+import { AppError } from "./utils/AppError";
+export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
-const origens = (process.env.CORS_ORIGINS ?? "http://localhost:5173").split(",").map((s) => s.trim()).filter(Boolean);
-app.use(cors({ credentials: true, origin(origin, callback) {
-  if (!origin || origens.includes(origin)) return callback(null, true);
-  callback(new ApiError(403, "Origem nao permitida."));
-}}));
-app.use(express.json({ limit: "64kb" }));
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: "draft-8", legacyHeaders: false }));
-app.get("/api/health", (_req, res) => res.json({ status: "ok", projeto: "LUME - GPS de Carreira" }));
-app.get("/api/ready", async (_req, res) => {
-  const { prisma } = await import("./config/prisma");
-  await prisma.$queryRaw`SELECT 1`;
-  res.json({ status: "ready", database: "ok" });
+const origens = env.CORS_ORIGINS.split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || origens.includes(origin)) callback(null, true);
+      else callback(new AppError("Origem não autorizada", 403));
+    },
+  }),
+);
+app.use(express.json({ limit: "256kb" }));
+if (env.NODE_ENV !== "test") {
+  app.use(
+    rateLimit({
+      windowMs: 60000,
+      limit: 300,
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+      message: { error: "Muitas requisições. Aguarde um minuto." },
+    }),
+  );
+  const limitarAuth = rateLimit({
+    windowMs: 15 * 60000,
+    limit: 30,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: { error: "Muitas tentativas. Aguarde 15 minutos." },
+  });
+  app.use(
+    ["/session", "/usuarios/recuperar-senha", "/usuarios/redefinir-senha"],
+    limitarAuth,
+  );
+}
+app.use(routes);
+app.use((_req, res) => {
+  res.status(404).json({ error: "Rota não encontrada" });
 });
-montarRotasApi(app);
-app.use(notFound);
 app.use(errorHandler);
-export default app;

@@ -1,15 +1,60 @@
 import "dotenv/config";
+import { z } from "zod";
 
-export function jwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret || Buffer.byteLength(secret, "utf8") < 32 || secret.includes("SUBSTITUA") || secret.includes("defina-uma-chave") || secret.includes("lume-local-secret")) {
-    throw new Error("JWT_SECRET precisa ser aleatorio e ter no minimo 32 bytes; configure backend/.env.");
-  }
-  return secret;
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+  DATABASE_URL: z.string().min(1, "Defina DATABASE_URL no .env"),
+  JWT_SECRET: z
+    .string()
+    .min(32, "JWT_SECRET deve ter pelo menos 32 caracteres"),
+  JWT_EXPIRES_IN: z
+    .string()
+    .regex(/^\d+[smhd]$/, "Exemplo: 15m")
+    .default("15m"),
+  REFRESH_DAYS: z.coerce.number().int().min(1).max(90).default(7),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3333),
+  HOST: z.string().default("0.0.0.0"),
+  CORS_ORIGINS: z
+    .string()
+    .default("http://localhost:5173,http://localhost:3000,http://localhost"),
+  EMAIL_MODE: z.enum(["console", "smtp"]).default("console"),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  EMAIL_FROM: z.string().default("LUME <nao-responda@lume.local>"),
+  FRONTEND_URL: z.string().url().default("http://localhost:5173"),
+  TERMS_VERSION: z.string().default("2026-10-09"),
+});
+const parsed = envSchema.safeParse(process.env);
+if (!parsed.success) {
+  throw new Error(
+    parsed.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("\n"),
+  );
 }
-
-export function port(): number {
-  const parsed = Number(process.env.PORT ?? "3333");
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 65535) throw new Error("PORT invalida");
-  return parsed;
+export const env = parsed.data;
+if (env.NODE_ENV === "production" && env.EMAIL_MODE !== "smtp") {
+  throw new Error(
+    "Em produção, configure EMAIL_MODE=smtp para recuperação de senha.",
+  );
+}
+if (env.EMAIL_MODE === "smtp") {
+  if (!env.SMTP_HOST) throw new Error("Configure SMTP_HOST.");
+  if (!env.SMTP_USER || !env.SMTP_PASSWORD)
+    throw new Error("Configure SMTP_USER e SMTP_PASSWORD.");
+  const placeholders = /SEU_ENDERECO|SUA_SENHA|seu-email|senha-de-app/i;
+  if (
+    placeholders.test(env.SMTP_USER) ||
+    placeholders.test(env.SMTP_PASSWORD) ||
+    placeholders.test(env.EMAIL_FROM) ||
+    env.EMAIL_FROM.includes("@lume.local")
+  ) {
+    throw new Error(
+      "Substitua os valores de exemplo em SMTP_USER, SMTP_PASSWORD e EMAIL_FROM no .env.",
+    );
+  }
 }

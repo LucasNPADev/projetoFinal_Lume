@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "LUME",
+    "slug": "lume",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "lume",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "br.com.lume.carreira",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "br.com.lume.carreira",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}

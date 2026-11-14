@@ -1,0 +1,185 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-08T17:30:00.000Z",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_lume_backend_substituto",
+      "parentId": null,
+      "name": "LUME | TCC | 7 APIs de negócio",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_lume_backend_substituto",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "Base Environment — preencher somente localmente",
+      "data": {
+        "base_url": "http://localhost:3333",
+        "token": "",
+        "admin_token": "",
+        "curso_id": "",
+        "instituicao_id": "",
+        "nome_estudante": "",
+        "email_estudante": "",
+        "senha_estudante": "",
+        "nome_instituicao": "",
+        "cnpj_instituicao": "",
+        "nome_curso": "",
+        "grau_academico": "",
+        "area_curso": "",
+        "carga_horaria": ""
+      },
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_lume_autenticacao",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "01 - Autenticação e usuários",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_cursos",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "02 - Cursos",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_lume_instituicoes",
+      "parentId": "wrk_lume_backend_substituto",
+      "name": "03 - Instituições",
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_lume_backend_02",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Cadastrar_usuário",
+      "method": "POST",
+      "url": "{{ _.base_url }}/usuarios",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome\":\"{{ _.nome_estudante }}\",\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_03",
+      "parentId": "fld_lume_autenticacao",
+      "name": "Autenticar_usuário",
+      "method": "POST",
+      "url": "{{ _.base_url }}/session",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"email\":\"{{ _.email_estudante }}\",\"senha\":\"{{ _.senha_estudante }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_04",
+      "parentId": "fld_lume_cursos",
+      "name": "Listar_cursos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cursos",
+      "_type": "request",
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_05",
+      "parentId": "fld_lume_cursos",
+      "name": "Buscar_curso_por_id",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cursos/{{ _.curso_id }}",
+      "_type": "request",
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_06",
+      "parentId": "fld_lume_cursos",
+      "name": "Cadastrar_curso",
+      "method": "POST",
+      "url": "{{ _.base_url }}/cursos",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome_curso\":\"{{ _.nome_curso }}\",\"grau_academico\":\"{{ _.grau_academico }}\",\"modalidade\":\"PRESENCIAL\",\"carga_horaria\":{{ _.carga_horaria }},\"area_curso\":\"{{ _.area_curso }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_07",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Cadastrar_instituicao",
+      "method": "POST",
+      "url": "{{ _.base_url }}/instituicoes",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"nome_instituicao\":\"{{ _.nome_instituicao }}\",\"cnpj\":\"{{ _.cnpj_instituicao }}\"}"
+      }
+    },
+    {
+      "_id": "req_lume_backend_08",
+      "parentId": "fld_lume_instituicoes",
+      "name": "Curso_instituicao",
+      "method": "POST",
+      "url": "{{ _.base_url }}/instituicoes/{{ _.instituicao_id }}/cursos",
+      "_type": "request",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"id_curso\":\"{{ _.curso_id }}\"}"
+      }
+    }
+  ]
+}
