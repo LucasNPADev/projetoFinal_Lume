@@ -1,21 +1,79 @@
-import { z } from 'zod';
+import { z } from "zod";
+import {
+  emailSchema,
+  senhaSchema,
+  enderecoShape,
+  validarCoordenadas,
+  exigirAlteracao,
+} from "./comum";
 
-export const cadastroSchema = z.object({
-  nome: z.string().trim().min(2, 'Nome muito curto').max(150),
-  email: z.string().trim().toLowerCase().email('E-mail inválido').max(255),
-  senha: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres').max(72),
-  rua: z.string().trim().max(200).optional(),
-  cidade: z.string().trim().max(100).optional(),
-  estado: z.string().trim().length(2, 'Use a sigla do estado (ex: SP)').toUpperCase().optional(),
-  bairro: z.string().trim().max(100).optional(),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
-});
-
-export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email('E-mail inválido'),
-  senha: z.string().min(1, 'Senha obrigatória'),
-});
-
+const localizacaoShape = {
+  ...enderecoShape,
+  origem_localizacao: z.enum(["MANUAL", "GPS"]).optional(),
+  consentimento_gps: z.boolean().optional(),
+};
+function localizacao(v: z.infer<typeof localizacaoBase>, ctx: z.RefinementCtx) {
+  validarCoordenadas(v, ctx);
+  if (v.origem_localizacao === "GPS" && v.consentimento_gps !== true)
+    ctx.addIssue({
+      code: "custom",
+      path: ["consentimento_gps"],
+      message: "GPS exige autorização explícita",
+    });
+  if (
+    v.origem_localizacao === "GPS" &&
+    (v.latitude == null || v.longitude == null)
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["latitude"],
+      message: "Envie as coordenadas autorizadas",
+    });
+}
+const localizacaoBase = z.object(localizacaoShape).strict();
+export const localizacaoSchema = localizacaoBase
+  .superRefine(exigirAlteracao)
+  .superRefine(localizacao);
+export const cadastroSchema = z
+  .object({
+    nome: z.string().trim().min(2).max(150),
+    email: emailSchema,
+    senha: senhaSchema,
+    aceitou_termos: z.literal(true, {
+      errorMap: () => ({ message: "É necessário aceitar os termos" }),
+    }),
+    ...localizacaoShape,
+  })
+  .strict()
+  .superRefine(localizacao);
+export const loginSchema = z
+  .object({ email: emailSchema, senha: z.string().min(1).max(256) })
+  .strict();
+export const editarPerfilSchema = z
+  .object({
+    nome: z.string().trim().min(2).max(150).optional(),
+    email: emailSchema.optional(),
+  })
+  .strict()
+  .superRefine(exigirAlteracao);
+export const alterarSenhaSchema = z
+  .object({ senha_atual: z.string().min(1).max(256), nova_senha: senhaSchema })
+  .strict();
+export const excluirContaSchema = z
+  .object({
+    senha: z.string().min(1).max(256),
+    confirmacao: z.literal("EXCLUIR"),
+  })
+  .strict();
+export const recuperacaoSchema = z.object({ email: emailSchema }).strict();
+export const redefinirSchema = z
+  .object({
+    token: z.string().regex(/^[a-f0-9]{64}$/),
+    nova_senha: senhaSchema,
+  })
+  .strict();
+export const refreshSchema = z
+  .object({ refresh_token: z.string().regex(/^[a-f0-9]{64}$/) })
+  .strict();
 export type CadastroInput = z.infer<typeof cadastroSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

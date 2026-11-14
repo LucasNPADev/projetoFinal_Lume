@@ -1,7 +1,8 @@
-// Os IDs do banco são BIGINT (BigInt no JS), e JSON.stringify não sabe serializar BigInt.
-// Este patch faz todo BigInt virar string nas respostas da API.
-(BigInt.prototype as any).toJSON = function () {
-  return this.toString();
-};
-
+// IDs BIGINT são serializados como string para preservar precisão no front-end.
+Object.defineProperty(BigInt.prototype, "toJSON", {
+  value: function (this: bigint) {
+    return this.toString();
+  },
+  configurable: true,
+});
 export {};

@@ -1,3 +1,44 @@
+# LUME — GPS de Carreira
+
+Aplicação do TCC SENAI com interfaces Web (React + Vite + TypeScript) e Mobile (Expo + React Native), API Express/TypeScript, Prisma ORM e PostgreSQL.
+
+> **Integração seletiva em revisão (14/11/2026):** esta branch integra as funcionalidades de `bugfix/atualizacao-lume` e os testes de `feature/finalizacao-testes-lume` sobre a base `dev`. Nenhum deploy ou migração sobre um banco real foi realizado. A migração em produção exige backup e validação manual.
+
+## Estrutura e desenvolvimento
+
+| Pasta | Finalidade |
+|---|---|
+| `backend/` | API, autenticação, persistência Prisma, migrações e Jest/Supertest |
+| `frontend/` | Web React/Vite, telas do estudante/admin e Vitest |
+| `mobile/` | Aplicativo React Native/Expo com consumo da API |
+| `insomnia/` | Coleção histórica de sete APIs e testes de contrato mantidos da `dev` |
+| `docs/` | Governança e documentação do projeto preservadas |
+| `.github/workflows/` | Verificações de GitFlow, backend e frontend/mobile |
+
+### Executar localmente
+
+1. Em `backend/`, configure `.env` com um PostgreSQL de teste, `DATABASE_URL` e `JWT_SECRET` seguro; execute `npm ci`, `npm run prisma:generate`, `npm run prisma:deploy` e `npm run dev` (porta 3333).
+2. Em `frontend/`, configure `VITE_API_URL=http://localhost:3333`, execute `npm ci` e `npm run dev` (porta 3000).
+3. Em `mobile/`, configure `EXPO_PUBLIC_API_URL` conforme o emulador ou IP local, execute `npm ci` e `npm start`.
+
+**Nunca execute migrações sobre dados importantes antes de realizar backup e testar a atualização em uma cópia.** A migração inicial da `dev` (`20261008190000_backend_substituido`) foi preservada; o incremento do modelo completo foi incluído como `20261114170000_lume_completo`. Quem já criou banco com o histórico alternativo `0_base` precisa de reconciliação manual — não execute `migrate deploy` indiscriminadamente.
+
+### Testes
+
+- Backend: `cd backend && npm test`; compilação: `npm run typecheck && npm run build`.
+- Frontend: `cd frontend && npm run build && npm test`.
+- Contrato legado Insomnia: `cd backend && npm run insomnia:validate` (valida a coleção histórica de sete operações, não toda a API ampliada).
+- Mobile: `cd mobile && npx tsc --noEmit`.
+
+A presença dos testes CT001–CT013 **não garante aprovação**; confira os resultados da CI no pull request. Veja [auditoria e riscos](docs/INTEGRACAO_SELETIVA_DEV_20261114.md).
+
+---
+
+## Registro histórico da branch dev antes da integração
+
+O texto a seguir foi preservado como referência histórica, incluindo descrições e limitações da implementação anterior, e não deve ser interpretado como contrato atualizado.
+
+---
 <div align="center">
 
 # ✨ LUME
